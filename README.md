@@ -17,10 +17,10 @@ Summary RFC 9112 - [HTTP/1.1](https://www.bortzmeyer.org/9112.html)
     * [ ] Chapitre 6.
     * [ ] Chapitre 9.
   * RFC7231 :
-  * [ ] Chapitre 4 (surtout 4.3.1, 4.3.2, 4.3.3)
-  * [ ] Chapitre 5 (surtout 5.3)
-  * [ ] Chapitre 6 (surtout 6.1, 6.3, 6.5, 6.6)
-  * [ ] Chapitre 9
+   * [ ] Chapitre 4 (surtout 4.3.1, 4.3.2, 4.3.3)
+   * [ ] Chapitre 5 (surtout 5.3)
+   * [ ] Chapitre 6 (surtout 6.1, 6.3, 6.5, 6.6)
+   * [ ] Chapitre 9
 
 ## Release 2 : Prise en compte des requêtes pour servir des fichiers locaux
 
