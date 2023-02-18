@@ -2,7 +2,8 @@
 
 # Ressources
 
-[RFC 9110](https://www.rfc-editor.org/rfc/rfc9110.html) (HTTP Semantics) - [Summary](https://www.bortzmeyer.org/9110.html)
+[RFC 9110](https://www.rfc-editor.org/rfc/rfc9110) (HTTP Semantics) - [Summary](https://www.bortzmeyer.org/9110.html)
+
 [RFC 9112](https://www.rfc-editor.org/rfc/rfc9112) (HTTP/1.1) - [Summary](https://www.bortzmeyer.org/9112.html)
 
 # Releases
