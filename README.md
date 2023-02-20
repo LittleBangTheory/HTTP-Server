@@ -1,26 +1,20 @@
 # Projet-HTTP
 
-# Ressources
-
-[RFC 9110](https://www.rfc-editor.org/rfc/rfc9110) (HTTP Semantics) - [Summary](https://www.bortzmeyer.org/9110.html)
-
-[RFC 9112](https://www.rfc-editor.org/rfc/rfc9112) (HTTP/1.1) - [Summary](https://www.bortzmeyer.org/9112.html)
-
 # Releases
 
 ## Release 1 : Compréhension documentation RFC. Notamment :
-  * RFC7230:
-    * [ ] Chapitre 1.
-    * [ ] Chapitre 2 (sauf 2.3 et 2.4)
-    * [ ] Chapitre 3.
-    * [ ] Chapitre 5.
-    * [ ] Chapitre 6.
-    * [ ] Chapitre 9.
-  * RFC7231 :
-    * [ ] Chapitre 4 (surtout 4.3.1, 4.3.2, 4.3.3)
-    * [ ] Chapitre 5 (surtout 5.3)
-    * [ ] Chapitre 6 (surtout 6.1, 6.3, 6.5, 6.6)
-    * [ ] Chapitre 9
+  * [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110) (HTTP Semantics) - [Summary](https://www.bortzmeyer.org/9110.html) :
+    * [ ] Chapitre 1 - Introduction.
+    * [ ] Chapitre 3 - Terminology and Core Concepts.
+    * [ ] Chapitre 6 - Message Abstraction.
+    * [ ] Chapitre 7 - Routing HTTP Messages.
+    * [ ] Chapitre 9 - Methods.
+    * [ ] Chapitre 17 - Security Considerations.
+  * [RFC 9112](https://www.rfc-editor.org/rfc/rfc9112) (HTTP/1.1) - [Summary](https://www.bortzmeyer.org/9112.html) :
+    * [ ] Chapitre 2 - Message
+    * [ ] Chapitre 3 - Request Line
+    * [ ] Chapitre 6 - Message Body
+    * [ ] Chapitre 11 - Security Considerations
 
 ## Release 2 : Prise en compte des requêtes pour servir des fichiers locaux
 
