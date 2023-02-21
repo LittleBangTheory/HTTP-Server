@@ -9,6 +9,7 @@
     * [ ] Chapitre 6 - Message Abstraction.
     * [ ] Chapitre 7 - Routing HTTP Messages.
     * [ ] Chapitre 9 - Methods.
+    * [ ] Chapitre 15 - Status Codes
     * [ ] Chapitre 17 - Security Considerations.
   * [RFC 9112](https://www.rfc-editor.org/rfc/rfc9112) (HTTP/1.1) - [Summary](https://www.bortzmeyer.org/9112.html) :
     * [ ] Chapitre 2 - Message
