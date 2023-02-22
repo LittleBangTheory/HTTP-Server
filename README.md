@@ -2,7 +2,7 @@
 
 # Releases
 
-## Release 1 : Compréhension documentation RFC. Notamment :
+## Documentation RFC :
   * [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110) (HTTP Semantics) - [Summary](https://www.bortzmeyer.org/9110.html) :
     * [ ] Chapitre 1 - Introduction.
     * [ ] Chapitre 3 - Terminology and Core Concepts.
