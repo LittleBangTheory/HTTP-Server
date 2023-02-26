@@ -27,11 +27,7 @@ graph TD;
     15-->27(/digit.digit)
     26-->28(%x48.54.54.50)
 
-    3-->30(Connection-header)
-    3-->31(Content-Length-header)
-    3-->32(Content-Type-header)
-    3-->33(Cookie-header)
-    3-->34(Transfer-Encoding-header)
-    3-->35(Expect-header)
-    3-->36(Host-header)field-name ":" OWS field-value OWS ) 
+    3-->30(field-name)
+    3-->31(:)
+    3-->32(field-value) 
 :::
