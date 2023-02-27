@@ -19,16 +19,32 @@
     * [ ] Chapitre 6 - Message Body
     * [ ] Chapitre 11 - Security Considerations
 
-## Release 2 : Prise en compte des requêtes pour servir des fichiers locaux
+## Release 2 : Réalisation du parseur HTTP selon la grammaire Chamilo
 
-### Sprints 1, 2, 3 :
- * [ ] Réception des requêtes, vérification syntaxique et sémantique
- * [ ] Gestion des entêtes HTTP
- * [ ] Normalisation de l'URL
- * [ ] Gestion de l'accès aux fichiers et type mime (basé sur l'extension) et le charset par défaut, gestion multi-sites
- * [ ] Optionnel : Gestion des encodages : Chunked / Deflate / gzip
+### Sprint 1 - 07/03/2023 : Réaliser un parseur pour la *grammairesimple* indiquée sur chamilo.
+* Analyser les fichiers de tests fournis.
+* Objectif -> Valider sur un PoC la capacité à réaliser un parseur plus évolué.
+* Matériel : un répertoire *simplegrammar* 
+	* Grammaire abnf simple 
+	* Fichiers de test (syntaxe valide) 
+	* Un parseur de cette grammaire qui peut analyser les fichiers de tests et servir de référence 
 
 
+### Sprint 2 - 31/03/2023 : Réaliser le parseur des éléments de la grammaire HTTP
+* Objectifs
+  * [ ] Réception des requêtes, vérification syntaxique et sémantique
+  * [ ] Gestion des entêtes HTTP
+  * [ ] Normalisation de l'URL
+  * [ ] Gestion de l'accès aux fichiers et type mime (basé sur l'extension) et le charset par défaut, gestion multi-sites
+  * [ ] Optionnel : Gestion des encodages : Chunked / Deflate / gzip
+* Matériel : 
+  * Répertoire *arbres* qui formalise de manière visuelle l'arbre issu du parseur. 
+  * Parseur http qui peut servir de référence 
+  * Jeu de test simple *premier-jeu-test.tar.gz* qui contient des messages HTTP (certains sont valides, et d'autres non, je vous laisse en exercice le soin de trouver pourquoi)
+  Fichier *api.h*  et *main.c* pour l'interface et son usage. 
+  * Jeu de test hardcore pour vérifier votre parseur 
+
+## Release 3 : Interfaces
 ### Sprint 4 :
   * [ ] Gestion de l'interface fastCGI
   * [ ] Gestion des réceptions fastCGI/émission HTTP
