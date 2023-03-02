@@ -1,8 +1,14 @@
-typedef struct abnf{
+typedef struct abnf node;
+struct abnf {
+   char *label;
    char *s;
-   int taille;
+   unsigned int taille;
    node *pere;
    node *fils;
    node *frere_g;
    node *frere_d;
-}node;
+};
+
+void start(int**, node*);
+void mot(int**, node*);
+void separateur(int**, node*);
