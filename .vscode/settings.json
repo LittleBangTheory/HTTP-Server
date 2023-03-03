@@ -3,6 +3,7 @@
         "stdio.h": "c",
         "stdlib.h": "c",
         "string.h": "c",
-        "abnf.h": "c"
+        "abnf.h": "c",
+        "utility.h": "c"
     }
 }

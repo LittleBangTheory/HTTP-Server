@@ -22,7 +22,7 @@ void debut(char **current_char, node *struct_current){
     if (**current_char == 's' && *(current_char[0] + 1) == 't' && *(current_char[0] + 2) == 'a' && *(current_char[0] + 3) == 'r' && *(current_char[0] + 4) == 't'){
         // Init the struct (ptr, int...)
         struct_current->s = *current_char;
-        strcpy(struct_current->label,"start");
+        strcpy(struct_current->label,"debut");
         struct_current->taille = 5;
         struct_current->pere = NULL;
         struct_current->fils = NULL;
@@ -48,7 +48,7 @@ void fin(char **current_char, node *struct_current){
     // Check if the current char is 's' and the next 4 chars are 't', 'a', 'r', 't'
     if (**current_char == 'f' && **(current_char + 1) == 'i' && **(current_char + 2) == 'n'){
         // Init the struct (ptr, int...)
-        struct_current->s = current_char;
+        struct_current->s = *current_char;
         struct_current->taille = 3;
         struct_current->pere = NULL;
         struct_current->fils = NULL;
@@ -68,7 +68,7 @@ void fin(char **current_char, node *struct_current){
 */
 void mot(char **current_char, node *struct_current){
     strcpy(struct_current->label, "mot");
-    struct_current->s = current_char;
+    struct_current->s = *current_char;
     struct_current->taille = 0;
     while(isalpha(**current_char)){
         *current_char += 1;
@@ -93,7 +93,7 @@ void mot(char **current_char, node *struct_current){
 */
 void nombre(char **current_char, node *struct_current){
     strcpy(struct_current->label, "nombre");
-    struct_current->s = current_char;
+    struct_current->s = *current_char;
     struct_current->taille = 0;
     while(isdigit(**current_char)){
         *current_char += 1;
@@ -119,7 +119,7 @@ void separateur(char **current_char, node *struct_current){
         struct_current->fils = NULL;
         struct_current->frere_g = NULL;
         struct_current->frere_d = NULL;
-        struct_current->s = current_char;
+        struct_current->s = *current_char;
         struct_current->taille = 1;
         *current_char += 1;
     } else {
@@ -139,7 +139,7 @@ void ponct(char **current_char, node *struct_current){
         strcpy(struct_current->label, "ponct");
         struct_current->fils = NULL;
         struct_current->frere_d = NULL;
-        struct_current->s = current_char;
+        struct_current->s = *current_char;
         struct_current->taille = 1;
         *current_char += 1;
     } else {

@@ -6,11 +6,8 @@
 //#include "../headers/abnf.h"
 
 
-void print_request(node *struct_current, char** first_char, int length){
-    printf("message: ");
-    for (int i = 0; i < length; i++) {
-        printf("%s",*(first_char + i));
-    }
+void print_request(node *struct_current, char* first_char, int length){
+    printf("message: %s\n",first_char);
     // call the print_tree function with and indent of 1
     print_tree(struct_current, 1);
 }
@@ -32,26 +29,27 @@ void print_tree(node *struct_current, int depth){
         printf("%c",*(struct_current->s + i));
     }
     printf("\n");
-    
-    for (int i = 0; i < struct_current->taille; i++) {
-        // indent further
-        for (int j = 0; j < depth+1; j++)
-        {
-            printf("\t");
-        }
-        if (isalpha(*(struct_current->s + i))) {
-            printf("__alpha: %c\n",*(struct_current->s + i));
-        } else if (isdigit(*(struct_current->s + i))) {
-            printf("__digit: %c\n",*(struct_current->s + i));
-        } else if (strcmp(struct_current->label,"separateur") || strcmp(struct_current->label,"ponct")) {
-            if (struct_current->fils == NULL) {
-                printf("__icar: %c\n",*(struct_current->s + i));
-            } else if (strcmp((struct_current->fils)->label, struct_current->label)) {
-                print_tree(struct_current->fils, depth+1);
-            } 
-        } else {
-            //failure
-            exit(EXIT_FAILURE);
+    if (strcmp(struct_current->label,"debut") != 0 && strcmp(struct_current->label,"fin") != 0) {
+        for (int i = 0; i < struct_current->taille; i++) {
+            // indent further
+            for (int j = 0; j < depth+1; j++)
+            {
+                printf("\t");
+            }
+            if (isalpha(*(struct_current->s + i))) {
+                printf("__alpha: %c\n",*(struct_current->s + i));
+            } else if (isdigit(*(struct_current->s + i))) {
+                printf("__digit: %c\n",*(struct_current->s + i));
+            } else if (strcmp(struct_current->label,"separateur") || strcmp(struct_current->label,"ponct")) {
+                if (struct_current->fils == NULL) {
+                    printf("__icar: %c\n",*(struct_current->s + i));
+                } else if (strcmp((struct_current->fils)->label, struct_current->label)) {
+                    print_tree(struct_current->fils, depth+1);
+                } 
+            } else {
+                //failure
+                exit(EXIT_FAILURE);
+            }
         }
     }
 

@@ -44,10 +44,9 @@ int main(int argc, char const *argv[])
     if(requete[taille-1]!='\n'){printf("Requete invalide ! (LF)\n");fclose(fic);return 0;} /*Pas de LF -> sortie du programme*/
     printf("___LF valide___\n");
     node *master_node=malloc(sizeof(node));
-    char **adr=&requete;
-    char **adr2=&requete;
+    char *adr=&requete[0];
     debut(&adr,master_node);
-    print_request(master_node,&adr2,taille);
+    print_request(master_node,requete,taille);
 
     /*Fin du programme*/
     fclose(fic);
