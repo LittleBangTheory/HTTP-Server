@@ -80,6 +80,7 @@ void mot(int **current_char, node *struct_current){
     struct_current->fils = new_struct;
     *struct_current = *new_struct;
     separateur(current_char, struct_current);
+    struct_current = struct_current->pere;
 }
 
 /** \fn void nombre(int **current_char, node *struct_current)
@@ -129,6 +130,7 @@ void separateur(int **current_char, node *struct_current){
  *  \param current_char Pointer of pointer to the current char of the request
  *  \param struct_current Pointer to the current struct of the chained list. This parameter is initialized to NULL but allocated before the call of this function
 */
+
 void ponct(int **current_char, node *struct_current){
     if (**current_char == '%x2C' || **current_char == '%x2F' || **current_char == '%x2E' || **current_char == '%x21' || **current_char == '%x3F' || **current_char == '%x3A'){
         strcpy(struct_current->label, "ponct");

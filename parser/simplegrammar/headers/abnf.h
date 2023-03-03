@@ -9,6 +9,9 @@ struct abnf {
    node *frere_d;
 };
 
-void start(int**, node*);
+void debut(int**, node*);
+void fin(int**, node*);
 void mot(int**, node*);
+void nombre(int**, node*);
 void separateur(int**, node*);
+void ponct(int**, node*);
