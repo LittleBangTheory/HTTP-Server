@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #include "../headers/utility.h"
-#include "../headers/abnf.h"
+//#include "../headers/abnf.h"
 
 
 void print_request(node *struct_current, char** first_char, int length){
@@ -30,6 +31,7 @@ void print_tree(node *struct_current, int depth){
     for (int i = 0; i < struct_current->taille; i++) {
         printf("%c",*(struct_current->s + i));
     }
+    printf("\n");
     
     for (int i = 0; i < struct_current->taille; i++) {
         // indent further
@@ -38,16 +40,21 @@ void print_tree(node *struct_current, int depth){
             printf("\t");
         }
         if (isalpha(*(struct_current->s + i))) {
-            printf("__alpha: %c",*(struct_current->s + i));
+            printf("__alpha: %c\n",*(struct_current->s + i));
         } else if (isdigit(*(struct_current->s + i))) {
-            printf("__digit: %c",*(struct_current->s + i));
+            printf("__digit: %c\n",*(struct_current->s + i));
         } else if (strcmp(struct_current->label,"separateur") || strcmp(struct_current->label,"ponct")) {
-            if (struct_current->fils == NULL) {}
-                printf("__icar: %c",*(struct_current->s + i));
+            if (struct_current->fils == NULL) {
+                printf("__icar: %c\n",*(struct_current->s + i));
             } else if (strcmp((struct_current->fils)->label, struct_current->label)) {
                 print_tree(struct_current->fils, depth+1);
             } 
+        } else {
+            //failure
+            exit(EXIT_FAILURE);
         }
+    }
+
     if (struct_current->frere_d != NULL) {
         print_tree(struct_current->frere_d, depth);
     }

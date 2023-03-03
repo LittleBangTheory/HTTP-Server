@@ -1,8 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "../headers/abnf.h"
 #include "../headers/utility.h"
+
+/*#ifndef ABNF_H
+    #define ABNF_H
+    #include "../headers/abnf.h"
+#endif*/
 
 int main(int argc, char const *argv[])
 {
@@ -34,9 +38,17 @@ int main(int argc, char const *argv[])
         requete[i]=c;
         printf("requete[%d]=%c <-> %x\n",i,requete[i],requete[i]);
     }
-    printf("requete[%d]=%c <-> %x\n",taille,requete[taille],requete[taille]);
-    printf("Requete : %s\n",requete);
-    
+    printf("requete[%d]=%c <-> %x\n",taille,requete[taille],requete[taille]); /*Verification*/
+
+    /*ANALYSE REQUETE*/
+    if(requete[taille-1]!='\n'){printf("Requete invalide ! (LF)\n");fclose(fic);return 0;} /*Pas de LF -> sortie du programme*/
+    printf("___LF valide___\n");
+    node *master_node=malloc(sizeof(node));
+    char **adr=&requete;
+    char **adr2=&requete;
+    debut(&adr,master_node);
+    print_request(master_node,&adr2,taille);
+
     /*Fin du programme*/
     fclose(fic);
     return 0;

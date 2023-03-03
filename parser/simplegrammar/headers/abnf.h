@@ -1,6 +1,6 @@
 typedef struct abnf node;
 struct abnf {
-   char *label;
+   char label[11];
    char *s;
    unsigned int taille;
    node *pere;

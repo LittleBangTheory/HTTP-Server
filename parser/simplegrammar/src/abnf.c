@@ -18,9 +18,11 @@
 */
 void debut(char **current_char, node *struct_current){
     // Check if the current char is 's' and the next 4 chars are 't', 'a', 'r', 't'
-    if (**current_char == 's' && **(current_char + 1) == 't' && **(current_char + 2) == 'a' && **(current_char + 3) == 'r' && **(current_char + 4) == 't'){
+    // printf("CC=%c\n",*(current_char[0]+0));
+    if (**current_char == 's' && *(current_char[0] + 1) == 't' && *(current_char[0] + 2) == 'a' && *(current_char[0] + 3) == 'r' && *(current_char[0] + 4) == 't'){
         // Init the struct (ptr, int...)
-        struct_current->s = current_char;
+        struct_current->s = *current_char;
+        strcpy(struct_current->label,"start");
         struct_current->taille = 5;
         struct_current->pere = NULL;
         struct_current->fils = NULL;
@@ -28,8 +30,10 @@ void debut(char **current_char, node *struct_current){
         struct_current->frere_d = NULL;
         // Move the current char pointer 5 chars forward
         *current_char += 5;
+        printf("___Start valide___\n");
     } else {
         // Error
+        printf("Requete invalide !(start)\n");
         exit(EXIT_FAILURE);
     }
 }
