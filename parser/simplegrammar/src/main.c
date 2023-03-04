@@ -36,9 +36,10 @@ int main(int argc, char const *argv[])
     {
         c=fgetc(fic);
         requete[i]=c;
-        printf("requete[%d]=%c <-> %x\n",i,requete[i],requete[i]);
+        //printf("requete[%d]=%c <-> %x\n",i,requete[i],requete[i]);
     }
-    printf("requete[%d]=%c <-> %x\n",taille,requete[taille],requete[taille]); /*Verification*/
+    //printf("requete[%d]=%c <-> %x\n",taille,requete[taille],requete[taille]); /*Verification*/
+    printf("Requete : %s\n_________________________________________________\n\n",requete);
 
     /*ANALYSE REQUETE*/
     /*Check si la requete se termine par un LF*/
