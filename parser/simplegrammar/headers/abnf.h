@@ -3,10 +3,8 @@ struct abnf {
    char label[11];
    char *s;
    unsigned int taille;
-   node *pere;
    node *fils;
-   node *frere_g;
-   node *frere_d;
+   node *frere;
 };
 
 void debut(char**, node*);
