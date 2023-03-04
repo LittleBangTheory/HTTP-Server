@@ -23,6 +23,12 @@ void print_node(node *nodes){
     return;
 }
 
+int isponct(char c){
+    if (c==','||c=='.'||c=='!'||c=='?'||c==':') return 1;
+    else return 0;
+}
+//ponct = "," / "." / "!" / "?" / ":"
+
 int main(int argc, char const *argv[])
 {
     /*Un fichier doit etre fourni en paramètre*/
@@ -90,7 +96,11 @@ int main(int argc, char const *argv[])
             next->frere=next2;
             separateur(&adr,next2);
             }
-        else {printf("Problème de lecture\n");fclose(fic);return 1;}
+
+        else if(isponct(*adr)){
+            ponct(&adr,next2);
+        }
+        else {printf("Problème de lecture : '%c'\n",*adr);fclose(fic);return 1;}
         next=next2;
     }
 
