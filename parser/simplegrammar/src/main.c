@@ -49,11 +49,23 @@ int main(int argc, char const *argv[])
     node *master_node=malloc(sizeof(node));
     char *adr=&requete[0];
 
-    /*Check si le requete commence par start*/
+    /*Check si la requete commence par start*/
     debut(&adr,master_node);
-    print_request(master_node,requete,taille);
+    //print_request(master_node,requete,taille);
+
+    node *next=malloc(sizeof(node));
+    master_node->frere=next;
+    mot(&adr,next);
+    print_tree(master_node,1);
 
     /*Fin du programme*/
     fclose(fic);
     return 0;
 }
+
+/*DEBBUGING NOTES :
+(gdb) p *adr
+$1 = 86 'V'
+(gdb) p adr
+$2 = 0x7fffffffdca5 "VKiMupi-.4 LCTKq-.fin\n"
+*/
