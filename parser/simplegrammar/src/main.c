@@ -70,14 +70,19 @@ int main(int argc, char const *argv[])
     //print_request(master_node,requete,taille);
 
     node *next=malloc(sizeof(node));
-    master_node->fils=next;
+    master_node->frere=next;
     mot(&adr,next);
+    node *next2=malloc(sizeof(node));
+    next->frere=next2;
+    nombre(&adr,next2);
     //print_tree(master_node,1);
 
     //printf("PRINT NODE BELOW\n");
     //print_node(master_node);
     print_tree(master_node,1);
     /*Fin du programme*/
+    printf("\033[1;32m");
+    printf("Exited normally\n");
     fclose(fic);
     return 0;
 }

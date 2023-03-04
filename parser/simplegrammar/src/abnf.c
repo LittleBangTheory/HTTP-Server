@@ -243,6 +243,7 @@ void digit(char **current_char, node *struct_current){
         *current_char += 1;
     } else {
         // Error
+        return;
         exit(EXIT_FAILURE);
     }
 }
