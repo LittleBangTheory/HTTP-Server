@@ -98,7 +98,7 @@ void mot(char **current_char, node *struct_current){
     // Allocate and init the struct that contains the separator
     struct_current->taille += 1;
     node* new_struct = malloc(sizeof(node));
-    struct_current->fils = new_struct;
+    new_struct_1->frere = new_struct;
     separateur(current_char, new_struct);
 }
 
