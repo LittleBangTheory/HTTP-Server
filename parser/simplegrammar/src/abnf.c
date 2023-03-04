@@ -96,6 +96,7 @@ void mot(char **current_char, node *struct_current){
         boolean=isalpha(**current_char);
     }
     // Allocate and init the struct that contains the separator
+    struct_current->taille += 1;
     node* new_struct = malloc(sizeof(node));
     struct_current->fils = new_struct;
     separateur(current_char, new_struct);
@@ -145,7 +146,7 @@ void separateur(char **current_char, node *struct_current){
 
         node *new_struct = malloc(sizeof(node));
         struct_current->fils = new_struct;
-        icar(current_char, struct_current);
+        icar(current_char, new_struct);
     } else {
         // Error
         exit(EXIT_FAILURE);
@@ -168,7 +169,7 @@ void ponct(char **current_char, node *struct_current){
         
         node *new_struct = malloc(sizeof(node));
         struct_current->fils = new_struct;
-        icar(current_char, struct_current);
+        icar(current_char, new_struct);
     } else {
         // Error
         exit(EXIT_FAILURE);

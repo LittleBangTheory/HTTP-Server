@@ -69,33 +69,31 @@ int main(int argc, char const *argv[])
     debut(&adr,master_node);
     //print_request(master_node,requete,taille);
 
-    node *next=malloc(sizeof(node));
-    master_node->frere=next;
+    node *next=master_node;
+    node *next2;
+    int jk=1;
 
-    mot(&adr,next);
+    while(*(adr+3)!='\n'){
+        next2=malloc(sizeof(node));
+        next->frere=next2;
+        if(isalpha(*adr)) {
+            mot(&adr,next2);
+            next=next2;
+            next2=malloc(sizeof(node));
+            next->frere=next2;
+            ponct(&adr,next2);
+            }
+        else if(isdigit(*adr)) {
+            nombre(&adr,next2);
+            next=next2;
+            next2=malloc(sizeof(node));
+            next->frere=next2;
+            separateur(&adr,next2);
+            }
+        else {printf("Problème de lecture\n");fclose(fic);return 1;}
+        next=next2;
+    }
 
-    node *next2=malloc(sizeof(node));
-    next->frere=next2;
-
-    ponct(&adr,next2);
-
-    next=malloc(sizeof(node));
-    next2->frere=next;
-    nombre(&adr,next);
-
-    next2=malloc(sizeof(node));
-    next->frere=next2;
-    separateur(&adr,next2);
-    next=malloc(sizeof(node));
-    next2->frere=next;
-    mot(&adr,next);
-
-    next2=malloc(sizeof(node));
-    next->frere=next2;
-    ponct(&adr,next2);
-
-    next=malloc(sizeof(node));
-    next2->frere=next;
     fin(&adr,next);
     //print_tree(master_node,1);
 
