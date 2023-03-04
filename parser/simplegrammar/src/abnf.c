@@ -213,7 +213,7 @@ void istring(char **current_char, node *struct_current, int taille){
  *  \param struct_current Pointer to the current struct of the chained list.
 */
 void icar(char **current_char, node *struct_current){
-    if (**current_char == 0x27){
+    if (**current_char == 0x2D){
         strcpy(struct_current->label, "__icar");
         struct_current->fils = NULL;
         struct_current->frere = NULL;
