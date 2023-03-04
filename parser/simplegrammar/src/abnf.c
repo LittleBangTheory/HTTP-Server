@@ -46,12 +46,13 @@ void debut(char **current_char, node *struct_current){
 */
 void fin(char **current_char, node *struct_current){
     // Check if the current char is 's' and the next 4 chars are 't', 'a', 'r', 't'
-    if (**current_char == 'f' && **(current_char + 1) == 'i' && **(current_char + 2) == 'n'){
+    if (**current_char == 'f' && *(current_char[0] + 1) == 'i' && *(current_char[0] + 2) == 'n'){
         // Init the struct (ptr, int...)
         struct_current->s = *current_char;
         struct_current->taille = 3;
         struct_current->fils = NULL;
         struct_current->frere = NULL;
+        strcpy(struct_current->label,"fin");
 
         node *new_struct = malloc(sizeof(node));
         struct_current->fils = new_struct;
@@ -73,7 +74,7 @@ void mot(char **current_char, node *struct_current){
     int boolean=1;
     strcpy(struct_current->label, "mot");
     struct_current->s = *current_char;
-    struct_current->taille = 0;
+    struct_current->taille = 1;
 
     node *new_struct_1 = malloc(sizeof(node));
     struct_current->fils = new_struct_1;
@@ -108,7 +109,7 @@ void mot(char **current_char, node *struct_current){
 void nombre(char **current_char, node *struct_current){
     strcpy(struct_current->label, "nombre");
     struct_current->s = *current_char;
-    struct_current->taille = 0;
+    struct_current->taille = 1;
 
     node *new_struct_1 = malloc(sizeof(node));
     struct_current->fils = new_struct_1;
@@ -215,7 +216,7 @@ void istring(char **current_char, node *struct_current, int taille){
  *  \param struct_current Pointer to the current struct of the chained list.
 */
 void icar(char **current_char, node *struct_current){
-    if (**current_char == 0x2D){
+    if (**current_char == 0x2D||**current_char == 0x2E||**current_char == 0x20){
         strcpy(struct_current->label, "__icar");
         struct_current->fils = NULL;
         struct_current->frere = NULL;

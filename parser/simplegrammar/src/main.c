@@ -71,10 +71,32 @@ int main(int argc, char const *argv[])
 
     node *next=malloc(sizeof(node));
     master_node->frere=next;
+
     mot(&adr,next);
+
     node *next2=malloc(sizeof(node));
     next->frere=next2;
-    nombre(&adr,next2);
+
+    ponct(&adr,next2);
+
+    next=malloc(sizeof(node));
+    next2->frere=next;
+    nombre(&adr,next);
+
+    next2=malloc(sizeof(node));
+    next->frere=next2;
+    separateur(&adr,next2);
+    next=malloc(sizeof(node));
+    next2->frere=next;
+    mot(&adr,next);
+
+    next2=malloc(sizeof(node));
+    next->frere=next2;
+    ponct(&adr,next2);
+
+    next=malloc(sizeof(node));
+    next2->frere=next;
+    fin(&adr,next);
     //print_tree(master_node,1);
 
     //printf("PRINT NODE BELOW\n");
