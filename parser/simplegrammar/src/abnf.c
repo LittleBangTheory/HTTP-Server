@@ -80,7 +80,7 @@ void mot(char **current_char, node *struct_current){
     struct_current->fils = new_struct_1;
     alpha(current_char, new_struct_1);
     // The current char pointer is moved 1 char forward by istring()
-    while(isalpha(**current_char)||boolean){
+    while(isalpha(**current_char)){
         struct_current->taille += 1;
         node *new_struct_2 = malloc(sizeof(node));
         new_struct_1->frere = new_struct_2;
@@ -160,7 +160,7 @@ void separateur(char **current_char, node *struct_current){
 */
 
 void ponct(char **current_char, node *struct_current){
-    if (**current_char == '\x2C' || **current_char == '\x2F' || **current_char == '\x2E' || **current_char == '\x21' || **current_char == '\x3F' || **current_char == '\x3A'){
+    if (**current_char == '\x2C' || **current_char == '\x2E' || **current_char == '\x21' || **current_char == '\x3F' || **current_char == '\x3A'){
         strcpy(struct_current->label, "ponct");
         struct_current->fils = NULL;
         struct_current->frere = NULL;
@@ -217,7 +217,7 @@ void istring(char **current_char, node *struct_current, int taille){
  *  \param struct_current Pointer to the current struct of the chained list.
 */
 void icar(char **current_char, node *struct_current){
-    if (**current_char == 0x2D||**current_char == 0x2E||**current_char == 0x20||**current_char == 0x5F||**current_char == 0x2C||**current_char == 0x3A){
+    if (1){
         strcpy(struct_current->label, "__icar");
         struct_current->fils = NULL;
         struct_current->frere = NULL;

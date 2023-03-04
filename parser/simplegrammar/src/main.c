@@ -77,9 +77,8 @@ int main(int argc, char const *argv[])
 
     node *next=master_node;
     node *next2;
-    int jk=1;
 
-    while(*(adr+3)!='\n'){
+    while(*(adr+3)!='\n'){ /*Condition d'arret, on sait que \n existe*/
         next2=malloc(sizeof(node));
         next->frere=next2;
         if(isalpha(*adr)) {
@@ -96,15 +95,15 @@ int main(int argc, char const *argv[])
             next->frere=next2;
             separateur(&adr,next2);
             }
-
         else if(isponct(*adr)){
             ponct(&adr,next2);
         }
         else {printf("Problème de lecture : '%c'\n",*adr);fclose(fic);return 1;}
         next=next2;
     }
-
-    fin(&adr,next);
+    next2=malloc(sizeof(node));
+    next->frere=next2;
+    fin(&adr,next2);
     //print_tree(master_node,1);
 
     //printf("PRINT NODE BELOW\n");
