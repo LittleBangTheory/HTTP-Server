@@ -74,7 +74,7 @@ void mot(char **current_char, node *struct_current){
         *current_char += 1;
         struct_current->taille += 1;
         //on s'arrête si la taille du mot dépasse la taille d'un unsigned int 
-        if (struct_current->taille >= 4,294,967,295-1 ){
+        if (struct_current->taille >= 4294967295-1){
             // Error
             exit(EXIT_FAILURE);
         }
@@ -99,7 +99,7 @@ void nombre(char **current_char, node *struct_current){
         *current_char += 1;
         struct_current->taille += 1;
         //on s'arrête si la taille du mot dépasse la taille d'un unsigned int 
-        if (struct_current->taille >= 4,294,967,295-1 ){
+        if (struct_current->taille >= 4294967295-1){
             // Error
             exit(EXIT_FAILURE);
         }
@@ -114,7 +114,7 @@ void nombre(char **current_char, node *struct_current){
  *  \param struct_current Pointer to the current struct of the chained list. This parameter is initialized to NULL but allocated before the call of this function
 */
 void separateur(char **current_char, node *struct_current){
-    if (**current_char == '%x20' || **current_char == '%x09' || **current_char == '%x2D' || **current_char == '%x5F'){
+    if (**current_char == '\x20' || **current_char == '\x09' || **current_char == '\x2d' || **current_char == '\x5f'){
         strcpy(struct_current->label, "separateur");
         struct_current->fils = NULL;
         struct_current->frere_g = NULL;
@@ -135,7 +135,7 @@ void separateur(char **current_char, node *struct_current){
 */
 
 void ponct(char **current_char, node *struct_current){
-    if (**current_char == '%x2C' || **current_char == '%x2F' || **current_char == '%x2E' || **current_char == '%x21' || **current_char == '%x3F' || **current_char == '%x3A'){
+    if (**current_char == '\x2c' || **current_char == '\x2f' || **current_char == '\x2e' || **current_char == '\x21' || **current_char == '\x3f' || **current_char == '\x3a'){
         strcpy(struct_current->label, "ponct");
         struct_current->fils = NULL;
         struct_current->frere_d = NULL;
