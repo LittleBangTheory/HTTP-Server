@@ -8,6 +8,21 @@
     #include "../headers/abnf.h"
 #endif*/
 
+void print_node(node *nodes){
+    printf("label : %s\n",nodes->label);
+    printf("s : %s\n",nodes->s);
+    printf("taille : %d\n\n",nodes->taille);
+    if(nodes->frere!=NULL){
+        printf("Son frere : \n");
+        print_node(nodes->frere);
+    }
+    if(nodes->fils!=NULL){
+        printf("Son fils : \n");
+        print_node(nodes->fils);
+    }
+    return;
+}
+
 int main(int argc, char const *argv[])
 {
     /*Un fichier doit etre fourni en paramètre*/
@@ -55,10 +70,12 @@ int main(int argc, char const *argv[])
     //print_request(master_node,requete,taille);
 
     node *next=malloc(sizeof(node));
-    master_node->frere=next;
+    master_node->fils=next;
     mot(&adr,next);
-    print_tree(master_node,1);
+    //print_tree(master_node,1);
 
+    printf("PRINT NODE BELOW\n");
+    print_node(master_node);
     /*Fin du programme*/
     fclose(fic);
     return 0;
