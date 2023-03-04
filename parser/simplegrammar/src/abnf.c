@@ -70,6 +70,7 @@ void fin(char **current_char, node *struct_current){
  * \param struct_current Pointer to the current struct of the chained list. This parameter is initialized to NULL but allocated before the call of this function
 */
 void mot(char **current_char, node *struct_current){
+    int boolean=1;
     strcpy(struct_current->label, "mot");
     struct_current->s = *current_char;
     struct_current->taille = 0;
@@ -78,7 +79,7 @@ void mot(char **current_char, node *struct_current){
     struct_current->fils = new_struct_1;
     alpha(current_char, new_struct_1);
     // The current char pointer is moved 1 char forward by istring()
-    while(isalpha(**current_char)){
+    while(isalpha(**current_char)||boolean){
         struct_current->taille += 1;
         node *new_struct_2 = malloc(sizeof(node));
         new_struct_1->frere = new_struct_2;
@@ -91,6 +92,7 @@ void mot(char **current_char, node *struct_current){
             printf("Word is too long !\n");
             exit(EXIT_FAILURE);
         }
+        boolean=isalpha(**current_char);
     }
     // Allocate and init the struct that contains the separator
     node* new_struct = malloc(sizeof(node));

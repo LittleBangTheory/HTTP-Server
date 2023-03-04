@@ -74,8 +74,9 @@ int main(int argc, char const *argv[])
     mot(&adr,next);
     //print_tree(master_node,1);
 
-    printf("PRINT NODE BELOW\n");
-    print_node(master_node);
+    //printf("PRINT NODE BELOW\n");
+    //print_node(master_node);
+    print_tree(master_node,1);
     /*Fin du programme*/
     fclose(fic);
     return 0;

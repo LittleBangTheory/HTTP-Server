@@ -29,6 +29,9 @@ void print_tree(node *struct_current, int depth){
         printf("%c",*(struct_current->s + i));
     }
     printf("\n");
+        if (struct_current->fils != NULL) {
+        print_tree(struct_current->fils, depth+1);
+    }
     if (struct_current->frere != NULL) {
         print_tree(struct_current->frere, depth);
     }
