@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../headers/utility.h"
+#include <ctype.h>
+
 
 /*#ifndef ABNF_H
     #define ABNF_H
@@ -23,6 +25,12 @@ void print_node(node *nodes){
     return;
 }
 
+/**
+ * \fn int isponct(char c)
+ * \brief Function to check if a char is a ponct
+ * \param c char to test
+ * \returns 1 if yes ; 0 else
+*/
 int isponct(char c){
     if (c==','||c=='.'||c=='!'||c=='?'||c==':') return 1;
     else return 0;
@@ -64,7 +72,6 @@ int main(int argc, char const *argv[])
 
     /*ANALYSE REQUETE*/
     /*Check si la requete se termine par un LF*/
-
     if(requete[taille-1]!='\n'){printf("Requete invalide ! (LF)\n");fclose(fic);return 1;} /*Pas de LF -> sortie du programme*/
     printf("___LF valide___\n");
 
@@ -73,29 +80,29 @@ int main(int argc, char const *argv[])
 
     /*Check si la requete commence par start*/
     debut(&adr,master_node);
-    //print_request(master_node,requete,taille);
 
+    /*Préparation boucle while*/
     node *next=master_node;
     node *next2;
 
     while(*(adr+3)!='\n'){ /*Condition d'arret, on sait que \n existe*/
         next2=malloc(sizeof(node));
         next->frere=next2;
-        if(isalpha(*adr)) {
+        if(isalpha(*adr)) { /*Mot suivi d'un ponct*/
             mot(&adr,next2);
             next=next2;
             next2=malloc(sizeof(node));
             next->frere=next2;
             ponct(&adr,next2);
             }
-        else if(isdigit(*adr)) {
+        else if(isdigit(*adr)) { /*Nombre suivi d'un separateur*/
             nombre(&adr,next2);
             next=next2;
             next2=malloc(sizeof(node));
             next->frere=next2;
             separateur(&adr,next2);
             }
-        else if(isponct(*adr)){
+        else if(isponct(*adr)){ /*[ponct] optionnel de la doc*/
             ponct(&adr,next2);
         }
         else {printf("Problème de lecture : '%c'\n",*adr);fclose(fic);return 1;}
@@ -103,11 +110,11 @@ int main(int argc, char const *argv[])
     }
     next2=malloc(sizeof(node));
     next->frere=next2;
-    fin(&adr,next2);
-    //print_tree(master_node,1);
 
-    //printf("PRINT NODE BELOW\n");
-    //print_node(master_node);
+    /*Check si la requete se termine par fin*/
+    fin(&adr,next2);
+
+    /*Affiche l'arbre*/
     print_tree(master_node,1);
     /*Fin du programme*/
     printf("\033[1;32m");
@@ -115,6 +122,7 @@ int main(int argc, char const *argv[])
     printf("\033[0m");
     fclose(fic);
 
+    /*Liste les fichiers dont l'analyse s'est bien passée*/
     FILE *val=fopen("validations.txt","a");
     fprintf(val,"%s\n",argv[1]);
     fclose(val);
