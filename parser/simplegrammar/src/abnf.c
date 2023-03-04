@@ -18,7 +18,7 @@
 */
 void debut(char **current_char, node *struct_current){
     // Check if the current char is 's' and the next 4 chars are 't', 'a', 'r', 't'
-    if (**current_char == 's' && *(current_char[0] + 1) == 't' && *(current_char[0] + 2) == 'a' && *(current_char[0] + 3) == 'r' && *(current_char[0] + 4) == 't'){
+    if ((**current_char == 's' ||**current_char == 'S') && (*(current_char[0] + 1) == 't'||*(current_char[0] + 1) == 'T') && (*(current_char[0] + 2) == 'a'||*(current_char[0] + 2) == 'A') && (*(current_char[0] + 3) == 'r'||*(current_char[0] + 3) == 'R') && (*(current_char[0] + 4) == 't'||*(current_char[0] + 4) == 'T')){
         // Init the struct (ptr, int...)
         struct_current->s = *current_char;
         strcpy(struct_current->label,"debut");
@@ -46,7 +46,7 @@ void debut(char **current_char, node *struct_current){
 */
 void fin(char **current_char, node *struct_current){
     // Check if the current char is 's' and the next 4 chars are 't', 'a', 'r', 't'
-    if (**current_char == 'f' && *(current_char[0] + 1) == 'i' && *(current_char[0] + 2) == 'n'){
+    if ((**current_char == 'f'||**current_char == 'F') && (*(current_char[0] + 1) == 'i'||*(current_char[0] + 1) == 'I') && (*(current_char[0] + 2) == 'n'||*(current_char[0] + 2) == 'N')){
         // Init the struct (ptr, int...)
         struct_current->s = *current_char;
         struct_current->taille = 3;

@@ -112,7 +112,13 @@ int main(int argc, char const *argv[])
     /*Fin du programme*/
     printf("\033[1;32m");
     printf("Exited normally\n");
+    printf("\033[0m");
     fclose(fic);
+
+    FILE *val=fopen("validations.txt","a");
+    fprintf(val,"%s\n",argv[1]);
+    fclose(val);
+
     return 0;
 }
 
