@@ -57,8 +57,7 @@ void fin(char **current_char, node *struct_current){
         node *new_struct = malloc(sizeof(node));
         struct_current->fils = new_struct;
         istring(current_char, new_struct, struct_current->taille);
-        // The current char pointer is moved 5 chars forward by istring()
-        *current_char += 3;
+        // The current char pointer is moved 3 chars forward by istring()
     } else {
         // Error
         exit(EXIT_FAILURE);
@@ -254,7 +253,10 @@ void digit(char **current_char, node *struct_current){
  *  \param struct_current Pointer to the current struct of the chained list.
 */
 void lf(char **current_char, node *struct_current){
-    if (**current_char == 0x0A){
+    /*Erreur : **current_char n'est jamais un LF, alors on exit le programme dans la fonction lf()
+    J'ai essayé de print **current_char dans le else mais ça ne print jamais le meme char (soit U soit V avec le même input), etrange
+    Peut-être une fuite de mémoire*/
+    if (**current_char == '\n'){
         strcpy(struct_current->label, "__lf");
         struct_current->fils = NULL;
         struct_current->frere = NULL;
