@@ -5,3 +5,4 @@ documents/
 parser/simplegrammar/simplegrammar.exe
 parser/simplegrammar/abnf.o
 parser/simplegrammar/validations.txt
+parser/simplegrammar/html
