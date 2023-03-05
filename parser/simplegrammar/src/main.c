@@ -4,11 +4,10 @@
 #include "../headers/utility.h"
 #include <ctype.h>
 
-
-/*#ifndef ABNF_H
-    #define ABNF_H
-    #include "../headers/abnf.h"
-#endif*/
+/** \file main.c
+ *  \brief Main file of the parser
+ *  Contains the main() function that call the different parse and print functions, and the print_node() function used to test
+*/
 
 void print_node(node *nodes){
     printf("label : %s\n",nodes->label);
@@ -35,8 +34,12 @@ int isponct(char c){
     if (c==','||c=='.'||c=='!'||c=='?'||c==':') return 1;
     else return 0;
 }
-//ponct = "," / "." / "!" / "?" / ":"
 
+/** \fn int main(int argc, char const *argv[])
+ *  \brief Main function of the parser
+ *  \param argc number of arguments
+ *  \param argv array of arguments
+*/
 int main(int argc, char const *argv[])
 {
     /*Un fichier doit etre fourni en paramètre*/

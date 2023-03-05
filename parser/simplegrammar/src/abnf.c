@@ -179,7 +179,6 @@ void ponct(char **current_char, node *struct_current){
  *  \brief Function to save a lone char (a-z/A-Z)
  *  \param current_char Pointer of pointer to the current char of the request
  *  \param struct_current Pointer to the current struct of the chained list.
- * 
 */
 void alpha(char **current_char, node *struct_current){
     if (isalpha(**current_char)){
@@ -195,11 +194,10 @@ void alpha(char **current_char, node *struct_current){
     }
 }
 
-/** \fn void digit(char **current_char, node *struct_current)
- *  \brief Function to save a lone digit (0-9)
+/** \fn void istring(char **current_char, node *struct_current)
+ *  \brief Function to save an entire string (a-z/A-Z)
  *  \param current_char Pointer of pointer to the current char of the request
  *  \param struct_current Pointer to the current struct of the chained list.
- * 
 */
 void istring(char **current_char, node *struct_current, int taille){
     strcpy(struct_current->label, "__istring");
