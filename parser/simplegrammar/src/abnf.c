@@ -30,7 +30,9 @@ void debut(char **current_char, node *struct_current){
         struct_current->fils = new_struct;
         istring(current_char, new_struct, struct_current->taille);
         // The current char pointer is moved 5 chars forward by istring()
-        printf("___Start valide___\n");
+
+        /* Validate that there is a start at the beggining
+        printf("___Start valide___\n");*/
     } else {
         // Error
         printf("Requete invalide !(start)\n");

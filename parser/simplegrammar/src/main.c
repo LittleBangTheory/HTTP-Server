@@ -54,7 +54,12 @@ int main(int argc, char const *argv[])
         taille++;
         c=fgetc(fic);
     }
-    printf("Taille : %d\n",taille);
+    
+    printf("remaining ##\n");
+
+    /* Afficher la taille
+    printf("Taille : %d\n",taille); */
+
     if(taille > 500){printf("Erreur taille fichier\n");fclose(fic);return 1;}/*Requete trop longue -> sortie du programme*/
     fseek(fic,0,0);
 
@@ -68,12 +73,14 @@ int main(int argc, char const *argv[])
         //printf("requete[%d]=%c <-> %x\n",i,requete[i],requete[i]);
     }
     //printf("requete[%d]=%c <-> %x\n",taille,requete[taille],requete[taille]); /*Verification*/
-    printf("Requete : %s\n_________________________________________________\n\n",requete);
+    printf("message: %s\n",requete);
 
     /*ANALYSE REQUETE*/
     /*Check si la requete se termine par un LF*/
     if(requete[taille-1]!='\n'){printf("Requete invalide ! (LF)\n");fclose(fic);return 1;} /*Pas de LF -> sortie du programme*/
-    printf("___LF valide___\n");
+    
+    /* validate that there is a LF at the end
+    printf("___LF valide___\n");*/
 
     node *master_node=malloc(sizeof(node));
     char *adr=&requete[0];
