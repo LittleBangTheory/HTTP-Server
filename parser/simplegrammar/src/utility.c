@@ -3,9 +3,17 @@
 #include <string.h>
 #include <ctype.h>
 #include "../headers/utility.h"
-//#include "../headers/abnf.h"
 
+/** \file utility.c
+ *  \brief Contains useful functions to print and delete the chained list
+*/
 
+/** \fn void print_request(node *struct_current, char* first_char, int length)
+ *  \brief Function to print the entire parsed request and the chained list
+ *  \param struct_current Pointer to the current element of the chained list
+ *  \param first_char Pointer to the first char of the request
+ *  \param length Length of the request
+*/
 void print_request(node *struct_current, char* first_char, int length){
     printf("message: %s\n",first_char);
     // call the print_tree function with and indent of 1
@@ -13,7 +21,7 @@ void print_request(node *struct_current, char* first_char, int length){
 }
 
 /** \fn void print_tree(node *struct_current)
- *  \brief Function to print the tree
+ *  \brief Function to print the chained list recursively
  *  \param struct_current Pointer to the current element of the chained list
 */
 void print_tree(node *struct_current, int depth){
@@ -38,7 +46,7 @@ void print_tree(node *struct_current, int depth){
 }
 
 /** \fn void delete_chained_list(node *struct_current)
- *  \brief Function to delete the chained list
+ *  \brief Function to delete the chained list and free the memory
  *  \param struct_current Pointer to the current element of the chained list
 */
 void delete_chained_list(node *struct_current){

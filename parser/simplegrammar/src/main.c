@@ -4,11 +4,10 @@
 #include "../headers/utility.h"
 #include <ctype.h>
 
-
-/*#ifndef ABNF_H
-    #define ABNF_H
-    #include "../headers/abnf.h"
-#endif*/
+/** \file main.c
+ *  \brief Main file of the parser
+ *  Contains the main() function that call the different parse and print functions, and the print_node() function used to test
+*/
 
 void print_node(node *nodes){
     printf("label : %s\n",nodes->label);
@@ -35,8 +34,12 @@ int isponct(char c){
     if (c==','||c=='.'||c=='!'||c=='?'||c==':') return 1;
     else return 0;
 }
-//ponct = "," / "." / "!" / "?" / ":"
 
+/** \fn int main(int argc, char const *argv[])
+ *  \brief Main function of the parser
+ *  \param argc number of arguments
+ *  \param argv array of arguments
+*/
 int main(int argc, char const *argv[])
 {
     /*Un fichier doit etre fourni en paramètre*/
@@ -54,7 +57,12 @@ int main(int argc, char const *argv[])
         taille++;
         c=fgetc(fic);
     }
-    printf("Taille : %d\n",taille);
+    
+    printf("remaining ##\n");
+
+    /* Afficher la taille
+    printf("Taille : %d\n",taille); */
+
     if(taille > 500){printf("Erreur taille fichier\n");fclose(fic);return 1;}/*Requete trop longue -> sortie du programme*/
     fseek(fic,0,0);
 
@@ -68,12 +76,14 @@ int main(int argc, char const *argv[])
         //printf("requete[%d]=%c <-> %x\n",i,requete[i],requete[i]);
     }
     //printf("requete[%d]=%c <-> %x\n",taille,requete[taille],requete[taille]); /*Verification*/
-    printf("Requete : %s\n_________________________________________________\n\n",requete);
+    printf("message: %s\n",requete);
 
     /*ANALYSE REQUETE*/
     /*Check si la requete se termine par un LF*/
     if(requete[taille-1]!='\n'){printf("Requete invalide ! (LF)\n");fclose(fic);return 1;} /*Pas de LF -> sortie du programme*/
-    printf("___LF valide___\n");
+    
+    /* validate that there is a LF at the end
+    printf("___LF valide___\n");*/
 
     node *master_node=malloc(sizeof(node));
     char *adr=&requete[0];
