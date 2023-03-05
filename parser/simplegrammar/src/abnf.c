@@ -57,8 +57,7 @@ void fin(char **current_char, node *struct_current){
         node *new_struct = malloc(sizeof(node));
         struct_current->fils = new_struct;
         istring(current_char, new_struct, struct_current->taille);
-        // The current char pointer is moved 5 chars forward by istring()
-        *current_char += 3;
+        // The current char pointer is moved 3 chars forward by istring()
     } else {
         // Error
         exit(EXIT_FAILURE);
