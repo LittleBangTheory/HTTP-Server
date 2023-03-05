@@ -108,11 +108,17 @@ int main(int argc, char const *argv[])
         else {printf("Problème de lecture : '%c'\n",*adr);fclose(fic);return 1;}
         next=next2;
     }
+
+    /*Check si la requete se termine par fin puis par LF*/
     next2=malloc(sizeof(node));
     next->frere=next2;
-
-    /*Check si la requete se termine par fin*/
     fin(&adr,next2);
+    next=next2;
+
+    /*On exit le programme dans lf(), à résoudre*/
+    next2=malloc(sizeof(node));
+    next->frere=next2;
+    lf(&adr, next2);
 
     /*Affiche l'arbre*/
     print_tree(master_node,1);
