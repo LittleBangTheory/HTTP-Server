@@ -21,13 +21,14 @@
 
 ## Release 2 : Réalisation du parseur HTTP selon la grammaire Chamilo
 
-### Sprint 1 - 07/03/2023 : Réaliser un parseur pour la *grammairesimple* indiquée sur chamilo.
+### Sprint 1 - 07/03/2023 : Réaliser un parseur pour la *simplegrammar* indiquée sur chamilo.
 * Analyser les fichiers de tests fournis.
 * Objectif -> Valider sur un PoC la capacité à réaliser un parseur plus évolué.
 * Matériel : un répertoire *simplegrammar* 
 	* Grammaire abnf simple 
 	* Fichiers de test (syntaxe valide) 
 	* Un parseur de cette grammaire qui peut analyser les fichiers de tests et servir de référence 
+Etat : Validé - Voir le dossier [simplegrammar](parser/simplegrammar)
 
 
 ### Sprint 2 - 31/03/2023 : Réaliser le parseur des éléments de la grammaire HTTP
