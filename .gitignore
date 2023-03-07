@@ -1,7 +1,6 @@
 parser/fuzzer/
 parser/simplegrammar/testFile
 parser/premier-jeu-test
-documents/
 parser/simplegrammar/simplegrammar.exe
 parser/simplegrammar/abnf.o
 parser/simplegrammar/validations.txt

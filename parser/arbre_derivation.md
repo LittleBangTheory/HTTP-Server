@@ -18,16 +18,35 @@ graph TD;
     10-->16(CRLF);
     11-->20(token);
 
-    20-->21(*Détailler les méthodes*)
+    20-->21(1*tchar)
     13-->22(origin-form)
     22-->23(absolute-path)
-    23-->25(/segment)
-    22-->24(["?" query])
+    23-->25(1*/segment)
+    22-->24([?])
+    22-->29([query])
     15-->26(HTTP-name)
-    15-->27(/digit.digit)
-    26-->28(%x48.54.54.50)
 
-    3-->30(field-name)
-    3-->31(:)
-    3-->32(field-value) 
+    25-->|segment|30(1*pchar)
+    30-->|pchar|31(unreserved)
+    30-->|pchar|32(pct-encoded)
+    30-->|pchar|33(sub-delims)
+    30-->|pchar|34(:)
+    30-->|pchar|35("@")
+    29-->36(*pchar/'/'/'?')
+
+    36-->|pchar|37(unreserved)
+    36-->|pchar|38(pct-encoded)
+    36-->|pchar|39(sub-delims)
+    36-->|pchar|40(:)
+    36-->|pchar|41("@")
+    
+    26-->50(%x48.54.54.50)
+    15-->51(/)
+    15-->52(DIGIT)
+    15-->53(.)
+    15-->54(DIGIT)
+
+    3-->60(field-name)
+    3-->61(:)
+    3-->62(field-value)
 :::
