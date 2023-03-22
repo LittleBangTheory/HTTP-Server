@@ -1,7 +1,11 @@
 ===================================================================================
 This is a simple example :
 ===================================================================================
-**** allrfc.abnf 
+**** alltests/ 
+This folder contains all tests that are used to test the parser, simplefiles.tar.gz and hardcorefiles.tar.gz 
+
+
+**** rfc/allrfc.abnf 
 
 This file contains abnf grammar of all rfc related to http. 
 Some changes have been made to this grammar to fit NE302 project goals 
@@ -10,9 +14,10 @@ Some changes have been made to this grammar to fit NE302 project goals
 
 So you MUST use this file as a reference for your code. 
 
-**** api.h 
+**** src/api.h 
 
 This file contains prototypes of functions that ar part of the api. Do not modify this file. 
+
 **** httpparser
 
 **** usage:
