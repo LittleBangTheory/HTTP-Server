@@ -1,3 +1,4 @@
+#define ABNF_H
 typedef struct abnf node;
 struct abnf {
    char *label; //a def dans le main
