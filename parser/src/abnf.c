@@ -1,3 +1,14 @@
+/** \file abnf.c
+ * \brief Contains the functions to parse the request
+ * General rules :
+ * - The function name is the name of the rule in the RFC
+ * - The function takes 3 parameters : a pointer to the current char, a pointer to the current struct and a pointer to the array of labels
+ * - The function returns nothing
+ * - Every time a new structure is needed (to store a brother or a son), it is allocated by the father function, but initialized by the son or father function. Example : token() creates the struct for tchar(), but tchar() initializes it
+ * - Every time brothers are needed, the father function calls the brother functions and link the brothers together. Example : request-line() creates the struct for method(), sp(), request-target(), sp() http_version(), and crlf(), and link them together
+ * - If the reading pointer needs to be moved, it should be moved by the highest function possible. Example : tchar doesn't move the reading pointer, but token() does, exepted for the last one, that is moved by method(), etc.
+*/
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -55,7 +66,10 @@ void method(char **current_char, node *struct_current, char *label){
     *current_char++;
     struct_current->fin = *current_char;
 
-    // TODO : call the brother (SP)
+    // Allocate memory for the brother
+    node *new_struct = malloc(sizeof(node));
+    struct_current->fils = new_struct;
+    sp(current_char, new_struct, label);
 }
 
 void tchar(char **current_char, node *struct_current, char *label){
@@ -70,7 +84,7 @@ void tchar(char **current_char, node *struct_current, char *label){
     struct_current->fils = new_struct;
 
     // if it's a SP, end of method
-    if(**current_char != 0x20) {
+    if(istchar(**current_char)) {
         // If the next char is a letter, create a son node and call alpha()
         if(isalpha(**current_char)){
             // Allocate memory for the first child
@@ -86,27 +100,29 @@ void tchar(char **current_char, node *struct_current, char *label){
             struct_current->fils = new_struct;
 
             digit(current_char, new_struct, label);
-
-        // If the next char isn't a tchar, error
-        } else if(!istchar(**current_char)){
-            printf("Error: the method must be composed of tchars, not %c", **current_char);
-            exit(1);
         }
-
         // The next char is a tchar, create a brother node and call tchar()
         *current_char++;
         // Allocate memory for the first child
         node *new_struct = malloc(sizeof(node));
         struct_current->frere = new_struct;
         tchar(current_char, new_struct, label);
+    // If the next char isn't a tchar or a SP, error
+    } else if(!istchar(**current_char) && **current_char != 0x20){
+        printf("Error: the method must be composed of tchars, not %c", **current_char);
+        exit(1);
     }
 }
 
 // Check if the char belongs to this list : "!" / "#" / "$" / "%" / "&" / "'" / "*" / "+" / "-" / "." / "^" / "_" / "`" / "|" / "~"
 int istchar(char c){
-    for(int i=0; i<15; i++){
-        if(c == tchar_list[i]){
-            return 1;
+    if(isalpha(c) || isdigit(c)){
+        return 0
+    } else {
+        for(int i=0; i<15; i++){
+            if(c == tchar_list[i]){
+                return 1;
+            }
         }
     }
     return 0;
@@ -114,6 +130,10 @@ int istchar(char c){
 
 
 void alpha(char **current_char, node *struct_current, char *label){
+    if (!isalpha(**current_char)){
+        printf("Error: Expected a char, not %c", **current_char);
+        exit(1);
+    }
     struct_current->label = label+ALPHA;
     struct_current->fils = NULL;
     struct_current->frere = NULL;
@@ -122,7 +142,23 @@ void alpha(char **current_char, node *struct_current, char *label){
 }
 
 void digit(char **current_char, node *struct_current, char *label){
+    if (!isdigit(**current_char)){
+        printf("Error: Expected a digit, not %c", **current_char);
+        exit(1);
+    }
     struct_current->label = label+DIGIT;
+    struct_current->fils = NULL;
+    struct_current->frere = NULL;
+    struct_current->debut = *current_char;
+    struct_current->fin = *current_char;
+}
+
+void sp(char **current_char, node *struct_current, char *label){
+    if (**current_char != 0x20){
+        printf("Error: Expected a SP, not %c", **current_char);
+        exit(1);
+    }
+    struct_current->label = label+SP;
     struct_current->fils = NULL;
     struct_current->frere = NULL;
     struct_current->debut = *current_char;

@@ -13,3 +13,4 @@ struct abnf {
 #define SP 3
 #define ALPHA 4
 #define DIGIT 5
+#define SP 6
