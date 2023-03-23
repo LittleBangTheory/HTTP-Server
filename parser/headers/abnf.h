@@ -15,3 +15,4 @@ struct abnf {
 #define ALPHA 4
 #define DIGIT 5
 #define SP 6
+#define REQUEST_TARGET 7
