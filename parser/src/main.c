@@ -13,11 +13,7 @@ void testMode(){
 	char req[]="GET / HTTP/1.1";
 	char* label[]={"start-line","method","tchar","SP","ALPHA","DIGIT"};
 	node* tete=malloc(sizeof(node));
-	tete->debut=req;
-	tete->fin=req+13;
-	tete->fils=NULL;
-	tete->frere=NULL;
-	tete->label=label[0];
+	
 	print_tree(tete,1);
 	exit(true);
 }
