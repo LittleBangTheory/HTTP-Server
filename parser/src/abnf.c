@@ -145,12 +145,6 @@ void tchar(char **current_char, node *struct_current, char *label){
 
             digit(current_char, new_struct, label);
         }
-        // The next char is a tchar, create a brother node and call tchar()
-        *current_char++;
-        // Allocate memory for the first child
-        node *new_struct = malloc(sizeof(node));
-        struct_current->frere = new_struct;
-        tchar(current_char, new_struct, label);
     // If the next char isn't a tchar or a SP, error
     } else if(!istchar(**current_char)){
         printf("Error: the method must be composed of tchars, not %c", **current_char);
