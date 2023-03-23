@@ -11,9 +11,10 @@
 
 void testMode(){
 	char req[]="GET / HTTP/1.1";
+	char *adr=&req[0];
 	char* label[]={"start-line","method","tchar","SP","ALPHA","DIGIT"};
 	node* tete=malloc(sizeof(node));
-	
+	start_line(&adr,tete,label);
 	print_tree(tete,1);
 	exit(true);
 }
