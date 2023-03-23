@@ -33,8 +33,11 @@ void print_tree(node *struct_current, int depth){
     
     // print the label
     printf("%s: ",struct_current->label);
-    for (int i = 0; i < struct_current->taille; i++) {
-        printf("%c",*(struct_current->s + i));
+    // print fields
+    char *c=struct_current->debut;
+    while (c!=(struct_current->fin)+1) {
+        printf("%c",*c);
+        c++;
     }
     printf("\n");
         if (struct_current->fils != NULL) {
