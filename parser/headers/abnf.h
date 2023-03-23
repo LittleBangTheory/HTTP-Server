@@ -12,3 +12,4 @@ struct abnf {
 #define TCHAR 2
 #define SP 3
 #define ALPHA 4
+#define DIGIT 5
