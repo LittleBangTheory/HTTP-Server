@@ -49,7 +49,7 @@ void start_line(char **current_char, node *struct_current, char *label){
     *current_char++;
 
     // Allocate memory for request-target
-    node *new_struct_2 = malloc(sizeof(node));
+    new_struct_2 = malloc(sizeof(node));
     new_struct_1->frere = new_struct_2;
     request_target(current_char, new_struct_2, label);
 
@@ -104,6 +104,8 @@ void request_target(char **current_char, node *struct_current, char *label){
     // Allocate memory for the first child
     node *new_struct = malloc(sizeof(node));
     struct_current->fils = new_struct;
+
+    //TODO : call question_mark() and query() as brothers of absolute_path() 
 
 }
 
@@ -223,7 +225,7 @@ void sp(char **current_char, node *struct_current, char *label){
 */
 int istchar(char c){
     if(isalpha(c) || isdigit(c)){
-        return 0;
+        return 1;
     } else {
         for(int i=0; i<15; i++){
             if(c == tchar_list[i]){
