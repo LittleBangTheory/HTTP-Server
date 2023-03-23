@@ -11,7 +11,7 @@
 int main(int argc, char const *argv[])
 {
 	if (argc!=2){printf("Usage : ./parsername <file>\n");return false;}
-	char* label[]={"start-line","CRLF","pchar","tchar","ALPHA","DIGIT"};
+	char* label[]={"start-line","method","tchar","SP","ALPHA","DIGIT"};
 	FILE* fic = NULL;
 	fic=fopen(argv[1],"r");
 	if(fic==NULL){printf("Erreur ouverture\n");return false;}
@@ -32,7 +32,7 @@ int main(int argc, char const *argv[])
 	Request[i]=0;
 	printf("%s",Request);
 
-	
+
 	
 
 
