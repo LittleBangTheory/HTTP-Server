@@ -16,5 +16,24 @@ int main(int argc, char const *argv[])
 	fic=fopen(argv[1],"r");
 	if(fic==NULL){printf("Erreur ouverture\n");return false;}
 
+	//recopie memoire
+	int requestSize=1;
+	int i;
+	int c=fgetc(fic);
+	while(c!=EOF){requestSize++;c=fgetc(fic);}
+	char Request[requestSize];
+	fseek(fic,0,0);
+	c=fgetc(fic);
+	for (i = 0; i < requestSize-1; i++)
+	{
+		Request[i]=c;
+		c=fgetc(fic);
+	}
+	Request[i]=0;
+	printf("%s",Request);
+
+	
+	
+
 
 }
