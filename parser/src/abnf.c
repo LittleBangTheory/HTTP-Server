@@ -51,7 +51,7 @@ void start_line(char **current_char, node *struct_current){
     new_struct_1->frere = new_struct_2;
     request_target(current_char, new_struct_2);
 
-    // TODO : call request-target() sp() http_version() crlf()
+    // TODO : call sp() http_version() crlf()
 
     // The end is known when the son functions are done
     struct_current->fin = *current_char;
@@ -129,7 +129,7 @@ void query(char **current_char, node *struct_current){
             // move one struct forward 
             new_struct_1 = new_struct_2;
             *current_char+=1;
-        }while(ispchar(*(*current_char+1)));
+        }while(ispchar(*(*current_char+1) || *(*current_char+1)=='/' || *(*current_char+1)=='?'));
     }
     struct_current->fin = *current_char;
 }
