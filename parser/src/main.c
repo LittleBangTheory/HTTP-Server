@@ -20,8 +20,6 @@ void testMode(){
 }
 
 
-
-
 int main(int argc, char const *argv[])
 {
 	if (argc==3) testMode();

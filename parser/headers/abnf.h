@@ -14,8 +14,10 @@ struct abnf {
 #define SP 3
 #define ALPHA 4
 #define DIGIT 5
-#define SP 6
-#define REQUEST_TARGET 7
+#define REQUEST_TARGET 6
+#define ABSOLUTE_PATH 7
+#define SEGMENT 8
+#define PCHAR 9
 
 void start_line(char **current_char, node *struct_current, char *label);
 void token(char **current_char, node *struct_current, char *label);
