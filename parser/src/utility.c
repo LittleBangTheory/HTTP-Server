@@ -6,6 +6,7 @@
 
 char tchar_list[] = {0x21, 0x23, 0x24, 0x25, 0x26, 0x27, 0x2a, 0x2b, 0x2d, 0x2e, 0x5e, 0x5f, 0x60, 0x7c, 0x7e};
 char unreserved_list[] = {0x2d, 0x2e, 0x5f, 0x7e};
+char sub_delims_list[] = {0x21, 0x24, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x3b, 0x3d};
 
 /** \file utility.c
  *  \brief Contains useful functions to print and delete the chained list
@@ -86,14 +87,8 @@ int istchar(char c){
 }
 
 int ispchar(char c){
-    if(isalpha(c) || isdigit(c)){
+    if(isunreserved(c) || ispct_encoded(c) || issub_delims(c) || c == ':' || c == '@'){
         return 1;
-    } else {
-        for(int i=0; i<15; i++){
-            if(c == pchar_list[i]){
-                return 1;
-            }
-        }
     }
     return 0;
 }
@@ -111,14 +106,14 @@ int isunreserved(char c){
     return 0;
 }
 
-int is_pct_encoded(char **current_char){
+int ispct_encoded(char **current_char){
     if(**current_char == '%' && isxdigit(*(current_char+1)) && isxdigit(*(current_char+2))){
         return 1;
     }
     return 0;
 }
 
-int sub_delims(char **current_char){
+int issub_delims(char **current_char){
     for(int i=0; i<7; i++){
         if(**current_char == sub_delims_list[i]){
             (*current_char)++;
