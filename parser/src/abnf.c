@@ -159,7 +159,7 @@ void pchar(char **current_char, node *struct_current, char *label){
     struct_current->fils = new_struct;
     if(isunreserved(**current_char)){
         unreserved(current_char, new_struct, label);
-    
+    }
 
     //unreserved / pct-encoded / sub-delims / ":" / "@"
 
