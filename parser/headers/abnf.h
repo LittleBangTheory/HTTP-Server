@@ -22,8 +22,10 @@ struct abnf {
 void start_line(char **current_char, node *struct_current, char *label);
 void token(char **current_char, node *struct_current, char *label);
 void request_target(char **current_char, node *struct_current, char *label);
+void absolute_path(char **current_char, node *struct_current, char *label);
+void segment(char **current_char, node *struct_current, char *label);
+void pchar(char **current_char, node *struct_current, char *label);
 void tchar(char **current_char, node *struct_current, char *label);
 void alpha(char **current_char, node *struct_current, char *label);
 void digit(char **current_char, node *struct_current, char *label);
 void sp(char **current_char, node *struct_current, char *label);
-int istchar(char c);
