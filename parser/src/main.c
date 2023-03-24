@@ -2,20 +2,46 @@
 #include <stdlib.h> 
 #include <string.h> 
 
-#include "../headers/api.h"
+#ifndef ABNF_H
 #include "../headers/abnf.h"
+#define ABNF_H
+#endif
+
+#include "../headers/api.h"
 #include "../headers/utility.h"
 
 #define true 1
 #define false 0
 
+char START_LINE[]="start-line";
+char METHOD[]="method";
+char TCHAR[]="tchar";
+char SP[]="SP";
+char ALPHA[]="ALPHA";
+char DIGIT[]="DIGIT";
+char REQUEST_TARGET[]="Request-Target";
+char ABSOLUTE_PATH[]="absolute-path";
+char SEGMENT[]="segment";
+char PCHAR[]="pchar";
+char UNRESERVED[]="unreserved";
+char PCT_ENCODED[]="pct-encoded";
+char SUB_DELIMS[]="sub-delims";
+char HEXDIG[]="HEXDIG";
+char QUERY[]="query";
+
+void printNode(node* obj){
+	printf("label:%s\n",obj->label);
+	printf("debut:%s\n",obj->debut);
+	printf("fin:%s\n",obj->fin);
+}
+
 void testMode(){
 	char req[]="GET / HTTP/1.1";
 	char *adr=&req[0];
-	char* label[]={"start-line","method","tchar","SP","ALPHA","DIGIT"};
 	node* tete=malloc(sizeof(node));
-	start_line(&adr,tete,label);
-	print_tree(tete,1);
+	start_line(&adr,tete);
+	printNode(tete);
+	//print_tree(tete,1);
 	exit(true);
 }
 

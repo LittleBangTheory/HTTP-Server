@@ -39,7 +39,7 @@ void print_tree(node *struct_current, int depth){
     printf("%s: ",struct_current->label);
     // print fields
     char *c=struct_current->debut;
-    while (c!=(struct_current->fin)+1) {
+    while (c!=(struct_current->fin)+1 && (c<=struct_current->fin)) {
         printf("%c",*c);
         c++;
     }
@@ -86,13 +86,6 @@ int istchar(char c){
     return 0;
 }
 
-int ispchar(char c){
-    if(isunreserved(c) || ispct_encoded(c) || issub_delims(c) || c == ':' || c == '@'){
-        return 1;
-    }
-    return 0;
-}
-
 int isunreserved(char c){
     if(isalpha(c) || isdigit(c)){
         return 1;
@@ -119,6 +112,13 @@ int issub_delims(char c){
         if(c == sub_delims_list[i]){
             return 1;
         }
+    }
+    return 0;
+}
+
+int ispchar(char c){
+    if(isunreserved(c) || ispct_encoded(c) || issub_delims(c) || c == ':' || c == '@'){
+        return 1;
     }
     return 0;
 }

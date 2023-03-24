@@ -8,27 +8,33 @@ struct abnf {
    node *frere;
 };
 
-#define START_LINE 0
-#define METHOD 1
-#define TCHAR 2
-#define SP 3
-#define ALPHA 4
-#define DIGIT 5
-#define REQUEST_TARGET 6
-#define ABSOLUTE_PATH 7
-#define SEGMENT 8
-#define PCHAR 9
-#define UNRESERVED 10
-#define PCT_ENCODED 11
-#define SUB_DELIMS 12
+extern char START_LINE[];
+extern char METHOD[];
+extern char TCHAR[];
+extern char SP[];
+extern char ALPHA[];
+extern char DIGIT[];
+extern char REQUEST_TARGET[];
+extern char ABSOLUTE_PATH[];
+extern char SEGMENT[];
+extern char PCHAR[];
+extern char UNRESERVED[];
+extern char PCT_ENCODED[];
+extern char SUB_DELIMS[];
+extern char HEXDIG[];
+extern char QUERY[];
 
-void start_line(char **current_char, node *struct_current, char *label);
-void token(char **current_char, node *struct_current, char *label);
-void request_target(char **current_char, node *struct_current, char *label);
-void absolute_path(char **current_char, node *struct_current, char *label);
-void segment(char **current_char, node *struct_current, char *label);
-void pchar(char **current_char, node *struct_current, char *label);
-void tchar(char **current_char, node *struct_current, char *label);
-void alpha(char **current_char, node *struct_current, char *label);
-void digit(char **current_char, node *struct_current, char *label);
-void sp(char **current_char, node *struct_current, char *label);
+void start_line(char **current_char, node *struct_current);
+void token(char **current_char, node *struct_current);
+void request_target(char **current_char, node *struct_current);
+void absolute_path(char **current_char, node *struct_current);
+void segment(char **current_char, node *struct_current);
+void pchar(char **current_char, node *struct_current);
+void tchar(char **current_char, node *struct_current);
+void alpha(char **current_char, node *struct_current);
+void digit(char **current_char, node *struct_current);
+void sp(char **current_char, node *struct_current);void query(char **current_char, node *struct_current);
+void sub_delims(char **current_char, node *struct_current);
+void unreserved(char **current_char, node *struct_current);
+void pct_encoded(char **current_char, node *struct_current);
+void hexdig(char **current_char, node *struct_current);
