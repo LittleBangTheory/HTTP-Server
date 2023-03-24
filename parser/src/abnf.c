@@ -39,14 +39,14 @@ void start_line(char **current_char, node *struct_current, char *label){
     struct_current->fils = new_struct_1;
     // Call the function for the first child, supposed to be method
     token(current_char, new_struct_1, label);
-    *current_char++;
+    //*current_char += 1;
 
     // Allocate memory for sp
     node *new_struct_2 = malloc(sizeof(node));
     new_struct_1->frere = new_struct_2;
     sp(current_char, new_struct_2, label);
     new_struct_1 = new_struct_2;
-    *current_char++;
+    //*current_char += 1;
 
     // Allocate memory for request-target
     new_struct_2 = malloc(sizeof(node));
@@ -77,13 +77,13 @@ void token(char **current_char, node *struct_current, char *label){
     node *new_struct_1 = malloc(sizeof(node));
     struct_current->fils = new_struct_1;
     tchar(current_char, new_struct_1, label);
-    do{
+    while(istchar(*(*current_char))){
         node *new_struct_2 = malloc(sizeof(node));
         new_struct_1->frere = new_struct_2;
         // move one struct forward 
         new_struct_1 = new_struct_2;
-        *current_char++;
-    }while(istchar(*(*current_char+1)));
+        *current_char += 1;
+    }
     struct_current->fin = *current_char;
 }
 
