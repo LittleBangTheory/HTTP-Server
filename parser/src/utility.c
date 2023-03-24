@@ -106,17 +106,17 @@ int isunreserved(char c){
     return 0;
 }
 
-int ispct_encoded(char **current_char){
-    if(**current_char == '%' && isxdigit(*(current_char+1)) && isxdigit(*(current_char+2))){
+// Only check if the first char is a %, too risky to check to chars forward, could be out of the string
+int ispct_encoded(char c){
+    if(c == '%'){
         return 1;
     }
     return 0;
 }
 
-int issub_delims(char **current_char){
+int issub_delims(char c){
     for(int i=0; i<7; i++){
-        if(**current_char == sub_delims_list[i]){
-            (*current_char)++;
+        if(c == sub_delims_list[i]){
             return 1;
         }
     }

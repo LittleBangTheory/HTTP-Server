@@ -18,6 +18,9 @@ struct abnf {
 #define ABSOLUTE_PATH 7
 #define SEGMENT 8
 #define PCHAR 9
+#define UNRESERVED 10
+#define PCT_ENCODED 11
+#define SUB_DELIMS 12
 
 void start_line(char **current_char, node *struct_current, char *label);
 void token(char **current_char, node *struct_current, char *label);

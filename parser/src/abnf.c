@@ -159,11 +159,41 @@ void pchar(char **current_char, node *struct_current, char *label){
     struct_current->fils = new_struct;
     if(isunreserved(**current_char)){
         unreserved(current_char, new_struct, label);
+    }else if(ispct_encoded(**current_char)){
+        pct_encoded(current_char, new_struct, label);
+    }else if(issub_delims(**current_char)){
+        sub_delims(current_char, new_struct, label);
+    }else if(**current_char!=':' && **current_char!='@'){
+        printf("Error : pchar not recognized");
+        exit(1);
     }
-
-    //unreserved / pct-encoded / sub-delims / ":" / "@"
-
+    struct_current->fin = *current_char;
 }
+
+void unreserved(char **current_char, node *struct_current, char *label){
+    // Init the struct (ptr, int...)
+    struct_current->debut = *current_char;
+    struct_current->label = label+UNRESERVED;
+    struct_current->fils = NULL;
+    struct_current->frere = NULL;
+
+    // Allocate memory for the first child
+    node *new_struct = malloc(sizeof(node));
+    struct_current->fils = new_struct;
+    if(isalpha(**current_char)){
+        alpha(current_char, new_struct, label);
+    }else if(isdigit(**current_char)){
+        digit(current_char, new_struct, label);
+    }else if(**current_char=='-' || **current_char=='.' || **current_char=='_' || **current_char=='~'){
+        *current_char+=1;
+    }else{
+        printf("Error : unreserved not recognized");
+        exit(1);
+    }
+    struct_current->fin = *current_char;
+}
+
+
 
 /** \fn void tchar(char **current_char, node *struct_current, char *label)
  * \brief Parse the tchar of the request
