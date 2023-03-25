@@ -13,8 +13,12 @@
 #define true 1
 #define false 0
 
+char HTTP_MESSAGE[]="HTTP-message";
+char HEADER_FIELD[]="header-field";
+char REQUEST_LINE[]="request-line";
 char START_LINE[]="start-line";
 char METHOD[]="method";
+char TOKEN[]="token";
 char TCHAR[]="tchar";
 char SP[]="SP";
 char ALPHA[]="ALPHA";
@@ -52,7 +56,6 @@ int main(int argc, char const *argv[])
 {
 	if (argc==3) testMode();
 	if (argc!=2){printf("Usage : ./parsername <file>\n");return false;}
-	char* label[]={"start-line","method","tchar","SP","ALPHA","DIGIT"};
 	FILE* fic = NULL;
 	fic=fopen(argv[1],"r");
 	if(fic==NULL){printf("Erreur ouverture\n");return false;}

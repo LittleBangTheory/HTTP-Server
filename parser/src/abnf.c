@@ -11,6 +11,14 @@
  * - Always check in a function that the character(s) to store is/are the right one(s) (example : in tchar(), check that the character is a tchar)
 */
 
+/* TODO :
+- Store the icar like / in a separate struct, they are currently only stored in the parent struct, but not in their own struct
+- Complete the function http_message()
+- Add and complete all the son functions of http_message() (excepted start-line() and below)
+- Check that our syntax corresponds to the one of the teacher (example : __alpha instead of alpha)
+- Write a bash script to execute every test and compare the output with the expected one
+*/
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -18,13 +26,74 @@
 #include "../headers/abnf.h"
 #include "../headers/utility.h"
 
+/** \fn void http_message(char **current_char, node *struct_current)
+ * \brief Parse the http message
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * \param label : pointer to the array of labels
+*/
+void http_message(char **current_char, node *struct_current){
+    // WORK IN PROGRESS - MAIN FUNCTION HERE
+}
+
+void header_field(char **current_char, node *struct_current){
+    // Init the struct (ptr, int...), and allocate memory for the first child
+    struct_current->debut = *current_char;
+    struct_current->label = HEADER_FIELD;
+    struct_current->fils = NULL;
+
+    // Allocate memory for the first child
+    node *new_struct_1 = malloc(sizeof(node));
+    struct_current->fils = new_struct_1;
+
+    // Call the function for the first child, supposed to be field-name
+    field_name(current_char, new_struct_1);
+
+    // Allocate memory for the second child
+    node *new_struct_2 = malloc(sizeof(node));
+    new_struct_1->frere = new_struct_2;
+
+    // Call the function for the second child, supposed to be OWS
+    ows(current_char, new_struct_2);
+
+    // Allocate memory for the third child
+    node *new_struct_3 = malloc(sizeof(node));
+    new_struct_2->frere = new_struct_3;
+
+    // Call the function for the third child, supposed to be COLON
+    colon(current_char, new_struct_3);
+
+    // Allocate memory for the fourth child
+    node *new_struct_4 = malloc(sizeof(node));
+    new_struct_3->frere = new_struct_4;
+
+    // Call the function for the fourth child, supposed to be OWS
+    ows(current_char, new_struct_4);
+
+    // Allocate memory for the fifth child
+    node *new_struct_5 = malloc(sizeof(node));
+    new_struct_4->frere = new_struct_5;
+
+    // Call the function for the fifth child, supposed to be field-value
+    field_value(current_char, new_struct_5);
+
+    // Allocate memory for the sixth child
+    node *new_struct_6 = malloc(sizeof(node));
+    new_struct_5->frere = new_struct_6;
+
+    // Call the function for the sixth child, supposed to be OWS
+    ows(current_char, new_struct_6);
+
+    // The end of the struct is known when the son functions are done
+    struct_current->fin = *current_char;
+}
+
 
 /** \fn void start_line(char **current_char, node *struct_current)
  * \brief Parse the start line of the request
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * \param label : pointer to the array of labels
- * There is no request_line() function, as a start line is always a request line
 */
 void start_line(char **current_char, node *struct_current){
     // Init the struct (ptr, int...)
@@ -35,8 +104,31 @@ void start_line(char **current_char, node *struct_current){
     // Allocate memory for the first child
     node *new_struct_1 = malloc(sizeof(node));
     struct_current->fils = new_struct_1;
+
+    // Call the function for the first child, supposed to be request_line
+    request_line(current_char, new_struct_1);
+
+    // The end of the struct is known when the son function is done
+    struct_current->fin = *current_char;
+}
+
+/** \fn void request_line(char **current_char, node *struct_current)
+ * \brief Parse the request line of the request
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * \param label : pointer to the array of labels
+*/
+void request_line(char **current_char, node *struct_current){
+    // Init the struct (ptr, int...)
+    struct_current->debut = *current_char;
+    struct_current->label = REQUEST_LINE;
+    struct_current->fils = NULL;
+
+    // Allocate memory for the first child
+    node *new_struct_1 = malloc(sizeof(node));
+    struct_current->fils = new_struct_1;
     // Call the function for the first child, supposed to be method
-    token(current_char, new_struct_1);
+    method(current_char, new_struct_1);
 
     // Allocate memory for sp
     node *new_struct_2 = malloc(sizeof(node));
@@ -74,6 +166,12 @@ void start_line(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
+/** \fn void crlf(char **current_char, node *struct_current)
+ * \brief Parse the CRLF of the request
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * 
+*/
 void crlf(char **current_char, node *struct_current){
     // Init the struct (ptr, int...)
     struct_current->debut = *current_char;
@@ -161,6 +259,28 @@ void http_name(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
+/** \fn void method(char **current_char, node *struct_current)
+ * \brief Parse the method of the request
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct 
+ * 
+*/
+void method(char **current_char, node *struct_current){
+    // Init the struct (ptr, int...)
+    struct_current->debut = *current_char;
+    struct_current->label = METHOD;
+    struct_current->fils = NULL;
+
+    // Allocate memory for the first child
+    node *new_struct_1 = malloc(sizeof(node));
+    struct_current->fils = new_struct_1;
+    // Call the function for the first child, supposed to be token
+    token(current_char, new_struct_1);
+
+    // The end is known when the son function is done
+    struct_current->fin = *current_char;
+}
+
 /** \fn void token(char **current_char, node *struct_current)
  * \brief Parse the method of the request
  * \param current_char : pointer to the current char
@@ -171,7 +291,7 @@ void http_name(char **current_char, node *struct_current){
 void token(char **current_char, node *struct_current){
     // Init the struct (ptr, int...)
     struct_current->debut = *current_char;
-    struct_current->label = METHOD;
+    struct_current->label = TOKEN;
     struct_current->fils = NULL;
 
     // Allocate memory for the child and its brothers)
@@ -219,6 +339,12 @@ void request_target(char **current_char, node *struct_current){
     }
 }
 
+/** \fn void query(char **current_char, node *struct_current)
+ * \brief Parse the query element of the request
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * 
+*/
 void query(char **current_char, node *struct_current){
     // Init the struct (ptr, int...)
     struct_current->debut = *current_char;
@@ -243,6 +369,12 @@ void query(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
+/** \fn void absolute_path(char **current_char, node *struct_current)
+ * \brief Parse the absolute-path element of the request
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * 
+*/
 void absolute_path(char **current_char, node *struct_current){
     // Init the struct (ptr, int...)
     struct_current->debut = *current_char;
@@ -260,6 +392,12 @@ void absolute_path(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
+/** \fn void segment(char **current_char, node *struct_current)
+ * \brief Parse the segment element of the request
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * 
+*/
 void segment(char **current_char, node *struct_current){
     // Init the struct (ptr, int...)
     struct_current->debut = *current_char;
@@ -282,6 +420,12 @@ void segment(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
+/** \fn void pchar(char **current_char, node *struct_current)
+ * \brief Parse the pchar element of the request
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * 
+*/
 void pchar(char **current_char, node *struct_current){
     // Init the struct (ptr, int...)
     struct_current->debut = *current_char;
@@ -303,6 +447,12 @@ void pchar(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
+/** \fn void unreserved(char **current_char, node *struct_current)
+ * \brief Parse the unreserved element of the request
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * 
+*/
 void unreserved(char **current_char, node *struct_current){
     // Init the struct (ptr, int...)
     struct_current->debut = *current_char;
@@ -324,6 +474,12 @@ void unreserved(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
+/** \fn void pct_encoded(char **current_char, node *struct_current)
+ * \brief Parse the pct-encoded element of the request
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * 
+*/
 void pct_encoded(char **current_char, node *struct_current){
     // Init the struct (ptr, int...)
     struct_current->debut = *current_char;
@@ -348,6 +504,12 @@ void pct_encoded(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
+/** \fn void hexdig(char **current_char, node *struct_current)
+ * \brief Parse the hexdig element of the request
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * 
+*/
 void hexdig(char **current_char, node *struct_current){
     // Init the struct (ptr, int...)
     struct_current->debut = *current_char;
@@ -360,6 +522,12 @@ void hexdig(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
+/** \fn void sub_delims(char **current_char, node *struct_current)
+ * \brief Parse the sub_delims element of the request
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * 
+*/
 void sub_delims(char **current_char, node *struct_current){
     // Init the struct (ptr, int...)
     struct_current->debut = *current_char;
