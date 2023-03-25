@@ -43,8 +43,7 @@ void testMode(){
 	char *adr=&req[0];
 	node* tete=malloc(sizeof(node));
 	start_line(&adr,tete);
-	printNode(tete);
-	//print_tree(tete,1);
+	print_tree(tete,1);
 	exit(true);
 }
 

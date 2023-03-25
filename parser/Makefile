@@ -1,5 +1,6 @@
 all: main.o api.o utility.o abnf.o
 	gcc $^ -o ourParser
+	rm *.o
 
 main.o: ./src/main.c
 	gcc -Wall -g -c $< -o $@
