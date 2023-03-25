@@ -36,11 +36,12 @@ void http_message(char **current_char, node *struct_current){
     // WORK IN PROGRESS - MAIN FUNCTION HERE
 }
 
+
 /** \fn header_field(char **current_char, node *struct_current)
  * \brief Parse the header field
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
- * 
+ * WORK IN PROGRESS, TO COMMENT IN ORDRE TO TEST EVERYTHING ELSE
 */
 void header_field(char **current_char, node *struct_current){
     // Init the struct (ptr, int...), and allocate memory for the first child
@@ -330,17 +331,24 @@ void request_target(char **current_char, node *struct_current){
     struct_current->fils = NULL;
 
     // Allocate memory for the first child
-    node *new_struct = malloc(sizeof(node));
-    struct_current->fils = new_struct;
-    absolute_path(current_char, new_struct);
+    node *new_struct_1 = malloc(sizeof(node));
+    struct_current->fils = new_struct_1;
+    absolute_path(current_char, new_struct_1);
 
     if(*(*current_char+1)=='?'){
+        // Store the question mark
+        current_char+=1;
+        node *new_struct_2 = malloc(sizeof(node));
+        new_struct_1->frere = new_struct_2;
+        icar(current_char, new_struct_2);
+        new_struct_1 = new_struct_2;
+
         // Move pass the question mark to store the query
-        *current_char+=2;
+        *current_char+=1;
         // Allocate memory for the first child
-        new_struct = malloc(sizeof(node));
-        (struct_current->fils)->frere = new_struct;
-        query(current_char, new_struct);
+        new_struct_2 = malloc(sizeof(node));
+        new_struct_1->frere = new_struct_2;
+        query(current_char, new_struct_2);
     }
 }
 
@@ -361,13 +369,15 @@ void query(char **current_char, node *struct_current){
     struct_current->fils = new_struct_1;
     if(ispchar(**current_char) || **current_char=='/' || **current_char=='?'){
         do{
+            node *new_struct_2 = malloc(sizeof(node));
             if(ispchar(**current_char)) {
-                node *new_struct_2 = malloc(sizeof(node));
                 pchar(current_char, new_struct_1);
-                new_struct_1->frere = new_struct_2;
-                // move one struct forward 
-                new_struct_1 = new_struct_2;
+            } else {
+                icar(current_char, new_struct_1);
             }
+            new_struct_1->frere = new_struct_2;
+            // move one struct forward 
+            new_struct_1 = new_struct_2;
             *current_char+=1;
         }while(ispchar(*(*current_char+1) || *(*current_char+1)=='/' || *(*current_char+1)=='?'));
     }
@@ -387,6 +397,7 @@ void absolute_path(char **current_char, node *struct_current){
     struct_current->fils = NULL;
 
     if(**current_char=='/'){
+        icar(current_char, struct_current);
         *current_char+=1;
         // Allocate memory for the first child
         node *new_struct = malloc(sizeof(node));
@@ -445,7 +456,9 @@ void pchar(char **current_char, node *struct_current){
         pct_encoded(current_char, new_struct);
     }else if(issub_delims(**current_char)){
         sub_delims(current_char, new_struct);
-    }else if(**current_char!=':' && **current_char!='@'){
+    }else if(**current_char=':' || **current_char=='@'){
+        icar(current_char, new_struct);
+    }else{
         printf("Error : pchar not recognized");
         exit(1);
     }
@@ -471,7 +484,9 @@ void unreserved(char **current_char, node *struct_current){
         alpha(current_char, new_struct);
     }else if(isdigit(**current_char)){
         digit(current_char, new_struct);
-    }else if(!(**current_char=='-' || **current_char=='.' || **current_char=='_' || **current_char=='~')){
+    }else if(**current_char=='-' || **current_char=='.' || **current_char=='_' || **current_char=='~'){
+        icar(current_char, new_struct);
+    }else{
         printf("Error : unreserved not recognized");
         exit(1);
     }
@@ -491,7 +506,9 @@ void pct_encoded(char **current_char, node *struct_current){
     struct_current->label = PCT_ENCODED;
     struct_current->fils = NULL;
 
+    // Allocate memory for the child
     if(**current_char=='%'){
+        icar(current_char, struct_current);
         *current_char+=1;
         // Allocate memory for the first child
         node *new_struct_1 = malloc(sizeof(node));
@@ -564,21 +581,21 @@ void tchar(char **current_char, node *struct_current){
 
     // if its a SP, end of method
     if(istchar(**current_char)) {
-        // If the next char is a letter, create a son node and call alpha()
-        if(isalpha(**current_char)){
-            // Allocate memory for the first child
-            node *new_struct = malloc(sizeof(node));
-            struct_current->fils = new_struct;
+        // Allocate memory for the first child
+        node *new_struct = malloc(sizeof(node));
+        struct_current->fils = new_struct;
 
+        // If the next char is a letter, call alpha()
+        if(isalpha(**current_char)){
             alpha(current_char, new_struct);
         
-        // If the next char is a digit, create a son node and call digit()
+        // If the next char is a digit, call digit()
         } else if(isdigit(**current_char)){
-            // Allocate memory for the first child
-            node *new_struct = malloc(sizeof(node));
-            struct_current->fils = new_struct;
-
             digit(current_char, new_struct);
+
+        // Else, it's an icar
+        } else{
+            icar(current_char, new_struct);
         }
     // If the next char isnt a tchar or a SP, error
     } else if(!istchar(**current_char)){
@@ -641,7 +658,7 @@ void sp(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void icar(char **current_char, node *struct_current)
+/** \fn void icar(char **current_char, node *struct_current)75
  * \brief Parse the icar character of the request
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
