@@ -36,12 +36,11 @@ void http_message(char **current_char, node *struct_current){
     // WORK IN PROGRESS - MAIN FUNCTION HERE
 }
 
-
 /** \fn header_field(char **current_char, node *struct_current)
  * \brief Parse the header field
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
- * WORK IN PROGRESS, TO COMMENT IN ORDRE TO TEST EVERYTHING ELSE
+ * WORK IN PROGRESS, TO COMMENT IN ORDER TO TEST EVERYTHING ELSE
 */
 void header_field(char **current_char, node *struct_current){
     // Init the struct (ptr, int...), and allocate memory for the first child
@@ -56,41 +55,206 @@ void header_field(char **current_char, node *struct_current){
     // Call the function for the first child, supposed to be field-name
     field_name(current_char, new_struct_1);
 
+    if(**current_char != ':'){
+        printf("Error : expected ':' in header-field, got '%c' instead\n", **current_char);
+        exit(1);
+    }
     // Allocate memory for the second child
     node *new_struct_2 = malloc(sizeof(node));
     new_struct_1->frere = new_struct_2;
 
-    // Call the function for the second child, supposed to be OWS
-    ows(current_char, new_struct_2);
+    // Call the function for the second child, supposed to be ':'
+    icar(current_char, new_struct_2);
 
     // Allocate memory for the third child
-    node *new_struct_3 = malloc(sizeof(node));
-    new_struct_2->frere = new_struct_3;
+    new_struct_1 = new_struct_2;
+    new_struct_2 = malloc(sizeof(node));
+    new_struct_1->frere = new_struct_2;
 
-    // Call the function for the third child, supposed to be COLON
-    colon(current_char, new_struct_3);
+    // Call the function for the third child, supposed to be OWS
+    ows(current_char, new_struct_2);
 
     // Allocate memory for the fourth child
-    node *new_struct_4 = malloc(sizeof(node));
-    new_struct_3->frere = new_struct_4;
+    new_struct_1 = new_struct_2;
+    new_struct_2 = malloc(sizeof(node));
+    new_struct_1->frere = new_struct_2;
 
-    // Call the function for the fourth child, supposed to be OWS
-    ows(current_char, new_struct_4);
+    // Call the function for the fourth child, supposed to be field-value
+    field_value(current_char, new_struct_2);
 
     // Allocate memory for the fifth child
-    node *new_struct_5 = malloc(sizeof(node));
-    new_struct_4->frere = new_struct_5;
+    new_struct_1 = new_struct_2;
+    new_struct_2 = malloc(sizeof(node));
+    new_struct_1->frere = new_struct_2;
 
-    // Call the function for the fifth child, supposed to be field-value
-    field_value(current_char, new_struct_5);
+    // Call the function for the fifth child, supposed to be OWS
+    ows(current_char, new_struct_2);
 
-    // Allocate memory for the sixth child
-    node *new_struct_6 = malloc(sizeof(node));
-    new_struct_5->frere = new_struct_6;
+    // The end of the struct is known when the son functions are done
+    struct_current->fin = *current_char;
+}
 
-    // Call the function for the sixth child, supposed to be OWS
-    ows(current_char, new_struct_6);
+/** \fn void field_name(char **current_char, node *struct_current)
+ * \brief Parse the field name
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * 
+*/
+void field_name(char **current_char, node *struct_current){
+    // Init the struct (ptr, int...), and allocate memory for the first child
+    struct_current->debut = *current_char;
+    struct_current->label = FIELD_NAME;
+    struct_current->fils = NULL;
 
+    // Allocate memory for the first child
+    node *new_struct_1 = malloc(sizeof(node));
+    struct_current->fils = new_struct_1;
+
+    // Call the function for the first child, supposed to be token
+    token(current_char, new_struct_1);
+
+    // The end of the struct is known when the son functions are done
+    struct_current->fin = *current_char;
+}
+
+/** \fn void ows(char **current_char, node *struct_current)
+ * \brief Parse the ows
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * 
+*/
+void ows(char **current_char, node *struct_current){
+    // Init the struct (ptr, int...), and allocate memory for the first child
+    struct_current->debut = *current_char;
+    struct_current->label = OWS;
+    struct_current->fils = NULL;
+
+    // Store as many SP and HTAB as needed
+    while(**current_char == 0x20 || **current_char == 0x09) {
+        // Allocate memory for the first child
+        node *new_struct_1 = malloc(sizeof(node));
+        struct_current->fils = new_struct_1;
+
+        if(**current_char == 0x20){
+            // Call the function for the first child, supposed to be SP
+            sp(current_char, new_struct_1);
+        }
+        else if(**current_char == 0x09){
+            // Call the function for the first child, supposed to be HTAB
+            htab(current_char, new_struct_1);
+        }
+
+        // Allocate memory for the second child (if needed)
+        if(*(current_char+1) == 0x20 || *(current_char+1) == 0x09){
+            // Allocate memory for the second child
+            node *new_struct_2 = new_struct_1;
+            new_struct_1 = malloc(sizeof(node));
+            new_struct_2->frere = new_struct_1;
+        }
+    }
+
+    // Go one char back to respect convention (never go further than the end of the struct in the said function) 
+    *current_char-=1;
+    // The end of the struct is known when the son functions are done
+    struct_current->fin = *current_char;
+}
+
+/** \fn void field_value(char **current_char, node *struct_current)
+ * \brief Parse the field value
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * 
+*/
+void field_value(char **current_char, node *struct_current){
+    // Init the struct (ptr, int...), and allocate memory for the first child
+    struct_current->debut = *current_char;
+    struct_current->label = FIELD_VALUE;
+    struct_current->fils = NULL;
+
+    // Store as many field-content as needed. 
+    //TODO : STOP CONDITION TO BE CHECKED
+    while(**current_char == '\n' || isvchar(**current_char)) {
+        // Allocate memory for the first child
+        node *new_struct_1 = malloc(sizeof(node));
+        struct_current->fils = new_struct_1;
+
+        // Call the function for the first child, supposed to be field-content or obs-fold
+        if(**current_char == '\n'){
+            // osb_fold : CRLF 1*( SP / HTAB )
+            obs_fold(current_char, new_struct_1);
+        } else if(isvchar(**current_char)){
+            // field-content = field-vchar [ 1*( SP / HTAB ) field-vchar ]
+            field_content(current_char, new_struct_1);
+        }
+
+        // Allocate memory for the second child (if needed)
+        if(*(current_char+1) != 0x0D && *(current_char+1) != 0x0A){
+            // Allocate memory for the second child
+            node *new_struct_2 = new_struct_1;
+            new_struct_1 = malloc(sizeof(node));
+            new_struct_2->frere = new_struct_1;
+        }
+    }
+
+    // Go one char back to respect convention (never go further than the end of the struct in the said function) 
+    *current_char-=1;
+    // The end of the struct is known when the son functions are done
+    struct_current->fin = *current_char;
+}
+
+/** \fn void field_content(char **current_char, node *struct_current)
+ * \brief Parse the field content
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * NOT TESTED NOR FINISHED 
+*/
+void field_content(char **current_char, node *struct_current){
+    // Init the struct (ptr, int...), and allocate memory for the first child
+    struct_current->debut = *current_char;
+    struct_current->label = FIELD_CONTENT;
+    struct_current->fils = NULL;
+
+    // Allocate memory for the first child
+    node *new_struct_1 = malloc(sizeof(node));
+    struct_current->fils = new_struct_1;
+
+    // Call the function for the first child, supposed to be field-vchar
+    field_vchar(current_char, new_struct_1);
+
+    // Allocate memory for the second child (if needed)
+    if(*(current_char+1) == 0x20 || *(current_char+1) == 0x09){
+        // Allocate memory for the second child
+        node *new_struct_2 = new_struct_1;
+        new_struct_1 = malloc(sizeof(node));
+        new_struct_2->frere = new_struct_1;
+    }
+
+    // Store as many SP and HTAB as needed
+    while(**current_char == 0x20 || **current_char == 0x09) {
+        // Allocate memory for the first child
+        node *new_struct_1 = malloc(sizeof(node));
+        struct_current->fils = new_struct_1;
+
+        if(**current_char == 0x20){
+            // Call the function for the first child, supposed to be SP
+            sp(current_char, new_struct_1);
+        }
+        else if(**current_char == 0x09){
+            // Call the function for the first child, supposed to be HTAB
+            htab(current_char, new_struct_1);
+        }
+
+        // Allocate memory for the second child (if needed)
+        if(*(current_char+1) == 0x20 || *(current_char+1) == 0x09){
+            // Allocate memory for the second child
+            node *new_struct_2 = new_struct_1;
+            new_struct_1 = malloc(sizeof(node));
+            new_struct_2->frere = new_struct_1;
+        }
+    }
+
+    // Go one char back to respect convention (never go further than the end of the struct in the said function) 
+    *current_char-=1;
     // The end of the struct is known when the son functions are done
     struct_current->fin = *current_char;
 }
@@ -99,7 +263,6 @@ void header_field(char **current_char, node *struct_current){
  * \brief Parse the start line of the request
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
- * \param label : pointer to the array of labels
 */
 void start_line(char **current_char, node *struct_current){
     // Init the struct (ptr, int...)
@@ -122,7 +285,6 @@ void start_line(char **current_char, node *struct_current){
  * \brief Parse the request line of the request
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
- * \param label : pointer to the array of labels
 */
 void request_line(char **current_char, node *struct_current){
     // Init the struct (ptr, int...)
@@ -291,8 +453,6 @@ void method(char **current_char, node *struct_current){
  * \brief Parse the method of the request
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
- * \param label : pointer to the array of labels
- * There is no method() function, as a method is always a token
 */
 void token(char **current_char, node *struct_current){
     // Init the struct (ptr, int...)
@@ -321,8 +481,6 @@ void token(char **current_char, node *struct_current){
  * \brief Parse the request-target element of the request
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
- * \param label : pointer to the array of labels
- * Ass origin-form() function
 */
 void request_target(char **current_char, node *struct_current){
     // Init the struct (ptr, int...)
@@ -566,7 +724,6 @@ void sub_delims(char **current_char, node *struct_current){
  * \brief Parse the tchar of the request
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
- * \param label : pointer to the array of labels
  * 
 */
 void tchar(char **current_char, node *struct_current){
@@ -608,7 +765,6 @@ void tchar(char **current_char, node *struct_current){
  * \brief Parse the alpha characters of the request
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
- * \param label : pointer to the array of labels
  * 
 */
 void alpha(char **current_char, node *struct_current){
@@ -626,7 +782,6 @@ void alpha(char **current_char, node *struct_current){
  * \brief Parse the digit characters of the request
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
- * \param label : pointer to the array of labels
  * 
 */
 void digit(char **current_char, node *struct_current){
@@ -644,7 +799,6 @@ void digit(char **current_char, node *struct_current){
  * \brief Parse the SP character of the request
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
- * \param label : pointer to the array of labels
  * 
 */
 void sp(char **current_char, node *struct_current){
@@ -653,6 +807,23 @@ void sp(char **current_char, node *struct_current){
         exit(1);
     }
     struct_current->label = SP;
+    struct_current->fils = NULL;
+    struct_current->debut = *current_char;
+    struct_current->fin = *current_char;
+}
+
+/** \fn void htab(char **current_char, node *struct_current)
+ * \brief Parse the HTAB character of the request
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * 
+*/
+void htab(char **current_char, node *struct_current){
+    if (**current_char != 0x09){
+        printf("Error: Expected a HTAB, not %c\n", **current_char);
+        exit(1);
+    }
+    struct_current->label = HTAB;
     struct_current->fils = NULL;
     struct_current->debut = *current_char;
     struct_current->fin = *current_char;

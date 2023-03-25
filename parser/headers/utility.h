@@ -10,3 +10,4 @@ int ispchar(char c);
 int isunreserved(char c);
 int ispct_encoded(char c);
 int issub_delims(char c);
+int isvchar(char c);

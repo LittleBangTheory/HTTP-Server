@@ -36,6 +36,11 @@ char HTTP_VERSION[]="HTTP-version";
 char HTTP_NAME[]="HTTP-name";
 char CRLF[]="__crlf";
 char ICAR[]="__icar";
+char FIELD_NAME[]="field-name";
+char FIELD_VALUE[]="field-value";
+char OWS[]="__ows";
+char HTAB[]="__htab";
+char FIELD_CONTENT[]="field-content";
 
 void printNode(node* obj){
 	printf("label:%s\n",obj->label);

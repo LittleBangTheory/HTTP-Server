@@ -122,3 +122,11 @@ int ispchar(char c){
     }
     return 0;
 }
+
+int isvchar(char c){
+    // check for every char between 0x21 and 0x7e
+    if(c >= 0x21 && c <= 0x7e){
+        return 1;
+    }
+    return 0;
+}
