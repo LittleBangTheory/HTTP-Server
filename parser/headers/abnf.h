@@ -30,6 +30,7 @@ extern char HTTP_VERSION[];
 extern char HTTP_NAME[];
 extern char CRLF[];
 extern char HEADER_FIELD[];
+extern char ICAR[];
 
 void http_message(char **current_char, node *struct_current);
 void request_line(char **current_char, node *struct_current);

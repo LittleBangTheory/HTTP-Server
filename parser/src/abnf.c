@@ -36,6 +36,12 @@ void http_message(char **current_char, node *struct_current){
     // WORK IN PROGRESS - MAIN FUNCTION HERE
 }
 
+/** \fn header_field(char **current_char, node *struct_current)
+ * \brief Parse the header field
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * 
+*/
 void header_field(char **current_char, node *struct_current){
     // Init the struct (ptr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
@@ -87,7 +93,6 @@ void header_field(char **current_char, node *struct_current){
     // The end of the struct is known when the son functions are done
     struct_current->fin = *current_char;
 }
-
 
 /** \fn void start_line(char **current_char, node *struct_current)
  * \brief Parse the start line of the request
@@ -631,6 +636,19 @@ void sp(char **current_char, node *struct_current){
         exit(1);
     }
     struct_current->label = SP;
+    struct_current->fils = NULL;
+    struct_current->debut = *current_char;
+    struct_current->fin = *current_char;
+}
+
+/** \fn void icar(char **current_char, node *struct_current)
+ * \brief Parse the icar character of the request
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * 
+*/
+void icar(char **current_char, node *struct_current){
+    struct_current->label = ICAR;
     struct_current->fils = NULL;
     struct_current->debut = *current_char;
     struct_current->fin = *current_char;

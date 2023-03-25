@@ -20,7 +20,7 @@ char START_LINE[]="start-line";
 char METHOD[]="method";
 char TOKEN[]="token";
 char TCHAR[]="tchar";
-char SP[]="SP";
+char SP[]="__sp";
 char ALPHA[]="ALPHA";
 char DIGIT[]="DIGIT";
 char REQUEST_TARGET[]="Request-Target";
@@ -30,11 +30,12 @@ char PCHAR[]="pchar";
 char UNRESERVED[]="unreserved";
 char PCT_ENCODED[]="pct-encoded";
 char SUB_DELIMS[]="sub-delims";
-char HEXDIG[]="HEXDIG";
+char HEXDIG[]="hexdig";
 char QUERY[]="query";
 char HTTP_VERSION[]="HTTP-version";
 char HTTP_NAME[]="HTTP-name";
-char CRLF[]="CRLF";
+char CRLF[]="__crlf";
+char ICAR[]="__icar";
 
 void printNode(node* obj){
 	printf("label:%s\n",obj->label);
