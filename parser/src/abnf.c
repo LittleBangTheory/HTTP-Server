@@ -50,7 +50,6 @@ void start_line(char **current_char, node *struct_current){
     new_struct_2 = malloc(sizeof(node));
     new_struct_1->frere = new_struct_2;
     request_target(current_char, new_struct_2);
-    *current_char+=1;
 
     // Allocate memory for sp
     new_struct_1 = new_struct_2;
@@ -84,7 +83,7 @@ void crlf(char **current_char, node *struct_current){
 
     // Check if \n is present
     if (**current_char != '\n'){
-        printf("Error : line feed expected, %c found", **current_char);
+        printf("Error : line feed expected, %c found\n", **current_char);
         exit(1);
     }
     *current_char+=1;
@@ -92,6 +91,7 @@ void crlf(char **current_char, node *struct_current){
     // The end is known at the end
     struct_current->fin = *current_char;
 }
+
 /** \fn void http_version(char **current_char, node *struct_current)
  * \brief Parse the http version of the request
  * \param current_char : pointer to the current char
@@ -109,11 +109,10 @@ void http_version(char **current_char, node *struct_current){
     struct_current->fils = new_struct_1;
     // Call the function for the first child, supposed to be http-name
     http_name(current_char, new_struct_1);
-    *current_char+=1;
 
     // Check if / is present
     if (**current_char != '/'){
-        printf("Error : slash expected, %c found", **current_char);
+        printf("Error : slash expected, %c found\n", **current_char);
         exit(1);
     }
     *current_char+=1;
@@ -154,7 +153,7 @@ void http_name(char **current_char, node *struct_current){
     struct_current->fils = NULL;
 
     if(!(**current_char == 'H' && *(*current_char+1) == 'T' && *(*current_char+2) == 'T' && *(*current_char+3) == 'P')){
-        printf("Error : HTTP expected, %c%c%c%c found", **current_char, *(*current_char+1), *(*current_char+2), *(*current_char+3));
+        printf("Error : HTTP expected, %c%c%c%c found\n", **current_char, *(*current_char+1), *(*current_char+2), *(*current_char+3));
         exit(1);
     }
     *current_char+=4;
@@ -458,7 +457,7 @@ void digit(char **current_char, node *struct_current){
 */
 void sp(char **current_char, node *struct_current){
     if (**current_char != 0x20){
-        printf("Error: Expected a SP, not %c", **current_char);
+        printf("Error: Expected a SP, not %c\n", **current_char);
         exit(1);
     }
     struct_current->label = SP;

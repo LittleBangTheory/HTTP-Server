@@ -41,3 +41,6 @@ void sub_delims(char **current_char, node *struct_current);
 void unreserved(char **current_char, node *struct_current);
 void pct_encoded(char **current_char, node *struct_current);
 void hexdig(char **current_char, node *struct_current);
+void crlf(char **current_char, node *struct_current);
+void http_name(char **current_char, node *struct_current);
+void http_version(char **current_char, node *struct_current);

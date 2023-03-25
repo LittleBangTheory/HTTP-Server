@@ -6,7 +6,6 @@ parser/simplegrammar/simplegrammar.exe
 parser/simplegrammar/abnf.o
 parser/simplegrammar/validations.txt
 parser/simplegrammar/html/
-parser/main.o
-parser/api.o
-parser/abnf.o
+parser/*.o
 parser/html/
+parser/main.o
