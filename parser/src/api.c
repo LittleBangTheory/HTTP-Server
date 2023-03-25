@@ -31,13 +31,14 @@ void purgeElement(_Token **r){}
 
 // Fonction qui supprime et libere toute la mémoire associée à l'arbre . 
 void purgeTree(void *root){
-    if (root->frere != NULL){
-        purgeTree(root->frere);
+    node *element=root;
+    if (element->frere != NULL){
+        purgeTree(element->frere);
     }
-    if (root->fils != NULL) {
-        purgeTree(root->fils);
+    if (element->fils != NULL) {
+        purgeTree(element->fils);
     }
-    free(root);
+    free(element);
 } 
 
 // L'appel à votre parser un char* et une longueur à parser.  
