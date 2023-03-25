@@ -23,6 +23,9 @@ extern char PCT_ENCODED[];
 extern char SUB_DELIMS[];
 extern char HEXDIG[];
 extern char QUERY[];
+extern char HTTP_VERSION[];
+extern char HTTP_NAME[];
+extern char CRLF[];
 
 void start_line(char **current_char, node *struct_current);
 void token(char **current_char, node *struct_current);

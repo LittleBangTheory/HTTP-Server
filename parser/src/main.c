@@ -28,6 +28,9 @@ char PCT_ENCODED[]="pct-encoded";
 char SUB_DELIMS[]="sub-delims";
 char HEXDIG[]="HEXDIG";
 char QUERY[]="query";
+char HTTP_VERSION[]="HTTP-version";
+char HTTP_NAME[]="HTTP-name";
+char CRLF[]="CRLF";
 
 void printNode(node* obj){
 	printf("label:%s\n",obj->label);
