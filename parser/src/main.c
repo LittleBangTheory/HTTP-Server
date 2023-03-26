@@ -42,6 +42,11 @@ char OWS[]="__ows";
 char HTAB[]="__htab";
 char FIELD_CONTENT[]="field-content";
 char OBS_FOLD[]="obs-fold";
+char FIELD_VCHAR[]="field-vchar";
+char VCHAR[]="__vchar";
+char OBS_TEXT[]="obs-text";
+char MESSAGE_BODY[]="message-body";
+char OCTET[]="OCTET";
 
 void printNode(node* obj){
 	printf("label:%s\n",obj->label);

@@ -68,9 +68,7 @@ void delete_chained_list(node *struct_current){
 
 /** \fn void istchar(char **current_char, node *struct_current, char *label)
  * \brief Check if the char belongs to the list of accepted characted for a tchar
- * \param current_char : pointer to the current char
- * \param struct_current : pointer to the current struct
- * \param label : pointer to the array of labels
+ * \param c : char to check
  * The list of accepted characters is : "!" / "#" / "$" / "%" / "&" / "" / "*" / "+" / "-" / "." / "^" / "_" / "`" / "|" / "~" / DIGIT / ALPHA
 */
 int istchar(char c){
@@ -86,6 +84,10 @@ int istchar(char c){
     return 0;
 }
 
+/** \fn void isunreserved(char **current_char, node *struct_current, char *label)
+ * \brief Check if the char belongs to the list of accepted characted for a unreserved
+ * \param c : char to check
+*/
 int isunreserved(char c){
     if(isalpha(c) || isdigit(c)){
         return 1;
@@ -99,7 +101,11 @@ int isunreserved(char c){
     return 0;
 }
 
-// Only check if the first char is a %, too risky to check to chars forward, could be out of the string
+/** \fn void ispct_encoded(char **current_char, node *struct_current, char *label)
+ * \brief Check if the char belongs to the list of accepted characted for a pct_encoded
+ * \param c : char to check
+ * Only check if the first char is a %, too risky to check to chars forward, could be out of the string
+*/
 int ispct_encoded(char c){
     if(c == '%'){
         return 1;
@@ -107,6 +113,10 @@ int ispct_encoded(char c){
     return 0;
 }
 
+/** \fn void issub_delims(char **current_char, node *struct_current, char *label)
+ * \brief Check if the char belongs to the list of accepted characted for a sub_delims
+ * \param c : char to check
+*/
 int issub_delims(char c){
     for(int i=0; i<7; i++){
         if(c == sub_delims_list[i]){
@@ -116,6 +126,10 @@ int issub_delims(char c){
     return 0;
 }
 
+/** \fn void ispchar(char **current_char, node *struct_current, char *label)
+ * \brief Check if the char belongs to the list of accepted characted for a pchar
+ * \param c : char to check
+*/
 int ispchar(char c){
     if(isunreserved(c) || ispct_encoded(c) || issub_delims(c) || c == ':' || c == '@'){
         return 1;
@@ -123,9 +137,27 @@ int ispchar(char c){
     return 0;
 }
 
+/** \fn void isvchar(char **current_char, node *struct_current, char *label)
+ * \brief Check if the char belongs to the list of accepted characted for a vchar
+ * \param c : char to check
+ * 
+*/
 int isvchar(char c){
     // check for every char between 0x21 and 0x7e
     if(c >= 0x21 && c <= 0x7e){
+        return 1;
+    }
+    return 0;
+}
+
+/** \fn void isobs_text(char **current_char, node *struct_current, char *label)
+ * \brief Check if the char belongs to the list of accepted characted for a obs_text (%x80-FF)
+ * \param c : char to check
+ * 
+*/
+int isobs_text(char c){
+    // check for every char between 0x80 and 0xff
+    if(c >= 0x80 && c <= 0xff){
         return 1;
     }
     return 0;

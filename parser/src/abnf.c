@@ -12,9 +12,6 @@
 */
 
 /* TODO :
-- Store the icar like / in a separate struct, they are currently only stored in the parent struct, but not in their own struct
-- Complete the function http_message()
-- Add and complete all the son functions of http_message() (excepted start-line() and below)
 - Check that our syntax corresponds to the one of the teacher (example : __alpha instead of alpha)
 - Write a bash script to execute every test and compare the output with the expected one
 */
@@ -32,11 +29,107 @@
  * \param struct_current : pointer to the current struct
 */
 void http_message(char **current_char, node *struct_current){
-    // WORK IN PROGRESS - MAIN FUNCTION HERE
-    // Call start_line
-    // (Loop?)Call as many times as needed header-field+crlf
-    // Call crlf
-    // Call message body
+    // Init the struct (ptr, int...), and allocate memory for the first child
+    struct_current->debut = *current_char;
+    struct_current->label = HTTP_MESSAGE;
+    struct_current->fils = NULL;
+
+    // Allocate memory for the first child
+    node *new_struct_1 = malloc(sizeof(node));
+    struct_current->fils = new_struct_1;
+
+    // Call the function for the first child, supposed to be start-line
+    start_line(current_char, new_struct_1);
+    *current_char += 1;
+
+    // Allocate memory for the second child. Whatever the next field is, we know there will be a brother
+    node *new_struct_2;
+
+    // If the next char is not a crlf, we have a header-field
+    if(**current_char != '\n'){
+        do{
+            new_struct_2 = malloc(sizeof(node));
+            new_struct_1->frere = new_struct_2;
+            // Call the function for the second child, supposed to be header-field
+            header_field(current_char, new_struct_2);
+            *current_char += 1;
+
+            // Allocate memory for the third child
+            new_struct_1 = new_struct_2;
+            new_struct_2 = malloc(sizeof(node));
+            new_struct_1->frere = new_struct_2;
+
+            // Call the function for the third child, supposed to be crlf
+            crlf(current_char, new_struct_2);
+
+            new_struct_1 = new_struct_2;
+            *current_char += 1;
+        // If the next char is not a crlf, we have another header-field
+        }while(**current_char != '\n');
+    }
+
+    // Allocate memory for the fourth child, supposed to be crlf
+    new_struct_1 = new_struct_2;
+    new_struct_2 = malloc(sizeof(node));
+    new_struct_1->frere = new_struct_2;
+
+    // Call the function for the fourth child, supposed to be crlf
+    crlf(current_char, new_struct_2);
+    *current_char += 1;
+
+    // If we have an octet, we have a message-body
+    if(**current_char != '\0'){
+        new_struct_1 = new_struct_2;
+        new_struct_2 = malloc(sizeof(node));
+        new_struct_1->frere = new_struct_2;
+
+        // Call the function for the fifth child, supposed to be message-body
+        message_body(current_char, new_struct_2);
+    }
+}
+
+/** \fn void message_body(char **current_char, node *struct_current)
+ * \brief Parse the message body
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * 
+*/
+void message_body(char **current_char, node *struct_current){
+    // Init the struct (ptr, int...), and allocate memory for the first child
+    struct_current->debut = *current_char;
+    struct_current->label = MESSAGE_BODY;
+    struct_current->fils = NULL;
+
+    // Allocate memory for the first child
+    node *new_struct_1 = malloc(sizeof(node));
+    node *new_struct_2;
+    struct_current->fils = new_struct_1;
+
+    while(**current_char != '\0'){
+        // Call the function for the first child, supposed to be octet
+        octet(current_char, new_struct_1);
+
+        if(*(*current_char + 1) != '\0'){
+            *current_char += 1;
+            // Allocate memory for the second child
+            new_struct_2 = new_struct_1;
+            new_struct_1 = malloc(sizeof(node));
+            new_struct_2->frere = new_struct_1;
+        }
+    }
+}
+
+/** \fn void octet(char **current_char, node *struct_current)
+ * \brief Parse the octet
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+*/
+void octet(char **current_char, node *struct_current){
+    // Init the struct (ptr, int...), and allocate memory for the first child
+    struct_current->debut = *current_char;
+    struct_current->label = OCTET;
+    struct_current->fils = NULL;
+    struct_current->fin = *current_char;
 }
 
 /** \fn header_field(char **current_char, node *struct_current)
@@ -175,7 +268,6 @@ void field_value(char **current_char, node *struct_current){
     struct_current->fils = NULL;
 
     // Store as many field-content as needed. 
-    //TODO : STOP CONDITION TO BE CHECKED
     while(**current_char == '\n' || isvchar(**current_char)) {
         // Allocate memory for the first child
         node *new_struct_1 = malloc(sizeof(node));
@@ -191,7 +283,7 @@ void field_value(char **current_char, node *struct_current){
         }
 
         // Allocate memory for the second child (if needed)
-        if(*(*current_char+1) != 0x0D && *(*current_char+1) != 0x0A){
+        if(*(*current_char+1) == '\n' || isvchar(*(*current_char+1))){
             // Allocate memory for the second child
             node *new_struct_2 = new_struct_1;
             new_struct_1 = malloc(sizeof(node));
@@ -209,7 +301,6 @@ void field_value(char **current_char, node *struct_current){
  * \brief Parse the field content
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
- * NOT TESTED NOR FINISHED 
 */
 void field_content(char **current_char, node *struct_current){
     // Init the struct (ptr, int...), and allocate memory for the first child
@@ -224,40 +315,42 @@ void field_content(char **current_char, node *struct_current){
     // Call the function for the first child, supposed to be field-vchar
     field_vchar(current_char, new_struct_1);
 
-    // Allocate memory for the second child (if needed)
+    // Allocate memory for the second child (if it's a SP or HTAB)
     if(*(*current_char+1) == 0x20 || *(*current_char+1) == 0x09){
+        // Go one char forward
+        *current_char+=1;
         // Allocate memory for the second child
         node *new_struct_2 = new_struct_1;
         new_struct_1 = malloc(sizeof(node));
         new_struct_2->frere = new_struct_1;
+
+        // Store as many SP and HTAB as needed
+        while(**current_char == 0x20 || **current_char == 0x09) {
+            if(**current_char == 0x20){
+                // Call the function for the first child, supposed to be SP
+                sp(current_char, new_struct_1);
+            } else if(**current_char == 0x09){
+                // Call the function for the first child, supposed to be HTAB
+                htab(current_char, new_struct_1);
+            }
+
+            // Allocate memory for the second child (if needed)
+            if(*(*current_char+1) == 0x20 || *(*current_char+1) == 0x09){
+                // Allocate memory for the second child
+                new_struct_2 = new_struct_1;
+                new_struct_1 = malloc(sizeof(node));
+                new_struct_2->frere = new_struct_1;
+            }
+            *current_char+=1;
+        }
+
+        // If we had a SP or a HTAB, we expect a field-vchar after
+        new_struct_2 = new_struct_1;
+        new_struct_1 = malloc(sizeof(node));
+        new_struct_2->frere = new_struct_1;
+        field_vchar(current_char, new_struct_1);
     }
 
-    // Store as many SP and HTAB as needed
-    while(**current_char == 0x20 || **current_char == 0x09) {
-        // Allocate memory for the first child
-        node *new_struct_1 = malloc(sizeof(node));
-        struct_current->fils = new_struct_1;
-
-        if(**current_char == 0x20){
-            // Call the function for the first child, supposed to be SP
-            sp(current_char, new_struct_1);
-        }
-        else if(**current_char == 0x09){
-            // Call the function for the first child, supposed to be HTAB
-            htab(current_char, new_struct_1);
-        }
-
-        // Allocate memory for the second child (if needed)
-        if(*(*current_char+1) == 0x20 || *(*current_char+1) == 0x09){
-            // Allocate memory for the second child
-            node *new_struct_2 = new_struct_1;
-            new_struct_1 = malloc(sizeof(node));
-            new_struct_2->frere = new_struct_1;
-        }
-    }
-
-    // Go one char back to respect convention (never go further than the end of the struct in the said function) 
-    *current_char-=1;
     // The end of the struct is known when the son functions are done
     struct_current->fin = *current_char;
 }
@@ -862,16 +955,22 @@ void obs_fold(char **current_char, node *struct_current){
     struct_current->fils = new_struct;
     crlf(current_char,new_struct);
 
-    //TODO : check if we have AT LEAST one
-    while(**current_char==0x20 || **current_char==0x9){
+    //Check if we have AT LEAST one SP or HTAB
+    while(**current_char==0x20 || **current_char==0x09){
         new_struct2=malloc(sizeof(node));
         new_struct->frere=new_struct2;
         if(**current_char==0x20){
             sp(current_char,new_struct2);
+        } else if(**current_char==0x09){
+            htab(current_char,new_struct2);
         }
         new_struct=new_struct2;
-        }
     }
+
+    // Go one char back to respect de convention (never go further than the last char of the field)
+    *current_char -= 1;
+    struct_current->fin = *current_char;
+}
 
 /** \fn void field_vchar(char **current_char, node *struct_current)
  * \brief Parse the field_vchar (field-vchar = VCHAR / obs-text) characters of the request
@@ -880,6 +979,61 @@ void obs_fold(char **current_char, node *struct_current){
  * 
 */
 void field_vchar(char **current_char, node *struct_current){
-    // TODO
+    struct_current->label=FIELD_VCHAR;
+    struct_current->fils = NULL;
+    struct_current->debut = *current_char;
 
+    // Allocate memory
+    node *new_struct = malloc(sizeof(node));
+    struct_current->fils = new_struct;
+
+    // If the next char is a VCHAR, call vchar()
+    if(isvchar(**current_char)){
+        vchar(current_char, new_struct);
+    // If the next char is a obs-text, call obs_text()
+    } else if(isobs_text(**current_char)){
+        obs_text(current_char, new_struct);
+    // Else, it's an error
+    } else{
+        printf("Error: Expected a VCHAR or an obs-text, not %c", **current_char);
+        exit(1);
+    }
+
+    // The end of the field_vchar is the end of the obs_text or vchar
+    struct_current->fin = *current_char;
+}
+
+/** \fn void vchar(char **current_char, node *struct_current)
+ * \brief Parse the vchar (vchar = %x21-7E) characters of the request
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * 
+*/
+void vchar(char **current_char, node *struct_current){
+    
+    if (!isvchar(**current_char)){
+        printf("Error: Expected a VCHAR, not %c", **current_char);
+        exit(1);
+    }
+    struct_current->label = VCHAR;
+    struct_current->fils = NULL;
+    struct_current->debut = *current_char;
+    struct_current->fin = *current_char;
+}
+
+/** \fn void obs_text(char **current_char, node *struct_current)
+ * \brief Parse the obs_text (obs-text = %x80-FF) characters of the request
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * 
+*/
+void obs_text(char **current_char, node *struct_current){
+    if (!isobs_text(**current_char)){
+        printf("Error: Expected an obs-text, not %c", **current_char);
+        exit(1);
+    }
+    struct_current->label = OBS_TEXT;
+    struct_current->fils = NULL;
+    struct_current->debut = *current_char;
+    struct_current->fin = *current_char;
 }
