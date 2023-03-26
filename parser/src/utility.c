@@ -4,13 +4,27 @@
 #include <ctype.h>
 #include "../headers/utility.h"
 
-char tchar_list[] = {0x21, 0x23, 0x24, 0x25, 0x26, 0x27, 0x2a, 0x2b, 0x2d, 0x2e, 0x5e, 0x5f, 0x60, 0x7c, 0x7e};
-char unreserved_list[] = {0x2d, 0x2e, 0x5f, 0x7e};
-char sub_delims_list[] = {0x21, 0x24, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x3b, 0x3d};
-
 /** \file utility.c
  *  \brief Contains useful functions to print and delete the chained list
 */
+
+/** \var char tchar_list[]
+ * \brief List of accepted characters for a tchar
+ * The list of accepted characters is : "!" / "#" / "$" / "%" / "&" / "'" / "*" / "+" / "-" / "." / "^" / "_" / "`" / "|" / "~"
+*/
+char tchar_list[] = {0x21, 0x23, 0x24, 0x25, 0x26, 0x27, 0x2a, 0x2b, 0x2d, 0x2e, 0x5e, 0x5f, 0x60, 0x7c, 0x7e};
+
+/** \var char unreserved_list[]
+ * \brief List of accepted characters for a unreserved
+ * The list of accepted characters is : "-" / "." / "_" / "~"
+*/
+char unreserved_list[] = {0x2d, 0x2e, 0x5f, 0x7e};
+
+/** \var char sub_delims_list[]
+ * \brief List of accepted characters for a sub-delims
+ * The list of accepted characters is : "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "="
+*/
+char sub_delims_list[] = {0x21, 0x24, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x3b, 0x3d};
 
 /** \fn void print_request(node *struct_current, char* first_char, int length)
  *  \brief Function to print the entire parsed request and the chained list
@@ -55,7 +69,9 @@ void print_tree(node *struct_current, int depth){
 /** \fn void delete_chained_list(node *struct_current)
  *  \brief Function to delete the chained list and free the memory
  *  \param struct_current Pointer to the current element of the chained list
+ *  NOTE : This function is not used, as it has been replaced by the purge_tree() function in api.c
 */
+/*
 void delete_chained_list(node *struct_current){
     if (struct_current->frere != NULL) {
         delete_chained_list(struct_current->frere);
@@ -65,6 +81,7 @@ void delete_chained_list(node *struct_current){
     }
     free(struct_current);
 }
+*/
 
 /** \fn void istchar(char **current_char, node *struct_current, char *label)
  * \brief Check if the char belongs to the list of accepted characted for a tchar

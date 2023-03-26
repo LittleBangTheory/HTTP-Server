@@ -15,7 +15,7 @@ _Token *searchTree(void *start,char *name){
         tete->node=begin;
         tete->next=malloc(sizeof(_Token));
         tete=tete->next;
-    }
+}
 }
 
 // fonction qui renvoie un pointeur vers char indiquant l'etiquette du noeud. (le nom de la rulename, intermediaire ou terminal) 

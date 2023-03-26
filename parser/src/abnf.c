@@ -46,7 +46,7 @@ void http_message(char **current_char, node *struct_current){
     node *new_struct_2;
 
     // If the next char is not a crlf, we have a header-field
-    if(**current_char != '\n'){
+    if(**current_char != '\r' || *(*current_char+1) != '\n'){
         do{
             new_struct_2 = malloc(sizeof(node));
             new_struct_1->frere = new_struct_2;
@@ -65,7 +65,7 @@ void http_message(char **current_char, node *struct_current){
             new_struct_1 = new_struct_2;
             *current_char += 1;
         // If the next char is not a crlf, we have another header-field
-        }while(**current_char != '\n');
+        }while(**current_char != '\r' || *(*current_char+1) != '\n');
     }
 
     // Allocate memory for the fourth child, supposed to be crlf
@@ -150,6 +150,7 @@ void header_field(char **current_char, node *struct_current){
 
     // Call the function for the first child, supposed to be field-name
     field_name(current_char, new_struct_1);
+    //token() already increments the current_char, so we don't need to do it again
 
     if(**current_char != ':'){
         printf("Error : expected ':' in header-field, got '%c' instead\n", **current_char);
@@ -161,6 +162,7 @@ void header_field(char **current_char, node *struct_current){
 
     // Call the function for the second child, supposed to be ':'
     icar(current_char, new_struct_2);
+    *current_char += 1;
 
     // Allocate memory for the third child
     new_struct_1 = new_struct_2;
@@ -169,6 +171,7 @@ void header_field(char **current_char, node *struct_current){
 
     // Call the function for the third child, supposed to be OWS
     ows(current_char, new_struct_2);
+    *current_char += 1;
 
     // Allocate memory for the fourth child
     new_struct_1 = new_struct_2;
@@ -177,6 +180,7 @@ void header_field(char **current_char, node *struct_current){
 
     // Call the function for the fourth child, supposed to be field-value
     field_value(current_char, new_struct_2);
+    *current_char += 1;
 
     // Allocate memory for the fifth child
     new_struct_1 = new_struct_2;
@@ -239,9 +243,9 @@ void ows(char **current_char, node *struct_current){
             // Call the function for the first child, supposed to be HTAB
             htab(current_char, new_struct_1);
         }
-
+        *current_char += 1;
         // Allocate memory for the second child (if needed)
-        if(*(*current_char+1) == 0x20 || *(*current_char+1) == 0x09){
+        if(*(*current_char) == 0x20 || *(*current_char) == 0x09){
             // Allocate memory for the second child
             node *new_struct_2 = new_struct_1;
             new_struct_1 = malloc(sizeof(node));
@@ -282,8 +286,9 @@ void field_value(char **current_char, node *struct_current){
             field_content(current_char, new_struct_1);
         }
 
+        *current_char += 1;
         // Allocate memory for the second child (if needed)
-        if(*(*current_char+1) == '\n' || isvchar(*(*current_char+1))){
+        if(*(*current_char) == '\n' || isvchar(*(*current_char))){
             // Allocate memory for the second child
             node *new_struct_2 = new_struct_1;
             new_struct_1 = malloc(sizeof(node));
@@ -427,7 +432,6 @@ void request_line(char **current_char, node *struct_current){
     crlf(current_char, new_struct_2);
 
     // The end is known when the son functions are done
-    *current_char-=1;
     struct_current->fin = *current_char;
 }
 
@@ -444,7 +448,7 @@ void crlf(char **current_char, node *struct_current){
     struct_current->fils = NULL;
 
     // Check if \n is present
-    if (**current_char != '\r' && *(*current_char+1) != '\n'){
+    if (**current_char != '\r' || *(*current_char+1) != '\n'){
         printf("Error : carriage return + line feed expected, %c found\n", **current_char);
         exit(1);
     }
@@ -854,7 +858,7 @@ void tchar(char **current_char, node *struct_current){
         }
     // If the next char isnt a tchar or a SP, error
     } else if(!istchar(**current_char)){
-        printf("Error: the method must be composed of tchars, not %c", **current_char);
+        printf("Error: the method must be composed of tchars, not %c\n", **current_char);
         exit(1);
     }
 }

@@ -89,9 +89,6 @@ int main(int argc, char const *argv[])
 	printf("%s",Request);
 	char *adr=Request;
 	node* tete=malloc(sizeof(node));
-	start_line(&adr,tete);
+	http_message(&adr,tete);
 	print_tree(tete,1);
-	
-
-
 }
