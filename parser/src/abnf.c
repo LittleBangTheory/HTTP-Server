@@ -444,11 +444,13 @@ void crlf(char **current_char, node *struct_current){
     struct_current->fils = NULL;
 
     // Check if \n is present
-    if (**current_char != '\n'){
-        printf("Error : line feed expected, %c found\n", **current_char);
+    if (**current_char != '\r' && *(*current_char+1) != '\n'){
+        printf("Error : carriage return + line feed expected, %c found\n", **current_char);
         exit(1);
     }
 
+    // Go at the end of the struct (crlf)
+    *current_char+=1;
     // The end is known at the end
     struct_current->fin = *current_char;
 }
