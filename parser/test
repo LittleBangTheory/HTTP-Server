@@ -1,0 +1,27 @@
+GET / HTTP/1.1
+User-Agent: Wget/1.16 (linux-gnu)
+Accept: */*
+Host: www.google.com
+Connection: Keep-Alive
+
+	start-line: GET / HTTP/1.1
+		request-line: GET / HTTP/1.1
+			method: GET 
+				token: GET 
+					tchar: 
+						ALPHA: G
+					tchar: 
+						ALPHA: E
+					tchar: 
+						ALPHA: T
+			__sp:  
+			Request-Target: 
+				__icar: / 
+					segment:  
+			__sp:  
+			HTTP-version: HTTP/1.1
+				HTTP-name: HTTP/
+				DIGIT: 1
+				DIGIT: 1
+			__crlf: 
+

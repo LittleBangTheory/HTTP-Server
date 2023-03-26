@@ -39,6 +39,7 @@ extern char FIELD_CONTENT[];
 extern char OBS_FOLD[];
 
 void http_message(char **current_char, node *struct_current);
+void icar(char** current_char, node *new_struct_2);
 void request_line(char **current_char, node *struct_current);
 void start_line(char **current_char, node *struct_current);
 void method(char **current_char, node *struct_current);
@@ -64,3 +65,4 @@ void htab(char **current_char, node *struct_current);
 void field_content(char **current_char, node *struct_current);
 void obs_fold(char **current_char, node *struct_current);
 void field_vchar(char **current_char, node *struct_current);
+void field_value(char **current_char, node *struct_current);

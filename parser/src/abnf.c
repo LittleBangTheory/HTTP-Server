@@ -148,7 +148,7 @@ void ows(char **current_char, node *struct_current){
         }
 
         // Allocate memory for the second child (if needed)
-        if(*(current_char+1) == 0x20 || *(current_char+1) == 0x09){
+        if(*(*current_char+1) == 0x20 || *(*current_char+1) == 0x09){
             // Allocate memory for the second child
             node *new_struct_2 = new_struct_1;
             new_struct_1 = malloc(sizeof(node));
@@ -191,7 +191,7 @@ void field_value(char **current_char, node *struct_current){
         }
 
         // Allocate memory for the second child (if needed)
-        if(*(current_char+1) != 0x0D && *(current_char+1) != 0x0A){
+        if(*(*current_char+1) != 0x0D && *(*current_char+1) != 0x0A){
             // Allocate memory for the second child
             node *new_struct_2 = new_struct_1;
             new_struct_1 = malloc(sizeof(node));
@@ -225,7 +225,7 @@ void field_content(char **current_char, node *struct_current){
     field_vchar(current_char, new_struct_1);
 
     // Allocate memory for the second child (if needed)
-    if(*(current_char+1) == 0x20 || *(current_char+1) == 0x09){
+    if(*(*current_char+1) == 0x20 || *(*current_char+1) == 0x09){
         // Allocate memory for the second child
         node *new_struct_2 = new_struct_1;
         new_struct_1 = malloc(sizeof(node));
@@ -248,7 +248,7 @@ void field_content(char **current_char, node *struct_current){
         }
 
         // Allocate memory for the second child (if needed)
-        if(*(current_char+1) == 0x20 || *(current_char+1) == 0x09){
+        if(*(*current_char+1) == 0x20 || *(*current_char+1) == 0x09){
             // Allocate memory for the second child
             node *new_struct_2 = new_struct_1;
             new_struct_1 = malloc(sizeof(node));
@@ -334,6 +334,7 @@ void request_line(char **current_char, node *struct_current){
     crlf(current_char, new_struct_2);
 
     // The end is known when the son functions are done
+    *current_char-=1;
     struct_current->fin = *current_char;
 }
 
@@ -354,7 +355,6 @@ void crlf(char **current_char, node *struct_current){
         printf("Error : line feed expected, %c found\n", **current_char);
         exit(1);
     }
-    *current_char+=1;
 
     // The end is known at the end
     struct_current->fin = *current_char;
@@ -617,7 +617,7 @@ void pchar(char **current_char, node *struct_current){
         pct_encoded(current_char, new_struct);
     }else if(issub_delims(**current_char)){
         sub_delims(current_char, new_struct);
-    }else if(**current_char=':' || **current_char=='@'){
+    }else if(**current_char==':' || **current_char=='@'){
         icar(current_char, new_struct);
     }else{
         printf("Error : pchar not recognized");

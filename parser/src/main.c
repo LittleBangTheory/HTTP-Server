@@ -82,8 +82,10 @@ int main(int argc, char const *argv[])
 	}
 	Request[i]=0;
 	printf("%s",Request);
-
-
+	char *adr=Request;
+	node* tete=malloc(sizeof(node));
+	start_line(&adr,tete);
+	print_tree(tete,1);
 	
 
 
