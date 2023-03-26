@@ -36,6 +36,7 @@ extern char FIELD_VALUE[];
 extern char OWS[];
 extern char HTAB[];
 extern char FIELD_CONTENT[];
+extern char OBS_FOLD[];
 
 void http_message(char **current_char, node *struct_current);
 void request_line(char **current_char, node *struct_current);
@@ -61,3 +62,5 @@ void field_name(char **current_char, node *struct_current);
 void ows(char **current_char, node *struct_current);
 void htab(char **current_char, node *struct_current);
 void field_content(char **current_char, node *struct_current);
+void obs_fold(char **current_char, node *struct_current);
+void field_vchar(char **current_char, node *struct_current);

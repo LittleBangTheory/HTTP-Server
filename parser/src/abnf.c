@@ -30,10 +30,13 @@
  * \brief Parse the http message
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
- * \param label : pointer to the array of labels
 */
 void http_message(char **current_char, node *struct_current){
     // WORK IN PROGRESS - MAIN FUNCTION HERE
+    // Call start_line
+    // (Loop?)Call as many times as needed header-field+crlf
+    // Call crlf
+    // Call message body
 }
 
 /** \fn header_field(char **current_char, node *struct_current)
@@ -840,4 +843,43 @@ void icar(char **current_char, node *struct_current){
     struct_current->fils = NULL;
     struct_current->debut = *current_char;
     struct_current->fin = *current_char;
+}
+
+/** \fn void obs_fold(char **current_char, node *struct_current)
+ * \brief Parse the obs_fold (obs-fold = CRLF 1*( SP / HTAB )) characters of the request
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * 
+*/
+void obs_fold(char **current_char, node *struct_current){
+    struct_current->label=OBS_FOLD;
+    struct_current->fils = NULL;
+    struct_current->debut = *current_char;
+
+    // Allocate memory
+    node *new_struct = malloc(sizeof(node));
+    node *new_struct2;
+    struct_current->fils = new_struct;
+    crlf(current_char,new_struct);
+
+    //TODO : check if we have AT LEAST one
+    while(**current_char==0x20 || **current_char==0x9){
+        new_struct2=malloc(sizeof(node));
+        new_struct->frere=new_struct2;
+        if(**current_char==0x20){
+            sp(current_char,new_struct2);
+        }
+        new_struct=new_struct2;
+        }
+    }
+
+/** \fn void field_vchar(char **current_char, node *struct_current)
+ * \brief Parse the field_vchar (field-vchar = VCHAR / obs-text) characters of the request
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * 
+*/
+void field_vchar(char **current_char, node *struct_current){
+    // TODO
+
 }
