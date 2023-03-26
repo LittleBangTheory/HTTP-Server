@@ -16,6 +16,11 @@
 - Write a bash script to execute every test and compare the output with the expected one
 */
 
+/* NOTE :
+- Those simple tests need to be failed (the requests are incorrect) :  6, 8, 9, 10, and 12 
+- Those simple tests need to be passed (the requests are correct) : 1, 2, 3, 4, 5, 7, 11
+*/
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -164,13 +169,15 @@ void header_field(char **current_char, node *struct_current){
     icar(current_char, new_struct_2);
     *current_char += 1;
 
-    // Allocate memory for the third child
-    new_struct_1 = new_struct_2;
-    new_struct_2 = malloc(sizeof(node));
-    new_struct_1->frere = new_struct_2;
+    if(**current_char == 0x20 || **current_char == 0x09) {
+        // Allocate memory for the third child
+        new_struct_1 = new_struct_2;
+        new_struct_2 = malloc(sizeof(node));
+        new_struct_1->frere = new_struct_2;
 
-    // Call the function for the third child, supposed to be OWS
-    ows(current_char, new_struct_2);
+        // Call the function for the third child, supposed to be OWS
+        ows(current_char, new_struct_2);
+    }
     *current_char += 1;
 
     // Allocate memory for the fourth child
@@ -180,15 +187,18 @@ void header_field(char **current_char, node *struct_current){
 
     // Call the function for the fourth child, supposed to be field-value
     field_value(current_char, new_struct_2);
-    *current_char += 1;
+    
 
-    // Allocate memory for the fifth child
-    new_struct_1 = new_struct_2;
-    new_struct_2 = malloc(sizeof(node));
-    new_struct_1->frere = new_struct_2;
+    if(*(*current_char+1) == 0x20 || *(*current_char+1) == 0x09) {
+        *current_char += 1;
+        // Allocate memory for the fifth child
+        new_struct_1 = new_struct_2;
+        new_struct_2 = malloc(sizeof(node));
+        new_struct_1->frere = new_struct_2;
 
-    // Call the function for the fifth child, supposed to be OWS
-    ows(current_char, new_struct_2);
+        // Call the function for the fifth child, supposed to be OWS
+        ows(current_char, new_struct_2);
+    }
 
     // The end of the struct is known when the son functions are done
     struct_current->fin = *current_char;
@@ -224,39 +234,41 @@ void field_name(char **current_char, node *struct_current){
  * 
 */
 void ows(char **current_char, node *struct_current){
-    // Init the struct (ptr, int...), and allocate memory for the first child
-    struct_current->debut = *current_char;
-    struct_current->label = OWS;
-    struct_current->fils = NULL;
+    if(**current_char == 0x20 || **current_char == 0x09){
+        // Init the struct (ptr, int...), and allocate memory for the first child
+        struct_current->debut = *current_char;
+        struct_current->label = OWS;
+        struct_current->fils = NULL;
 
-    // Store as many SP and HTAB as needed
-    while(**current_char == 0x20 || **current_char == 0x09) {
-        // Allocate memory for the first child
-        node *new_struct_1 = malloc(sizeof(node));
-        struct_current->fils = new_struct_1;
+        // Store as many SP and HTAB as needed
+        while(**current_char == 0x20 || **current_char == 0x09) {
+            // Allocate memory for the first child
+            node *new_struct_1 = malloc(sizeof(node));
+            struct_current->fils = new_struct_1;
 
-        if(**current_char == 0x20){
-            // Call the function for the first child, supposed to be SP
-            sp(current_char, new_struct_1);
+            if(**current_char == 0x20){
+                // Call the function for the first child, supposed to be SP
+                sp(current_char, new_struct_1);
+            }
+            else if(**current_char == 0x09){
+                // Call the function for the first child, supposed to be HTAB
+                htab(current_char, new_struct_1);
+            }
+            *current_char += 1;
+            // Allocate memory for the second child (if needed)
+            if(*(*current_char) == 0x20 || *(*current_char) == 0x09){
+                // Allocate memory for the second child
+                node *new_struct_2 = new_struct_1;
+                new_struct_1 = malloc(sizeof(node));
+                new_struct_2->frere = new_struct_1;
+            }
         }
-        else if(**current_char == 0x09){
-            // Call the function for the first child, supposed to be HTAB
-            htab(current_char, new_struct_1);
-        }
-        *current_char += 1;
-        // Allocate memory for the second child (if needed)
-        if(*(*current_char) == 0x20 || *(*current_char) == 0x09){
-            // Allocate memory for the second child
-            node *new_struct_2 = new_struct_1;
-            new_struct_1 = malloc(sizeof(node));
-            new_struct_2->frere = new_struct_1;
-        }
+
+        // Go one char back to respect convention (never go further than the end of the struct in the said function) 
+        *current_char-=1;
+        // The end of the struct is known when the son functions are done
+        struct_current->fin = *current_char;
     }
-
-    // Go one char back to respect convention (never go further than the end of the struct in the said function) 
-    *current_char-=1;
-    // The end of the struct is known when the son functions are done
-    struct_current->fin = *current_char;
 }
 
 /** \fn void field_value(char **current_char, node *struct_current)
@@ -272,13 +284,13 @@ void field_value(char **current_char, node *struct_current){
     struct_current->fils = NULL;
 
     // Store as many field-content as needed. 
-    while(**current_char == '\n' || isvchar(**current_char)) {
+    while(isobs_fold(current_char) || isvchar(**current_char)) {
         // Allocate memory for the first child
         node *new_struct_1 = malloc(sizeof(node));
         struct_current->fils = new_struct_1;
 
         // Call the function for the first child, supposed to be field-content or obs-fold
-        if(**current_char == '\n'){
+        if(isobs_fold(current_char)){
             // osb_fold : CRLF 1*( SP / HTAB )
             obs_fold(current_char, new_struct_1);
         } else if(isvchar(**current_char)){
@@ -288,7 +300,7 @@ void field_value(char **current_char, node *struct_current){
 
         *current_char += 1;
         // Allocate memory for the second child (if needed)
-        if(*(*current_char) == '\n' || isvchar(*(*current_char))){
+        if(isobs_fold(current_char) || isvchar(**current_char)){
             // Allocate memory for the second child
             node *new_struct_2 = new_struct_1;
             new_struct_1 = malloc(sizeof(node));
@@ -960,6 +972,8 @@ void obs_fold(char **current_char, node *struct_current){
     node *new_struct2;
     struct_current->fils = new_struct;
     crlf(current_char,new_struct);
+    // We can safely increment the current char because we always have at least one SP or HTAB after
+    *current_char+=1;
 
     //Check if we have AT LEAST one SP or HTAB
     while(**current_char==0x20 || **current_char==0x09){
@@ -970,11 +984,14 @@ void obs_fold(char **current_char, node *struct_current){
         } else if(**current_char==0x09){
             htab(current_char,new_struct2);
         }
+
+        // Go one char further
+        *current_char+=1;
         new_struct=new_struct2;
     }
 
-    // Go one char back to respect de convention (never go further than the last char of the field)
-    *current_char -= 1;
+    // We decrement the current char to respect the convention
+    *current_char-=1;
     struct_current->fin = *current_char;
 }
 

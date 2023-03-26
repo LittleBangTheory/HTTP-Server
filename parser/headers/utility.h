@@ -12,3 +12,4 @@ int ispct_encoded(char c);
 int issub_delims(char c);
 int isvchar(char c);
 int isobs_text(char c);
+int isobs_fold(char **current_char);

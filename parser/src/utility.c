@@ -179,3 +179,10 @@ int isobs_text(char c){
     }
     return 0;
 }
+
+int isobs_fold(char **current_char){
+    if(**current_char == '\r' && *(*current_char+1) == '\n' && (*(*current_char+2) == ' ' || *(*current_char+2) == '\t')){
+        return 1;
+    }
+    return 0;
+}
