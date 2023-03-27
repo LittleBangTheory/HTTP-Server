@@ -187,31 +187,31 @@ void header_field(char **current_char, node *struct_current){
     //Treat every case for header_field : Connection-header / Content-Length-header / Content-Type-header / Cookie-header / Transfer-Encoding-header / Expect-header / Host-header / ( field-name ":" OWS field-value OWS ) 
     if(strcmp(new_struct_1->label, "Connection") == 0){
         // Call the function for the fourth child, supposed to be Connection-header
-        connection(current_char, new_struct_3);
+        connection_header(current_char, new_struct_3);
     }
     else if(strcmp(new_struct_1->label, "Content-Length") == 0){
         // Call the function for the fourth child, supposed to be Content-Length-header
-        content_length(current_char, new_struct_3);
+        content_length_header(current_char, new_struct_3);
     }
     else if(strcmp(new_struct_1->label, "Content-Type") == 0){
         // Call the function for the fourth child, supposed to be Content-Type-header
-        content_type(current_char, new_struct_3);
+        content_type_header(current_char, new_struct_3);
     }
     else if(strcmp(new_struct_1->label, "Cookie") == 0){
         // Call the function for the fourth child, supposed to be Cookie-header
-        cookie(current_char, new_struct_3);
+        cookie_header(current_char, new_struct_3);
     }
     else if(strcmp(new_struct_1->label, "Transfer-Encoding") == 0){
         // Call the function for the fourth child, supposed to be Transfer-Encoding-header
-        transfer_encoding(current_char, new_struct_3);
+        transfer_encoding_header(current_char, new_struct_3);
     }
     else if(strcmp(new_struct_1->label, "Expect") == 0){
         // Call the function for the fourth child, supposed to be Expect-header
-        expect(current_char, new_struct_3);
+        expect_header(current_char, new_struct_3);
     }
     else if(strcmp(new_struct_1->label, "Host") == 0){
         // Call the function for the fourth child, supposed to be Host-header
-        host(current_char, new_struct_3);
+        host_header(current_char, new_struct_3);
     }
     else{
         // Allocate memory for the fourth child
@@ -244,7 +244,7 @@ void header_field(char **current_char, node *struct_current){
  * \param struct_current : pointer to the current struct
  * 
 */
-void connection(char **current_char, node *struct_current){
+void connection_header(char **current_char, node *struct_current){
     // Connection = *( "," OWS ) connection-option *( OWS "," [ OWS connection-option ] )
     // Init the struct (ptr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
@@ -253,10 +253,40 @@ void connection(char **current_char, node *struct_current){
 
     // Allocate memory for the first child
     node *new_struct_1 = malloc(sizeof(node));
+    node *new_struct_2;
     struct_current->fils = new_struct_1;
 
-    // Call the function for the first child, supposed to be token
-    token(current_char, new_struct_1);
+    // Call the function for ',' and OWS
+    while(**current_char == ',' && (*(*current_char+1) == 0x20 || *(*current_char+1) == 0x09)){
+        // Call the function for ','
+        icar(current_char, new_struct_1);
+        *current_char += 1;
+
+        // Allocate memory for the second child
+        new_struct_2 = new_struct_1;
+        new_struct_1 = malloc(sizeof(node));
+        new_struct_2->frere = new_struct_1;
+
+        // Call the function for OWS
+        ows(current_char, new_struct_2);
+        *current_char += 1;
+
+        // Allocate memory for the third child
+        new_struct_2 = new_struct_1;
+        new_struct_1 = malloc(sizeof(node));
+        new_struct_2->frere = new_struct_1;
+    }
+    
+    // Call the function for connection-option
+    connection_option(current_char, new_struct_1);
+    *(current_char)+=1;
+
+    // Allocate memory for ows and ',' and connection-option
+    new_struct_2 = new_struct_1;
+    new_struct_1 = malloc(sizeof(node));
+    new_struct_2->frere = new_struct_1;
+
+    //while(**current_char == 
 
     // The end of the struct is known when the son functions are done
     struct_current->fin = *current_char;
@@ -342,13 +372,13 @@ void field_value(char **current_char, node *struct_current){
     struct_current->fils = NULL;
 
     // Store as many field-content as needed. 
-    while(isobs_fold(current_char) || isvchar(**current_char)) {
+    while(isobs_fold(*current_char) || isvchar(**current_char)) {
         // Allocate memory for the first child
         node *new_struct_1 = malloc(sizeof(node));
         struct_current->fils = new_struct_1;
 
         // Call the function for the first child, supposed to be field-content or obs-fold
-        if(isobs_fold(current_char)){
+        if(isobs_fold(*current_char)){
             // osb_fold : CRLF 1*( SP / HTAB )
             obs_fold(current_char, new_struct_1);
         } else if(isvchar(**current_char)){
@@ -358,7 +388,7 @@ void field_value(char **current_char, node *struct_current){
 
         *current_char += 1;
         // Allocate memory for the second child (if needed)
-        if(isobs_fold(current_char) || isvchar(**current_char)){
+        if(isobs_fold(*current_char) || isvchar(**current_char)){
             // Allocate memory for the second child
             node *new_struct_2 = new_struct_1;
             new_struct_1 = malloc(sizeof(node));
