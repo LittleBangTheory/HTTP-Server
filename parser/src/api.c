@@ -9,6 +9,9 @@ void *getRootTree(){}
 // Par convention si start == NULL alors on commence à la racine 
 // sinon on effectue une recherche dans le sous-arbre à partir du noeud start 
 _Token *searchTree(void *start,char *name){
+    if (start==NULL){
+      start=getRootTree;
+    }
     node* begin = start;
     _Token* tete=malloc(sizeof(_Token));
     if(!strcmp(name,begin->label)){
@@ -20,14 +23,25 @@ _Token *searchTree(void *start,char *name){
 
 // fonction qui renvoie un pointeur vers char indiquant l'etiquette du noeud. (le nom de la rulename, intermediaire ou terminal) 
 // et indique (si len!=NULL) dans *len la longueur de cette chaine.
-char *getElementTag(void *node,int *len){} 
+char *getElementTag(void *node,int *len){
+    node *element=node;
+    if (len!=NULL){
+        *len=strlen(element->label);
+    }
+    return element->label;
+} 
 
 // fonction qui renvoie un pointeur vers char indiquant la valeur du noeud. (la partie correspondnant à la rulename dans la requete HTTP ) 
 // et indique (si len!=NULL) dans *len la longueur de cette chaine.
 char *getElementValue(void *node,int *len){} 
 
 // Fonction qui supprime et libere la liste chainée de reponse. 
-void purgeElement(_Token **r){} 
+void purgeElement(_Token **r){
+    if ((*r)->next!=NULL){
+        purgeElement(&((*r)->next));
+    }
+    free(*r);
+} 
 
 // Fonction qui supprime et libere toute la mémoire associée à l'arbre . 
 void purgeTree(void *root){
