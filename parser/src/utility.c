@@ -184,7 +184,7 @@ int isobs_text(char c){
  * \brief Check if the char belongs to the list of accepted characted for a obs_fold (%x0D %x0A *(%x20 / %x09))
  * \param current_char : char to check
 */
-int isobs_fold(char **current_char){
+int isobs_fold(char *current_char){
     if(*current_char == '\r' && *current_char+1 == '\n' && *current_char+2 == ' ' || *current_char+2 == '\t'){
         return 1;
     }
