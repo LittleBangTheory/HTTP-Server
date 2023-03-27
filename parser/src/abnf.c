@@ -176,11 +176,6 @@ void header_field(char **current_char, node *struct_current){
     if(**current_char == 0x20 || **current_char == 0x09) {
         // Call the function for the third child, supposed to be OWS
         ows(current_char, new_struct_3);
-
-        // Allocate memory for the fourth child
-        new_struct_2 = new_struct_3;
-        new_struct_3 = malloc(sizeof(node));
-        new_struct_2->frere = new_struct_3;
     }
     *current_char += 1;
 
@@ -462,12 +457,15 @@ void field_value(char **current_char, node *struct_current){
     struct_current->debut = *current_char;
     struct_current->label = FIELD_VALUE;
     struct_current->fils = NULL;
+    node *new_struct_1, *new_struct_2;
+    if(isobs_fold(*current_char) || isvchar(**current_char)){
+        // Allocate memory for the first child
+        new_struct_1 = malloc(sizeof(node));
+        struct_current->fils = new_struct_1;
+    }
 
     // Store as many field-content as needed. 
     while(isobs_fold(*current_char) || isvchar(**current_char)) {
-        // Allocate memory for the first child
-        node *new_struct_1 = malloc(sizeof(node));
-        struct_current->fils = new_struct_1;
 
         // Call the function for the first child, supposed to be field-content or obs-fold
         if(isobs_fold(*current_char)){
@@ -482,7 +480,7 @@ void field_value(char **current_char, node *struct_current){
         // Allocate memory for the second child (if needed)
         if(isobs_fold(*current_char) || isvchar(**current_char)){
             // Allocate memory for the second child
-            node *new_struct_2 = new_struct_1;
+            new_struct_2 = new_struct_1;
             new_struct_1 = malloc(sizeof(node));
             new_struct_2->frere = new_struct_1;
         }

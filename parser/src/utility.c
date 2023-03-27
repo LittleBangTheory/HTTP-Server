@@ -53,7 +53,7 @@ void print_tree(node *struct_current, int depth){
     printf("%s: ",struct_current->label);
     // print fields
     char *c=struct_current->debut;
-    while (c!=(struct_current->fin)+1 && (c<=struct_current->fin)) {
+    while (c!=NULL && c!=(struct_current->fin)+1 && (c<=struct_current->fin)) {
         printf("%c",*c);
         c++;
     }
@@ -185,7 +185,7 @@ int isobs_text(char c){
  * \param current_char : char to check
 */
 int isobs_fold(char *current_char){
-    if(*current_char == '\r' && *current_char+1 == '\n' && *current_char+2 == ' ' || *current_char+2 == '\t'){
+    if(*current_char == '\r' && *current_char+1 == '\n' && (*current_char+2 == ' ' || *current_char+2 == '\t')){
         return 1;
     }
     return 0;

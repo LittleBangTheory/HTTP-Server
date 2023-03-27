@@ -23,8 +23,8 @@ _Token *searchTree(void *start,char *name){
 
 // fonction qui renvoie un pointeur vers char indiquant l'etiquette du noeud. (le nom de la rulename, intermediaire ou terminal) 
 // et indique (si len!=NULL) dans *len la longueur de cette chaine.
-char *getElementTag(void *node,int *len){
-    node *element=node;
+char *getElementTag(void *noeud,int *len){
+    node* element=noeud;
     if (len!=NULL){
         *len=strlen(element->label);
     }

@@ -13,3 +13,5 @@ int issub_delims(char c);
 int isvchar(char c);
 int isobs_text(char c);
 int isobs_fold(char *current_char);
+int isconnection_end(char *current_char);
+int isheader_end(char *current_char);
