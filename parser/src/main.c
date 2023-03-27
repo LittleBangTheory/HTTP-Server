@@ -13,39 +13,39 @@
 #define true 1
 #define false 0
 
-char HTTP_MESSAGE[]="HTTP-message";
+char HTTP_MESSAGE[]="HTTP_message";
 char HEADER_FIELD[]="header-field";
-char REQUEST_LINE[]="request-line";
-char START_LINE[]="start-line";
+char REQUEST_LINE[]="request_line";
+char START_LINE[]="start_line";
 char METHOD[]="method";
 char TOKEN[]="token";
 char TCHAR[]="tchar";
 char SP[]="__sp";
-char ALPHA[]="ALPHA";
+char ALPHA[]="__alpha";
 char DIGIT[]="DIGIT";
-char REQUEST_TARGET[]="Request-Target";
-char ABSOLUTE_PATH[]="absolute-path";
+char REQUEST_TARGET[]="Request_Target";
+char ABSOLUTE_PATH[]="absolute_path";
 char SEGMENT[]="segment";
 char PCHAR[]="pchar";
 char UNRESERVED[]="unreserved";
-char PCT_ENCODED[]="pct-encoded";
-char SUB_DELIMS[]="sub-delims";
+char PCT_ENCODED[]="pct_encoded";
+char SUB_DELIMS[]="sub_delims";
 char HEXDIG[]="hexdig";
 char QUERY[]="query";
-char HTTP_VERSION[]="HTTP-version";
-char HTTP_NAME[]="HTTP-name";
+char HTTP_VERSION[]="HTTP_version";
+char HTTP_NAME[]="HTTP_name";
 char CRLF[]="__crlf";
 char ICAR[]="__icar";
 char FIELD_NAME[]="field-name";
 char FIELD_VALUE[]="field-value";
-char OWS[]="__ows";
+char OWS[]="OWS";
 char HTAB[]="__htab";
-char FIELD_CONTENT[]="field-content";
+char FIELD_CONTENT[]="field_content";
 char OBS_FOLD[]="obs-fold";
-char FIELD_VCHAR[]="field-vchar";
+char FIELD_VCHAR[]="field_vchar";
 char VCHAR[]="__vchar";
-char OBS_TEXT[]="obs-text";
-char MESSAGE_BODY[]="message-body";
+char OBS_TEXT[]="obs_text";
+char MESSAGE_BODY[]="message_body";
 char OCTET[]="octet";
 char CONNECTION[]="connection";
 char HOST[]="host";
@@ -55,6 +55,7 @@ char COOKIE[]="cookie";
 char TRANSFER_ENCODING[]="transfer_encoding";
 char EXPECT[]="expect";
 char CONNECTION_OPTION[]="connection_options";
+char URI_HOST[]="uri_host";
 
 void printNode(node* obj){
 	printf("label:%s\n",obj->label);

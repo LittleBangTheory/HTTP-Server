@@ -50,6 +50,7 @@ extern char COOKIE[];
 extern char TRANSFER_ENCODING[];
 extern char EXPECT[];
 extern char CONNECTION_OPTION[];
+extern char URI_HOST[];
 
 void http_message(char **current_char, node *struct_current);
 void icar(char** current_char, node *new_struct_2);
@@ -92,3 +93,8 @@ void cookie_header(char **current_char, node *struct_current);
 void transfer_encoding_header(char **current_char, node *struct_current);
 void expect_header(char **current_char, node *struct_current);
 void connection_option(char **current_char, node *struct_current);
+void uri_host(char **current_char, node *struct_current);
+void host(char **current_char, node *struct_current);
+void port(char **current_char, node *struct_current);
+void ipv4address(char **current_char, node *struct_current);
+void ip_literal(char **current_char, node *struct_current);

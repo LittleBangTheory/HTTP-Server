@@ -318,9 +318,14 @@ void connection_header(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
+/** \fn void host_header(char **current_char, node *struct_current)
+ * \brief Parse the host header
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * 
+*/
 void host_header(char **current_char, node *struct_current){
-    /*
-    // Host = host-name [ ":" host-port ]
+    // Host = uri_host [ ":" host-port ]
     // Init the struct (ptr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
     struct_current->label = HOST;
@@ -331,11 +336,11 @@ void host_header(char **current_char, node *struct_current){
     struct_current->fils = new_struct_1;
 
     // Call the function for the first child, supposed to be host-name
-    host_name(current_char, new_struct_1);
-    *current_char += 1;
+    uri_host(current_char, new_struct_1);
 
     // If the next element is a ':' (optional)
-    if(**current_char == ':'){
+    if(*(*current_char+1) == ':'){
+        *current_char += 1;
         // Allocate memory for the second child
         node *new_struct_2 = malloc(sizeof(node));
         new_struct_1->frere = new_struct_2;
@@ -354,8 +359,88 @@ void host_header(char **current_char, node *struct_current){
 
     // The end of the struct is known when the son functions are done
     struct_current->fin = *current_char;
-    */
 }
+
+void uri_host(char **current_char, node *struct_current){
+    // uri-host = IP-literal / IPv4address / reg-name
+    // Init the struct (ptr, int...), and allocate memory for the first child
+    struct_current->debut = *current_char;
+    struct_current->label = URI_HOST;
+    struct_current->fils = NULL;
+
+    // Allocate memory for the first child
+    node *new_struct_1 = malloc(sizeof(node));
+    struct_current->fils = new_struct_1;
+
+    // Call host
+    host(current_char, new_struct_1);
+
+    // The end of the struct is known when the son functions are done
+    struct_current->fin = *current_char;
+}
+
+void host(char **current_char, node *struct_current){
+    // host = hostname / IPv4address / IPv6reference
+    // Init the struct (ptr, int...), and allocate memory for the first child
+    struct_current->debut = *current_char;
+    struct_current->label = HOST;
+    struct_current->fils = NULL;
+
+    // Allocate memory for the first child
+    node *new_struct_1 = malloc(sizeof(node));
+    struct_current->fils = new_struct_1;
+
+    // Call the function for the first child, supposed to be IP-literal / IPv4address / reg-name
+    if(isip_literal(*current_char)){
+        ip_literal(current_char, new_struct_1);
+    }else if(isipv4address(*current_char)){
+        ipv4address(current_char, new_struct_1);
+    }else{
+        reg_name(current_char, new_struct_1);
+    }
+
+    // The end of the struct is known when the son functions are done
+    struct_current->fin = *current_char;
+}
+
+void ip_literal(char **current_char, node *struct_current){
+    // IP-literal = "[" ( IPv6address / IPvFuture  ) "]"
+    // Init the struct (ptr, int...), and allocate memory for the first child
+    struct_current->debut = *current_char;
+    struct_current->label = IP_LITERAL;
+    struct_current->fils = NULL;
+
+    // Allocate memory for the first child
+    node *new_struct_1 = malloc(sizeof(node));
+    struct_current->fils = new_struct_1;
+
+    // Call the function for the first child, supposed to be '['
+    icar(current_char, new_struct_1);
+    *current_char += 1;
+
+    // Allocate memory for the second child
+    node *new_struct_2 = malloc(sizeof(node));
+    new_struct_1->frere = new_struct_2;
+
+    // Call the function for the second child, supposed to be IPv6address / IPvFuture
+    if(isipv6address(*current_char)){
+        ipv6address(current_char, new_struct_2);
+    }else{
+        ipvfuture(current_char, new_struct_2);
+    }
+
+    // Allocate memory for the third child
+    node *new_struct_3 = malloc(sizeof(node));
+    new_struct_2->frere = new_struct_3;
+
+    // Call the function for the third child, supposed to be ']'
+    icar(current_char, new_struct_3);
+    *current_char += 1;
+
+    // The end of the struct is known when the son functions are done
+    struct_current->fin = *current_char;
+}
+
 void content_length_header(char **current_char, node *struct_current){}
 void content_type_header(char **current_char, node *struct_current){}
 void cookie_header(char **current_char, node *struct_current){}
