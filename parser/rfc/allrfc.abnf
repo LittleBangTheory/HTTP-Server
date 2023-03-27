@@ -196,11 +196,9 @@ regular       = "art-lojban"        ; these tags match the 'langtag'
                / "zh-xiang"
 BWS = OWS
 
-Connection = *( "," OWS ) connection-option *( OWS "," [ OWS
-    connection-option ] )
+Connection = *( "," OWS ) connection-option *( OWS "," [ OWS connection-option ] )
 
 Content-Length = 1*DIGIT
-
 
 Host = uri-host [ ":" port ]
 

@@ -169,25 +169,59 @@ void header_field(char **current_char, node *struct_current){
     icar(current_char, new_struct_2);
     *current_char += 1;
 
-    if(**current_char == 0x20 || **current_char == 0x09) {
-        // Allocate memory for the third child
-        new_struct_1 = new_struct_2;
-        new_struct_2 = malloc(sizeof(node));
-        new_struct_1->frere = new_struct_2;
+    // Keep the pointer to new_struct_1 to identify the header type after
+    node *new_struct_3 = malloc(sizeof(node));
+    new_struct_2->frere = new_struct_3;
 
+    if(**current_char == 0x20 || **current_char == 0x09) {
         // Call the function for the third child, supposed to be OWS
-        ows(current_char, new_struct_2);
+        ows(current_char, new_struct_3);
+
+        // Allocate memory for the fourth child
+        new_struct_2 = new_struct_3;
+        new_struct_3 = malloc(sizeof(node));
+        new_struct_2->frere = new_struct_3;
     }
     *current_char += 1;
 
-    // Allocate memory for the fourth child
-    new_struct_1 = new_struct_2;
-    new_struct_2 = malloc(sizeof(node));
-    new_struct_1->frere = new_struct_2;
+    //Treat every case for header_field : Connection-header / Content-Length-header / Content-Type-header / Cookie-header / Transfer-Encoding-header / Expect-header / Host-header / ( field-name ":" OWS field-value OWS ) 
+    if(strcmp(new_struct_1->label, "Connection") == 0){
+        // Call the function for the fourth child, supposed to be Connection-header
+        connection(current_char, new_struct_3);
+    }
+    else if(strcmp(new_struct_1->label, "Content-Length") == 0){
+        // Call the function for the fourth child, supposed to be Content-Length-header
+        content_length(current_char, new_struct_3);
+    }
+    else if(strcmp(new_struct_1->label, "Content-Type") == 0){
+        // Call the function for the fourth child, supposed to be Content-Type-header
+        content_type(current_char, new_struct_3);
+    }
+    else if(strcmp(new_struct_1->label, "Cookie") == 0){
+        // Call the function for the fourth child, supposed to be Cookie-header
+        cookie(current_char, new_struct_3);
+    }
+    else if(strcmp(new_struct_1->label, "Transfer-Encoding") == 0){
+        // Call the function for the fourth child, supposed to be Transfer-Encoding-header
+        transfer_encoding(current_char, new_struct_3);
+    }
+    else if(strcmp(new_struct_1->label, "Expect") == 0){
+        // Call the function for the fourth child, supposed to be Expect-header
+        expect(current_char, new_struct_3);
+    }
+    else if(strcmp(new_struct_1->label, "Host") == 0){
+        // Call the function for the fourth child, supposed to be Host-header
+        host(current_char, new_struct_3);
+    }
+    else{
+        // Allocate memory for the fourth child
+        new_struct_2 = new_struct_3;
+        new_struct_3 = malloc(sizeof(node));
+        new_struct_2->frere = new_struct_3;
 
-    // Call the function for the fourth child, supposed to be field-value
-    field_value(current_char, new_struct_2);
-    
+        // Call the function for the fourth child, supposed to be field-value
+        field_value(current_char, new_struct_3);
+    }
 
     if(*(*current_char+1) == 0x20 || *(*current_char+1) == 0x09) {
         *current_char += 1;
@@ -199,6 +233,30 @@ void header_field(char **current_char, node *struct_current){
         // Call the function for the fifth child, supposed to be OWS
         ows(current_char, new_struct_2);
     }
+
+    // The end of the struct is known when the son functions are done
+    struct_current->fin = *current_char;
+}
+
+/** \fn void connection(char **current_char, node *struct_current)
+ * \brief Parse the connection header
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * 
+*/
+void connection(char **current_char, node *struct_current){
+    // Connection = *( "," OWS ) connection-option *( OWS "," [ OWS connection-option ] )
+    // Init the struct (ptr, int...), and allocate memory for the first child
+    struct_current->debut = *current_char;
+    struct_current->label = CONNECTION;
+    struct_current->fils = NULL;
+
+    // Allocate memory for the first child
+    node *new_struct_1 = malloc(sizeof(node));
+    struct_current->fils = new_struct_1;
+
+    // Call the function for the first child, supposed to be token
+    token(current_char, new_struct_1);
 
     // The end of the struct is known when the son functions are done
     struct_current->fin = *current_char;
