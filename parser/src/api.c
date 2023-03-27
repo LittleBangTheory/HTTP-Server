@@ -3,22 +3,28 @@
 #include <string.h>
 #include <stdlib.h>
 // Fonction qui retourne un pointeur (type opaque) vers la racine de l'arbre construit. 
-void *getRootTree(){}
+void *getRootTree(){
+    return &racine;
+}
 
 // Fonction qui recherche dans l'arbre tous les noeuds dont l'etiquette est egale à la chaine de caractères en argument.   
 // Par convention si start == NULL alors on commence à la racine 
 // sinon on effectue une recherche dans le sous-arbre à partir du noeud start 
 _Token *searchTree(void *start,char *name){
     if (start==NULL){
-      start=getRootTree;
+      start=getRootTree();
     }
-    node* begin = start;
+    node* noeud = start;
     _Token* tete=malloc(sizeof(_Token));
-    if(!strcmp(name,begin->label)){
-        tete->node=begin;
+
+    while (noeud->frere!=NULL && noeud->fils!=NULL)
+    if(!strcmp(name,noeud->label)){
+        tete->node=noeud;
         tete->next=malloc(sizeof(_Token));
         tete=tete->next;
     }
+
+    free(tete);
 }
 
 // fonction qui renvoie un pointeur vers char indiquant l'etiquette du noeud. (le nom de la rulename, intermediaire ou terminal) 

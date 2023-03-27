@@ -220,3 +220,8 @@ int isheader_end(char *current_char){
         return 0;
     }
 }
+
+int isipv4(char *current_char){}
+int isip_literal(char *current_char){}
+int isipv6(char *current_char){}
+int isipvfuture(char *current_char){}

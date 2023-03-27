@@ -51,6 +51,15 @@ extern char TRANSFER_ENCODING[];
 extern char EXPECT[];
 extern char CONNECTION_OPTION[];
 extern char URI_HOST[];
+extern char PORT[];
+extern char IPV4ADDRESS[];
+extern char IP_LITERAL[];
+extern char REG_NAME[];
+extern char HOST_LOWER[];
+extern char IPV6ADDRESS[];
+extern char IPVFUTURE[];
+
+extern node* racine;
 
 void http_message(char **current_char, node *struct_current);
 void icar(char** current_char, node *new_struct_2);
@@ -98,3 +107,5 @@ void host(char **current_char, node *struct_current);
 void port(char **current_char, node *struct_current);
 void ipv4address(char **current_char, node *struct_current);
 void ip_literal(char **current_char, node *struct_current);
+void reg_name(char **current_char, node *struct_current);
+void dec_octet(char **current_char, node *struct_current);

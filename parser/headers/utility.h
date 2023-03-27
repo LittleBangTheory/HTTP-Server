@@ -15,3 +15,7 @@ int isobs_text(char c);
 int isobs_fold(char *current_char);
 int isconnection_end(char *current_char);
 int isheader_end(char *current_char);
+int isipv4(char *current_char);
+int isip_literal(char *current_char);
+int isipv6(char *current_char);
+int isipvfuture(char *current_char);

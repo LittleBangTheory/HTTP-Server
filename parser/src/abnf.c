@@ -14,6 +14,7 @@
 /* TODO :
 - Check that our syntax corresponds to the one of the teacher (example : __alpha instead of alpha)
 - Write a bash script to execute every test and compare the output with the expected one
+- Write ipv6()
 */
 
 /* NOTE :
@@ -361,6 +362,12 @@ void host_header(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
+/** \fn void uri_host(char **current_char, node *struct_current)
+ * \brief Parse the uri-host
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * 
+*/
 void uri_host(char **current_char, node *struct_current){
     // uri-host = IP-literal / IPv4address / reg-name
     // Init the struct (ptr, int...), and allocate memory for the first child
@@ -379,6 +386,12 @@ void uri_host(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
+/** \fn void host(char **current_char, node *struct_current)
+ * \brief Parse the host
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * 
+*/
 void host(char **current_char, node *struct_current){
     // host = hostname / IPv4address / IPv6reference
     // Init the struct (ptr, int...), and allocate memory for the first child
@@ -403,6 +416,65 @@ void host(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
+/** \fn ipv4address(char **current_char, node *struct_current)
+ * \brief Parse the ipv4address
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ *
+*/
+void ipv4address(char **current_char, node *struct_current){
+    // IPv4address = dec-octet "." dec-octet "." dec-octet "." dec-octet
+    // Init the struct (ptr, int...), and allocate memory for the first child
+    struct_current->debut = *current_char;
+    struct_current->label = IPV4ADDRESS;
+    struct_current->fils = NULL;
+
+    // Allocate memory for the first child
+    node *new_struct_1 = malloc(sizeof(node));
+    node *new_struct_2;
+    struct_current->fils = new_struct_1;
+
+    for(int i=0; i<4; i++){
+        // Call the function for the first child, supposed to be dec-octet
+        dec_octet(current_char, new_struct_1);
+        *current_char += 1;
+
+        // Allocate memory for the second child
+        new_struct_2 = new_struct_1;
+        new_struct_1 = malloc(sizeof(node));
+        new_struct_2->frere = new_struct_1;
+
+        // Call the function for the second child, supposed to be '.'
+        if(**current_char != '.'){
+            printf("Error : ipv4address : '.' expected");
+            exit(1);
+        }
+        icar(current_char, new_struct_1);
+
+        // Allocate memory for the third child
+        if(i != 3){
+            new_struct_2 = new_struct_1;
+            new_struct_1 = malloc(sizeof(node));
+            new_struct_2->frere = new_struct_1;
+        }
+
+    }
+}
+
+/** \fn void dec_octet(char **current_char, node *struct_current)
+ * \brief Parse the dec-octet
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+*/
+void dec_octet(char **current_char, node *struct_current){
+    // TODO
+}
+
+/** \fn void ip_literal(char **current_char, node *struct_current)
+ * \brief Parse the ip-literal
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+*/
 void ip_literal(char **current_char, node *struct_current){
     // IP-literal = "[" ( IPv6address / IPvFuture  ) "]"
     // Init the struct (ptr, int...), and allocate memory for the first child
@@ -415,8 +487,13 @@ void ip_literal(char **current_char, node *struct_current){
     struct_current->fils = new_struct_1;
 
     // Call the function for the first child, supposed to be '['
-    icar(current_char, new_struct_1);
-    *current_char += 1;
+    if(**current_char == '['){
+        icar(current_char, new_struct_1);
+        *current_char += 1;
+    } else {
+        printf("Error : '[' expected, %c found", **current_char);
+        exit(1);
+    }
 
     // Allocate memory for the second child
     node *new_struct_2 = malloc(sizeof(node));
@@ -434,10 +511,109 @@ void ip_literal(char **current_char, node *struct_current){
     new_struct_2->frere = new_struct_3;
 
     // Call the function for the third child, supposed to be ']'
-    icar(current_char, new_struct_3);
-    *current_char += 1;
+    if(**current_char == ']'){
+        icar(current_char, new_struct_1);
+    } else {
+        printf("Error : ']' expected, %c found", **current_char);
+        exit(1);
+    }
 
     // The end of the struct is known when the son functions are done
+    struct_current->fin = *current_char;
+}
+
+/** \fn void ipv6address(char **current_char, node *struct_current)
+ *  \brief Function to parse an IPv6address
+ *  \param current_char : pointer to the current char
+ *  \param struct_current : pointer to the current struct
+*/
+void ipvv6address(char **current_char, node *struct_current){
+    // TODO 
+}
+
+/** \fn void ipvfuture(char **current_char, node *struct_current)
+ *  \brief Function to parse an IPvFuture
+ *  \param current_char : pointer to the current char
+ *  \param struct_current : pointer to the current struct
+*/
+void ipvfuture(char **current_char, node *struct_current){
+    // IPvFuture     = "v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" )
+
+    // Init the struct (ptr, int...), and allocate memory for the first child
+    struct_current->debut = *current_char;
+    struct_current->label = IPVFUTURE;
+    struct_current->fils = NULL;
+
+    // Allocate memory for the first child
+    node *new_struct_1 = malloc(sizeof(node));
+    struct_current->fils = new_struct_1;
+
+    // Call the function for the first child, supposed to be 'v'
+    if(**current_char == 'v'){
+        icar(current_char, new_struct_1);
+        *current_char += 1;
+    } else {
+        printf("Error : 'v' expected, %c found", **current_char);
+        exit(1);
+    }
+
+    // Allocate memory for the second child
+    node *new_struct_2 = malloc(sizeof(node));
+    new_struct_1->frere = new_struct_2;
+
+    // Call the function for the second child, supposed to be 1*HEXDIG
+    while(isxdigit(**current_char)){
+        hexdig(current_char, new_struct_2);
+        *current_char += 1;
+
+        // Allocate memory for the next child
+        if(isxdigit(**current_char)){
+            new_struct_1 = new_struct_2;
+            new_struct_2 = malloc(sizeof(node));
+            new_struct_1->frere = new_struct_2;
+        }
+    }
+
+    // Allocate memory for the third child
+    new_struct_1 = new_struct_2;
+    new_struct_2 = malloc(sizeof(node));
+    new_struct_1->frere = new_struct_2;
+
+    // Call the function for the third child, supposed to be '.'
+    if(**current_char == '.'){
+        icar(current_char, new_struct_2);
+        *current_char += 1;
+    } else {
+        printf("Error : '.' expected, %c found", **current_char);
+        exit(1);
+    }
+
+    // Allocate memory for the fourth child
+    new_struct_1 = new_struct_2;
+    new_struct_2 = malloc(sizeof(node));
+    new_struct_1->frere = new_struct_2;
+
+    // Call the function for the fourth child, supposed to be 1*( unreserved / sub-delims / ":" )
+    while(isunreserved(**current_char) || issubdelims(**current_char) || **current_char == ':'){
+        if(isunreserved(**current_char)){
+            unreserved(current_char, new_struct_2);
+        }else if(issubdelims(**current_char)){
+            subdelims(current_char, new_struct_2);
+        }else{
+            icar(current_char, new_struct_2);
+        }
+        *current_char += 1;
+
+        // Allocate memory for the next child
+        if(isunreserved(**current_char) || issubdelims(**current_char) || **current_char == ':'){
+            new_struct_1 = new_struct_2;
+            new_struct_2 = malloc(sizeof(node));
+            new_struct_1->frere = new_struct_2;
+        }
+    }
+
+    // The end of the struct is known when the son functions are done
+    *current_char -= 1;
     struct_current->fin = *current_char;
 }
 

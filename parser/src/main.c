@@ -48,7 +48,7 @@ char OBS_TEXT[]="obs_text";
 char MESSAGE_BODY[]="message_body";
 char OCTET[]="octet";
 char CONNECTION[]="connection";
-char HOST[]="host";
+char HOST[]="Host";
 char CONTENT_LENGTH[]="content_length";
 char CONTENT_TYPE[]="content_type";
 char COOKIE[]="cookie";
@@ -56,6 +56,15 @@ char TRANSFER_ENCODING[]="transfer_encoding";
 char EXPECT[]="expect";
 char CONNECTION_OPTION[]="connection_options";
 char URI_HOST[]="uri_host";
+char PORT[]="uri_port";
+char HOST_LOWER[]= "host";
+char IP_LITERAL[]="ip_literal";
+char IPV4_ADDRESS[]="ipv4_address";
+char REG_NAME[]="reg_name";
+char IPV6_ADDRESS[]="ipv6_address";
+char IPVFuture[]="IPvFuture";
+
+node* racine;
 
 void printNode(node* obj){
 	printf("label:%s\n",obj->label);
@@ -67,7 +76,7 @@ void testMode(){
 	char req[]="GET / HTTP/1.1\n";
 	char *adr=&req[0];
 	node* tete=malloc(sizeof(node));
-	start_line(&adr,tete);
+	start_line(&adr,&racine);
 	print_tree(tete,1);
 	exit(true);
 }
