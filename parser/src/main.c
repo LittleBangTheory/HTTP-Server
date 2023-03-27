@@ -47,6 +47,15 @@ char VCHAR[]="__vchar";
 char OBS_TEXT[]="obs-text";
 char MESSAGE_BODY[]="message-body";
 char OCTET[]="OCTET";
+char CONNECTION[]="CONNECTION";
+char HOST[]="HOST";
+char CONTENT_LENGTH[]="CONTENT_LENGTH";
+char CONTENT_TYPE[]="CONTENT_TYPE";
+char COOKIE[]="COOKIE";
+char TRANSFER_ENCODING[]="TRANSFER_ENCODING";
+char EXPECT[]="EXPECT";
+
+node tete;
 
 void printNode(node* obj){
 	printf("label:%s\n",obj->label);

@@ -281,16 +281,35 @@ void connection_header(char **current_char, node *struct_current){
     connection_option(current_char, new_struct_1);
     *(current_char)+=1;
 
-    // Allocate memory for ows and ',' and connection-option
-    new_struct_2 = new_struct_1;
-    new_struct_1 = malloc(sizeof(node));
-    new_struct_2->frere = new_struct_1;
+    while(isconnection_end(*current_char)){
+        // Allocate memory for ows
+        new_struct_2 = new_struct_1;
+        new_struct_1 = malloc(sizeof(node));
+        new_struct_2->frere = new_struct_1;
+        ows(current_char, new_struct_1);
+        *current_char += 1;
 
-    //while(**current_char == 
+        // Allocate memory for ','
+        new_struct_2 = new_struct_1;
+        new_struct_1 = malloc(sizeof(node));
+        new_struct_2->frere = new_struct_1;
+        icar(current_char, new_struct_1);
+
+        // If the next element is a OWS connection-option (optional)
+
+    }
 
     // The end of the struct is known when the son functions are done
     struct_current->fin = *current_char;
 }
+
+void host_header(char **current_char, node *struct_current){}
+void content_length_header(char **current_char, node *struct_current){}
+void content_type_header(char **current_char, node *struct_current){}
+void cookie_header(char **current_char, node *struct_current){}
+void transfer_encoding_header(char **current_char, node *struct_current){}
+void expect_header(char **current_char, node *struct_current){}
+void connection_option(char **current_char, node *struct_current){}
 
 /** \fn void field_name(char **current_char, node *struct_current)
  * \brief Parse the field name
