@@ -49,6 +49,7 @@ extern char CONTENT_TYPE[];
 extern char COOKIE[];
 extern char TRANSFER_ENCODING[];
 extern char EXPECT[];
+extern char CONNECTION_OPTION[];
 
 void http_message(char **current_char, node *struct_current);
 void icar(char** current_char, node *new_struct_2);

@@ -155,7 +155,7 @@ void header_field(char **current_char, node *struct_current){
 
     // Call the function for the first child, supposed to be field-name
     field_name(current_char, new_struct_1);
-    //token() already increments the current_char, so we don't need to do it again
+    *current_char += 1;
 
     if(**current_char != ':'){
         printf("Error : expected ':' in header-field, got '%c' instead\n", **current_char);
@@ -294,22 +294,95 @@ void connection_header(char **current_char, node *struct_current){
         new_struct_1 = malloc(sizeof(node));
         new_struct_2->frere = new_struct_1;
         icar(current_char, new_struct_1);
+        *current_char+=1;
 
-        // If the next element is a OWS connection-option (optional)
+        // If the next element is a [OWS connection-option] (optional)
+        if(!isheader_end(*current_char) && !isconnection_end(*current_char)){
+            // Allocate memory for ows
+            new_struct_2 = new_struct_1;
+            new_struct_1 = malloc(sizeof(node));
+            new_struct_2->frere = new_struct_1;
 
+            // Call the function for OWS
+            ows(current_char, new_struct_1);
+            *current_char += 1;
+
+            // Allocate memory for connection-option
+            new_struct_2 = new_struct_1;
+            new_struct_1 = malloc(sizeof(node));
+            new_struct_2->frere = new_struct_1;
+
+            // Call the function for connection-option
+            connection_option(current_char, new_struct_1);
+            *current_char += 1;
+        }
+    }
+
+    // The end of the struct is known when the son functions are done
+    *current_char -= 1;
+    struct_current->fin = *current_char;
+}
+
+void host_header(char **current_char, node *struct_current){
+    /*
+    // Host = host-name [ ":" host-port ]
+    // Init the struct (ptr, int...), and allocate memory for the first child
+    struct_current->debut = *current_char;
+    struct_current->label = HOST;
+    struct_current->fils = NULL;
+
+    // Allocate memory for the first child
+    node *new_struct_1 = malloc(sizeof(node));
+    struct_current->fils = new_struct_1;
+
+    // Call the function for the first child, supposed to be host-name
+    host_name(current_char, new_struct_1);
+    *current_char += 1;
+
+    // If the next element is a ':' (optional)
+    if(**current_char == ':'){
+        // Allocate memory for the second child
+        node *new_struct_2 = malloc(sizeof(node));
+        new_struct_1->frere = new_struct_2;
+
+        // Call the function for the second child, supposed to be ':'
+        icar(current_char, new_struct_2);
+        *current_char += 1;
+
+        // Allocate memory for the third child
+        node *new_struct_3 = malloc(sizeof(node));
+        new_struct_2->frere = new_struct_3;
+
+        // Call the function for the third child, supposed to be host-port
+        host_port(current_char, new_struct_3);
     }
 
     // The end of the struct is known when the son functions are done
     struct_current->fin = *current_char;
+    */
 }
-
-void host_header(char **current_char, node *struct_current){}
 void content_length_header(char **current_char, node *struct_current){}
 void content_type_header(char **current_char, node *struct_current){}
 void cookie_header(char **current_char, node *struct_current){}
 void transfer_encoding_header(char **current_char, node *struct_current){}
 void expect_header(char **current_char, node *struct_current){}
-void connection_option(char **current_char, node *struct_current){}
+void connection_option(char **current_char, node *struct_current){
+    // connection-option = token
+    // Init the struct (ptr, int...), and allocate memory for the first child
+    struct_current->debut = *current_char;
+    struct_current->label = CONNECTION_OPTION;
+    struct_current->fils = NULL;
+
+    // Allocate memory for the first child
+    node *new_struct_1 = malloc(sizeof(node));
+    struct_current->fils = new_struct_1;
+
+    // Call the function for the first child, supposed to be token
+    token(current_char, new_struct_1);
+
+    // The end of the struct is known when the son functions are done
+    struct_current->fin = *current_char;
+}
 
 /** \fn void field_name(char **current_char, node *struct_current)
  * \brief Parse the field name
@@ -517,6 +590,7 @@ void request_line(char **current_char, node *struct_current){
     struct_current->fils = new_struct_1;
     // Call the function for the first child, supposed to be method
     method(current_char, new_struct_1);
+    *current_char += 1;
 
     // Allocate memory for sp
     node *new_struct_2 = malloc(sizeof(node));
@@ -529,6 +603,7 @@ void request_line(char **current_char, node *struct_current){
     new_struct_2 = malloc(sizeof(node));
     new_struct_1->frere = new_struct_2;
     request_target(current_char, new_struct_2);
+    *current_char+=1;
 
     // Allocate memory for sp
     new_struct_1 = new_struct_2;
@@ -695,6 +770,8 @@ void token(char **current_char, node *struct_current){
         new_struct_1 = new_struct_2;
         *current_char+=1;
     }while(istchar(*(*current_char)));
+
+    *current_char-=1;
     struct_current->fin = *current_char;
 }
 
@@ -729,6 +806,9 @@ void request_target(char **current_char, node *struct_current){
         new_struct_1->frere = new_struct_2;
         query(current_char, new_struct_2);
     }
+
+    // The end is known when the son functions are done
+    struct_current->fin = *current_char;
 }
 
 /** \fn void query(char **current_char, node *struct_current)
@@ -746,20 +826,21 @@ void query(char **current_char, node *struct_current){
     // Allocate memory for the child and its brothers)
     node *new_struct_1 = malloc(sizeof(node));
     struct_current->fils = new_struct_1;
-    if(ispchar(**current_char) || **current_char=='/' || **current_char=='?'){
-        do{
-            node *new_struct_2 = malloc(sizeof(node));
-            if(ispchar(**current_char)) {
-                pchar(current_char, new_struct_1);
-            } else {
-                icar(current_char, new_struct_1);
-            }
-            new_struct_1->frere = new_struct_2;
-            // move one struct forward 
-            new_struct_1 = new_struct_2;
-            *current_char+=1;
-        }while(ispchar(*(*current_char+1) || *(*current_char+1)=='/' || *(*current_char+1)=='?'));
+    while(ispchar(**current_char) || **current_char=='/' || **current_char=='?'){
+        node *new_struct_2 = malloc(sizeof(node));
+        if(ispchar(**current_char)) {
+            pchar(current_char, new_struct_1);
+        } else {
+            icar(current_char, new_struct_1);
+        }
+        new_struct_1->frere = new_struct_2;
+        // move one struct forward 
+        new_struct_1 = new_struct_2;
+        *current_char+=1;
     }
+
+    // Go back one char to be on the last char of the query
+    *current_char-=1;
     struct_current->fin = *current_char;
 }
 
@@ -812,6 +893,7 @@ void segment(char **current_char, node *struct_current){
             *current_char+=1;
         }while(ispchar(*(*current_char+1)));
     }
+    *current_char-=1;
     struct_current->fin = *current_char;
 }
 

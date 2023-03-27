@@ -46,16 +46,15 @@ char FIELD_VCHAR[]="field-vchar";
 char VCHAR[]="__vchar";
 char OBS_TEXT[]="obs-text";
 char MESSAGE_BODY[]="message-body";
-char OCTET[]="OCTET";
-char CONNECTION[]="CONNECTION";
-char HOST[]="HOST";
-char CONTENT_LENGTH[]="CONTENT_LENGTH";
-char CONTENT_TYPE[]="CONTENT_TYPE";
-char COOKIE[]="COOKIE";
-char TRANSFER_ENCODING[]="TRANSFER_ENCODING";
-char EXPECT[]="EXPECT";
-
-node tete;
+char OCTET[]="octet";
+char CONNECTION[]="connection";
+char HOST[]="host";
+char CONTENT_LENGTH[]="content_length";
+char CONTENT_TYPE[]="content_type";
+char COOKIE[]="cookie";
+char TRANSFER_ENCODING[]="transfer_encoding";
+char EXPECT[]="expect";
+char CONNECTION_OPTION[]="connection_options";
 
 void printNode(node* obj){
 	printf("label:%s\n",obj->label);
