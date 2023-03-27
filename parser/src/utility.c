@@ -44,19 +44,21 @@ void print_request(node *struct_current, char* first_char, int length){
 */
 void print_tree(node *struct_current, int depth){
     // indent
-    for (int i = 0; i < depth; i++)
+    for (int i = 0; i < depth*4; i++)
     {
-        printf("\t");
+        printf(" ");
     }
     
     // print the label
-    printf("%s: ",struct_current->label);
+    printf("[%d:%s] = ",depth,struct_current->label);
     // print fields
     char *c=struct_current->debut;
+    printf("\"");
     while (c!=NULL && c!=(struct_current->fin)+1 && (c<=struct_current->fin)) {
         printf("%c",*c);
         c++;
     }
+    printf("\"");
     printf("\n");
         if (struct_current->fils != NULL) {
         print_tree(struct_current->fils, depth+1);

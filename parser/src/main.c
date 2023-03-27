@@ -63,6 +63,8 @@ char IPV4_ADDRESS[]="ipv4_address";
 char REG_NAME[]="reg_name";
 char IPV6_ADDRESS[]="ipv6_address";
 char IPVFuture[]="IPvFuture";
+char IPV4ADDRESS[]="IPv4";
+char IPVFUTURE[]="IPvFuture";
 
 node* racine;
 
@@ -77,7 +79,7 @@ void testMode(){
 	char *adr=&req[0];
 	node* tete=malloc(sizeof(node));
 	start_line(&adr,&racine);
-	print_tree(tete,1);
+	print_tree(tete,0);
 	exit(true);
 }
 

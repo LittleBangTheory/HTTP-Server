@@ -370,7 +370,7 @@ void host_header(char **current_char, node *struct_current){
 */
 void uri_host(char **current_char, node *struct_current){
     // uri-host = IP-literal / IPv4address / reg-name
-    // Init the struct (ptr, int...), and allocate memory for the first child
+    // Init the struct (pParse the hosttr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
     struct_current->label = URI_HOST;
     struct_current->fils = NULL;
@@ -527,7 +527,7 @@ void ip_literal(char **current_char, node *struct_current){
  *  \param current_char : pointer to the current char
  *  \param struct_current : pointer to the current struct
 */
-void ipvv6address(char **current_char, node *struct_current){
+void ipv6address(char **current_char, node *struct_current){
     // TODO 
 }
 
@@ -1291,6 +1291,7 @@ void sub_delims(char **current_char, node *struct_current){
 void tchar(char **current_char, node *struct_current){
     // Init the struct (ptr, int...)
     struct_current->debut = *current_char;
+    struct_current->fin = *current_char;
     struct_current->label = TCHAR;
     struct_current->fils = NULL;
 
@@ -1508,3 +1509,15 @@ void obs_text(char **current_char, node *struct_current){
     struct_current->debut = *current_char;
     struct_current->fin = *current_char;
 }
+
+void host_port(char** current_char, node* struct_current){}
+
+int isipv4address(char* current_char){}
+
+int isipv6address(char* current_char){}
+
+int issubdelims(char c){}
+
+int subdelims(char** current_char, node* struct_current){}
+
+void reg_name(char** current_char, node* struct_current){}
