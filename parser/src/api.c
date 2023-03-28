@@ -7,6 +7,24 @@ void *getRootTree(){
     return &racine;
 }
 
+/*
+Fonction interne d'aide a searchTree
+*/
+void locateFields(_Token* current,node* noeud,char* field){
+    if(noeud==NULL)return;
+    _Token* new=current;
+    if (!strcmp(field,noeud->label)){
+        new = malloc(sizeof(_Token));
+        new->next=NULL;
+        new->node=noeud;
+        current->next=new;
+    }
+    locateFields(new,noeud->fils,field);
+    locateFields(new,noeud->frere,field);
+
+}
+
+
 // Fonction qui recherche dans l'arbre tous les noeuds dont l'etiquette est egale à la chaine de caractères en argument.   
 // Par convention si start == NULL alors on commence à la racine 
 // sinon on effectue une recherche dans le sous-arbre à partir du noeud start 
@@ -14,17 +32,9 @@ _Token *searchTree(void *start,char *name){
     if (start==NULL){
       start=getRootTree();
     }
-    node* noeud = start;
-    _Token* tete=malloc(sizeof(_Token));
-
-    while (noeud->frere!=NULL && noeud->fils!=NULL)
-    if(!strcmp(name,noeud->label)){
-        tete->node=noeud;
-        tete->next=malloc(sizeof(_Token));
-        tete=tete->next;
-    }
-
-    free(tete);
+    _Token* head = NULL;
+    locateFields(head,(node*)start,name);
+    return head;
 }
 
 // fonction qui renvoie un pointeur vers char indiquant l'etiquette du noeud. (le nom de la rulename, intermediaire ou terminal) 
@@ -52,11 +62,11 @@ void purgeElement(_Token **r){
 // Fonction qui supprime et libere toute la mémoire associée à l'arbre . 
 void purgeTree(void *root){
     node *element=root;
-    if (element->frere != NULL){
-        purgeTree(element->frere);
-    }
     if (element->fils != NULL) {
         purgeTree(element->fils);
+    }
+    if (element->frere != NULL){
+        purgeTree(element->frere);
     }
     free(element);
 } 

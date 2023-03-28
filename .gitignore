@@ -9,3 +9,4 @@ parser/simplegrammar/html/
 parser/*.o
 parser/html/
 parser/main.o
+parser/ourParser
