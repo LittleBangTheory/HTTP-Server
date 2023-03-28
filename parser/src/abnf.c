@@ -828,11 +828,471 @@ void ipvfuture(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-void content_length_header(char **current_char, node *struct_current){}
-void content_type_header(char **current_char, node *struct_current){}
+/** \fn void regname(char **current_char, node *struct_current)
+ * \brief Function to parse a reg-name
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * 
+*/
+void regname(char **current_char, node *struct_current){
+    // reg-name      = *( unreserved / pct-encoded / sub-delims )
+    // Init the struct (ptr, int...), and allocate memory for the first child
+    struct_current->debut = *current_char;
+    struct_current->label = REGNAME;
+    struct_current->fils = NULL;
+
+    // Allocate memory for the first child
+    node *new_struct_1 = malloc(sizeof(node));
+    struct_current->fils = new_struct_1;
+
+    // Call the function for the first child, supposed to be *( unreserved / pct-encoded / sub-delims )
+    while(isunreserved(**current_char) || ispct_encoded(**current_char) || issubdelims(**current_char)){
+        if(isunreserved(**current_char)){
+            unreserved(current_char, new_struct_1);
+        }else if(ispct_encoded(**current_char)){
+            pct_encoded(current_char, new_struct_1);
+        }else{
+            subdelims(current_char, new_struct_1);
+        }
+        *current_char += 1;
+
+        // Allocate memory for the next child
+        if(isunreserved(**current_char) || ispct_encoded(**current_char) || issubdelims(**current_char)){
+            new_struct_1 = new_struct_1->frere;
+            new_struct_1 = malloc(sizeof(node));
+        }
+    }
+
+    // The end of the struct is known when the son functions are done
+    *current_char -= 1;
+    struct_current->fin = *current_char;
+}
+
+/** \fn void content_length_header(char **current_char, node *struct_current)
+ * \brief Function to parse a content-length header
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * 
+*/
+void content_length_header(char **current_char, node *struct_current){
+    // content-length = 1*DIGIT
+    // Init the struct (ptr, int...), and allocate memory for the first child
+    struct_current->debut = *current_char;
+    struct_current->label = CONTENT_LENGTH;
+    struct_current->fils = NULL;
+
+    // Allocate memory for the first child
+    node *new_struct_1 = malloc(sizeof(node));
+    struct_current->fils = new_struct_1;
+
+    // Call the function for the first child, supposed to be 1*DIGIT
+    if(isdigit(**current_char)) {
+        while(isdigit(**current_char)){
+            digit(current_char, new_struct_1);
+            *current_char += 1;
+
+            // Allocate memory for the next child
+            if(isdigit(**current_char)){
+                new_struct_1 = new_struct_1->frere;
+                new_struct_1 = malloc(sizeof(node));
+            }
+        }
+    } else {
+        printf("Error : digit expected, %c found", **current_char);
+        exit(1);
+    }
+
+    // The end of the struct is known when the son functions are done
+    *current_char -= 1;
+    struct_current->fin = *current_char;
+}
+
+/** \fn void content_type_header(char **current_char, node *struct_current)
+ * \brief Function to parse a content-type header
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * 
+*/
+void content_type_header(char **current_char, node *struct_current){
+    // content-type   = media-type
+    // Init the struct (ptr, int...), and allocate memory for the first child
+    struct_current->debut = *current_char;
+    struct_current->label = CONTENT_TYPE;
+    struct_current->fils = NULL;
+
+    // Allocate memory for the first child
+    node *new_struct_1 = malloc(sizeof(node));
+    struct_current->fils = new_struct_1;
+
+    // Call the function for the first child, supposed to be media-type
+    media_type(current_char, new_struct_1);
+
+    // The end of the struct is known when the son functions are done
+    struct_current->fin = *current_char;
+}
+
+/** \fn void media_type(char **current_char, node *struct_current)
+ * \brief Function to parse a media-type
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * 
+*/
+void media_type(char **current_char, node *struct_current){
+    // media-type     = type "/" subtype *( OWS ";" OWS parameter )
+    // Init the struct (ptr, int...), and allocate memory for the first child
+    struct_current->debut = *current_char;
+    struct_current->label = MEDIA_TYPE;
+    struct_current->fils = NULL;
+
+    // Allocate memory for the first child
+    node *new_struct_1 = malloc(sizeof(node));
+    struct_current->fils = new_struct_1;
+
+    // Call the function for the first child, supposed to be type
+    type(current_char, new_struct_1);
+
+    // Call the function for the second child, supposed to be "/"
+    *current_char += 1;
+
+    if(**current_char == '/'){
+        icar(current_char, new_struct_1);
+        *current_char += 1;
+    }else{
+        printf("Error : '/' expected, %c found", **current_char);
+        exit(1);
+    }
+
+    // Allocate memory for the second child
+    node *new_struct_2 = malloc(sizeof(node));
+    new_struct_1->frere = new_struct_2;
+
+    // Call the function for the third child, supposed to be subtype
+    subtype(current_char, new_struct_2);
+    *current_char+=1;
+
+
+
+    // Call the function for the fourth child, supposed to be *( OWS ";" OWS parameter )
+    while(ismedia_type_end(*current_char)){
+
+        // Allocate memory for the third child
+        new_struct_1 = new_struct_2;
+        new_struct_2 = malloc(sizeof(node));
+        new_struct_1->frere = new_struct_2;
+
+        // If we have a OWS
+        if (**current_char == '0x20' || **current_char == '0x09'){
+            ows(current_char, new_struct_2);
+            *current_char+=1;
+
+            // Allocate memory for the third child
+            new_struct_1 = new_struct_2;
+            new_struct_2 = malloc(sizeof(node));
+            new_struct_1->frere = new_struct_2;
+        }
+
+        // Call the function for the next child, supposed to be ";"
+        if(**current_char == ';'){
+            icar(current_char, new_struct_2);
+            *current_char+=1;
+        }else{
+            printf("Error : ';' expected, %c found", **current_char);
+            exit(1);
+        }
+
+        // Allocate memory for the next child
+        new_struct_1 = new_struct_2;
+        new_struct_2 = malloc(sizeof(node));
+        new_struct_1->frere = new_struct_2;
+
+        // If we have a OWS
+        if (**current_char == '0x20' || **current_char == '0x09'){
+            ows(current_char, new_struct_2);
+            *current_char+=1;
+
+            // Allocate memory for the next child
+            new_struct_1 = new_struct_2;
+            new_struct_2 = malloc(sizeof(node));
+            new_struct_1->frere = new_struct_2;
+        }
+
+        // Call the function for the next child, supposed to be parameter
+        parameter(current_char, new_struct_2);
+        *current_char+=1;
+    } 
+
+    // The end of the struct is known when the son functions are done
+    *current_char -= 1;
+    struct_current->fin = *current_char;
+}
+
+/** \fn void type(char **current_char, node *struct_current)
+ * \brief Function to parse a type
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * 
+*/
+void type(char **current_char, node *struct_current){
+    // type           = token
+    // Init the struct (ptr, int...), and allocate memory for the first child
+    struct_current->debut = *current_char;
+    struct_current->label = TYPE;
+    struct_current->fils = NULL;
+
+    // Allocate memory for the first child
+    node *new_struct_1 = malloc(sizeof(node));
+    struct_current->fils = new_struct_1;
+
+    // Call the function for the first child, supposed to be token
+    token(current_char, new_struct_1);
+
+    struct_current->fin = *current_char;
+}
+
+/** \fn void subtype(char **current_char, node *struct_current)
+ * \brief Function to parse a subtype
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * 
+*/
+void subtype(char **current_char, node *struct_current){
+    // subtype        = token
+    // Init the struct (ptr, int...), and allocate memory for the first child
+    struct_current->debut = *current_char;
+    struct_current->label = SUBTYPE;
+    struct_current->fils = NULL;
+
+    // Allocate memory for the first child
+    node *new_struct_1 = malloc(sizeof(node));
+    struct_current->fils = new_struct_1;
+
+    // Call the function for the first child, supposed to be token
+    token(current_char, new_struct_1);
+
+    struct_current->fin = *current_char;
+}
+
+/** \fn void parameter(char **current_char, node *struct_current)
+ * \brief Function to parse a parameter
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * 
+*/
+void parameter(char **current_char, node *struct_current){
+    // parameter      = token "=" ( token / quoted-string )
+    // Init the struct (ptr, int...), and allocate memory for the first child
+    struct_current->debut = *current_char;
+    struct_current->label = PARAMETER;
+    struct_current->fils = NULL;
+
+    // Allocate memory for the first child
+    node *new_struct_1 = malloc(sizeof(node));
+    struct_current->fils = new_struct_1;
+
+    // Call the function for the first child, supposed to be token
+    token(current_char, new_struct_1);
+    *current_char+=1;
+
+    // Allocate memory for the second child
+    node *new_struct_2 = malloc(sizeof(node));
+    new_struct_1->frere = new_struct_2;
+
+    // Call the function for the second child, supposed to be "="
+    if(**current_char == '='){
+        icar(current_char, new_struct_2);
+        *current_char+=1;
+    }else{
+        printf("Error : '=' expected, %c found", **current_char);
+        exit(1);
+    }
+
+    // Allocate memory for the third child
+    new_struct_1 = new_struct_2;
+    new_struct_2 = malloc(sizeof(node));
+    new_struct_1->frere = new_struct_2;
+
+    // Call the function for the third child, supposed to be token or quoted-string
+    if(istchar(**current_char)){
+        token(current_char, new_struct_2);
+    }else if(**current_char == '"'){
+        quoted_string(current_char, new_struct_2);
+    }else{
+        printf("Error : token or quoted-string expected, %c found", **current_char);
+        exit(1);
+    }
+
+    // The end of the struct is known when the son functions are done
+    struct_current->fin = *current_char;
+}
+
+/** \fn void quoted_string(char **current_char, node *struct_current)
+ * \brief Function to parse a quoted-string
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct 
+*/
+void quoted_string(char **current_char, node *struct_current){
+    // quoted-string  = ( <"> *(qdtext | quoted-pair ) <"> )
+    // Init the struct (ptr, int...), and allocate memory for the first child
+    struct_current->debut = *current_char;
+    struct_current->label = QUOTED_STRING;
+    struct_current->fils = NULL;
+
+    // Allocate memory for the first child
+    node *new_struct_1 = malloc(sizeof(node));
+    struct_current->fils = new_struct_1;
+
+    // Call the function for the first child, supposed to be '"'
+    if(**current_char == '"'){
+        icar(current_char, new_struct_1);
+        *current_char+=1;
+    }else{
+        printf("Error : '\"' expected, %c found", **current_char);
+        exit(1);
+    }
+
+    // Allocate memory for the second child
+    node *new_struct_2 = malloc(sizeof(node));
+    new_struct_1->frere = new_struct_2;
+
+    // Call the function for the second child, supposed to be *(qdtext | quoted-pair )
+    while(**current_char != '"'){
+        if(isqdtext(**current_char)){
+            qdtext(current_char, new_struct_2);
+        }else if(**current_char == '\\'){
+            quoted_pair(current_char, new_struct_2);
+        }else{
+            printf("Error : qdtext or quoted-pair expected, %c found", **current_char);
+            exit(1);
+        }
+        *current_char+=1;
+        if(**current_char != '"'){
+            // Allocate memory for the next child
+            new_struct_1 = new_struct_2;
+            new_struct_2 = malloc(sizeof(node));
+            new_struct_1->frere = new_struct_2;
+        }
+    }
+
+    // Call the function for the third child, supposed to be '"'
+    if(**current_char == '"'){
+        icar(current_char, new_struct_2);
+    }else{
+        printf("Error : '\"' expected, %c found", **current_char);
+        exit(1);
+    }
+
+    // The end of the struct is known when the son functions are done
+    struct_current->fin = *current_char;
+}
+
+/** \fn void qdtext(char **current_char, node *struct_current)
+ * \brief Function to parse a qdtext
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * 
+*/
+void qdtext(char **current_char, node *struct_current){
+    // qdtext         = <any TEXT except <">>
+    // Init the struct (ptr, int...), and allocate memory for the first child
+    struct_current->debut = *current_char;
+    struct_current->label = QDTEXT;
+    struct_current->fils = NULL;
+
+    // Allocate memory for the first child
+    node *new_struct_1 = malloc(sizeof(node));
+    struct_current->fils = new_struct_1;
+
+    // Call the function for the first child, supposed to be TEXT
+    if(isqdtext(**current_char)){
+        if(isobs_text(**current_char)) {
+            obs_text(current_char, new_struct_1);
+        } else {
+            icar(current_char, new_struct_1);
+        }
+    }else{
+        printf("Error : TEXT expected, %c found", **current_char);
+        exit(1);
+    }
+
+    // The end of the struct is known when the son functions are done
+    struct_current->fin = *current_char;
+}
+
+/** \fn void quoted_pair(char **current_char, node *struct_current)
+ * \brief Function to parse a quoted-pair
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+*/
+void quoted_pair(char **current_char, node *struct_current){
+    // quoted-pair    = "\" (HTAB / SP / VCHAR / obs-text)
+    // Init the struct (ptr, int...), and allocate memory for the first child
+    struct_current->debut = *current_char;
+    struct_current->label = QUOTED_PAIR;
+    struct_current->fils = NULL;
+
+    // Allocate memory for the first child
+    node *new_struct_1 = malloc(sizeof(node));
+    struct_current->fils = new_struct_1;
+
+    // Call the function for the first child, supposed to be '\'
+    if(**current_char == '\\'){
+        icar(current_char, new_struct_1);
+        *current_char+=1;
+    }else{
+        printf("Error : '\\' expected, %c found", **current_char);
+        exit(1);
+    }
+
+    // Allocate memory for the second child
+    node *new_struct_2 = malloc(sizeof(node));
+    new_struct_1->frere = new_struct_2;
+
+    // Call the function for the second child, supposed to be CHAR
+    if(**current_char == 0x09 || **current_char == 0x20){
+        icar(current_char, new_struct_2);
+    }else if(isvchar(**current_char)){
+        vchar(current_char, new_struct_2);
+    }else if(isobs_text(**current_char)){
+        obs_text(current_char, new_struct_2);
+    }else{
+        printf("Error : CHAR expected, %c found", **current_char);
+        exit(1);
+    }
+
+    // The end of the struct is known when the son functions are done
+    struct_current->fin = *current_char;
+}
+
+/** \fn void cookie_header(char **current_char, node *struct_current)
+ * \brief Function to parse a cookie header
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * 
+*/
 void cookie_header(char **current_char, node *struct_current){}
+
+/** \fn void transfer_encoding_header(char **current_char, node *struct_current)
+ * \brief Function to parse a transfer-encoding header
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * 
+*/
 void transfer_encoding_header(char **current_char, node *struct_current){}
+
+/** \fn void expect_header(char **current_char, node *struct_current)
+ * \brief Function to parse an expect header
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * 
+*/
 void expect_header(char **current_char, node *struct_current){}
+
+/** \fn void connection_option(char **current_char, node *struct_current)
+ * \brief Function to parse a connection-option
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * 
+*/
 void connection_option(char **current_char, node *struct_current){
     // connection-option = token
     // Init the struct (ptr, int...), and allocate memory for the first child

@@ -259,3 +259,29 @@ int ish16(char *current_char){}
  * Important to check if the char after the ls32 is ']', otherwise it could be mistaken as a simple h16 ":" h16 in a ipv6 address
 */
 int isls32(char *current_char){}
+
+/** \fn int ismedia_type_end(char *current_char)
+ * \brief Check if the char belongs to the list of accepted chars for a media_type_end (OWS CRLF)
+ * \param current_char : char to check
+*/
+int ismedia_type_end(char *current_char){
+    while(*current_char == 0x20 || *current_char == 0x09){
+        current_char++;
+    }
+    if(*current_char == '\r' && *current_char+1 == '\n'){
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+/** \fn int isqdtext(char c)
+ * \brief Check if the char belongs to the list of accepted characted for a qdtext
+ * \param c : char to check
+*/
+int isqdtext(char c){
+    if(c == 0x20 || c == 0x09 || c == 0x21 || (c >= 0x23 && c <= 0x5b) || (c >= 0x5d && c <= 0x7e) || isobs_text(c)){
+        return 1;
+    }
+    return 0;
+}

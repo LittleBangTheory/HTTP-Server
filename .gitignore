@@ -1,4 +1,5 @@
 parser/alltests/hardcorefiles/
+parser/alltests/simplesfiles/
 parser/alltests/simplefiles/
 parser/simplegrammar/testFile
 parser/premier-jeu-test

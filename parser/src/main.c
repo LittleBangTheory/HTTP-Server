@@ -68,6 +68,14 @@ char IPVFUTURE[]="IPvFuture";
 char DEC_OCTET[]="dec_octet";
 char H16[]="h16";
 char LS32[]="ls32";
+char REGNAME[]="reg_name";
+char MEDIA_TYPE[]="media_type";
+char TYPE[]="type";
+char SUBTYPE[]="subtype";
+char PARAMETER[]="parameter";
+char QUOTED_STRING[]="quoted_string";
+char QDTEXT[]="qdtext";
+char QUOTED_PAIR[]="quoted_pair";
 
 node* racine;
 

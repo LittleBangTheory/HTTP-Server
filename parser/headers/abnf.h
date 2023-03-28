@@ -61,6 +61,14 @@ extern char IPVFUTURE[];
 extern char DEC_OCTET[];
 extern char H16[];
 extern char LS32[];
+extern char REGNAME[];
+extern char MEDIA_TYPE[];
+extern char TYPE[];
+extern char SUBTYPE[];
+extern char PARAMETER[];
+extern char QUOTED_STRING[];
+extern char QDTEXT[];
+extern char QUOTED_PAIR[];
 
 extern node* racine;
 

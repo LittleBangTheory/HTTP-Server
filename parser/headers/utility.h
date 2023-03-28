@@ -21,3 +21,4 @@ int isipv6(char *current_char);
 int isipvfuture(char *current_char);
 int ish16(char *current_char);
 int isls32(char *current_char);
+int ismedia_type_end(char *current_char);
