@@ -11,3 +11,5 @@ parser/html/
 parser/main.o
 parser/ourParser
 .vscode/
+.vscode/tasks.json
+.vscode/launch.json
