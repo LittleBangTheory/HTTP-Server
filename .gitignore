@@ -10,3 +10,4 @@ parser/*.o
 parser/html/
 parser/main.o
 parser/ourParser
+.vscode/
