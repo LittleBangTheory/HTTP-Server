@@ -58,6 +58,9 @@ extern char REG_NAME[];
 extern char HOST_LOWER[];
 extern char IPV6ADDRESS[];
 extern char IPVFUTURE[];
+extern char DEC_OCTET[];
+extern char H16[];
+extern char LS32[];
 
 extern node* racine;
 

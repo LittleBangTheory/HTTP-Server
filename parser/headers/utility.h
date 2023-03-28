@@ -19,3 +19,5 @@ int isipv4(char *current_char);
 int isip_literal(char *current_char);
 int isipv6(char *current_char);
 int isipvfuture(char *current_char);
+int ish16(char *current_char);
+int isls32(char *current_char);

@@ -65,6 +65,9 @@ char IPV6_ADDRESS[]="ipv6_address";
 char IPVFuture[]="IPvFuture";
 char IPV4ADDRESS[]="IPv4";
 char IPVFUTURE[]="IPvFuture";
+char DEC_OCTET[]="dec_octet";
+char H16[]="h16";
+char LS32[]="ls32";
 
 node* racine;
 

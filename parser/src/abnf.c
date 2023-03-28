@@ -13,8 +13,6 @@
 
 /* TODO :
 - Check that our syntax corresponds to the one of the teacher (example : __alpha instead of alpha)
-- Write a bash script to execute every test and compare the output with the expected one
-- Write ipv6()
 */
 
 /* NOTE :
@@ -406,7 +404,7 @@ void host(char **current_char, node *struct_current){
     // Call the function for the first child, supposed to be IP-literal / IPv4address / reg-name
     if(isip_literal(*current_char)){
         ip_literal(current_char, new_struct_1);
-    }else if(isipv4address(*current_char)){
+    }else if(isipv4(*current_char)){
         ipv4address(current_char, new_struct_1);
     }else{
         reg_name(current_char, new_struct_1);
@@ -465,9 +463,111 @@ void ipv4address(char **current_char, node *struct_current){
  * \brief Parse the dec-octet
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
+ * NOTE : PROBABLY DOESN'T RESPECT THE RULE OF ABNF, NEED TO CHECK (some elements stored as digit could need to be stored as istring ?)
 */
 void dec_octet(char **current_char, node *struct_current){
-    // TODO
+    struct_current->debut = *current_char;
+    struct_current->label = DEC_OCTET;
+    struct_current->fils = NULL;
+
+    if(isdigit(**current_char)){
+        // Allocate memory for the second child
+        node *new_struct_1 = malloc(sizeof(node));
+        struct_current->fils = new_struct_1;
+
+        // Call the function for the second child, supposed to be DIGIT
+        digit(current_char, new_struct_1);
+    } else if ( (0x31 <= **current_char <= 0x39) && isdigit(*(*current_char+1)) ) {
+        // Allocate memory for the second child
+        node *new_struct_1 = malloc(sizeof(node));
+        struct_current->fils = new_struct_1;
+
+        // Call the function for the second child, supposed to be DIGIT
+        digit(current_char, new_struct_1);
+        *current_char += 1;
+
+        // Allocate memory for the third child
+        node *new_struct_2 = new_struct_1;
+        new_struct_1 = malloc(sizeof(node));
+        new_struct_2->frere = new_struct_1;
+
+        // Call the function for the third child, supposed to be DIGIT
+        digit(current_char, new_struct_1);
+    } else if ( **current_char == '1' && isdigit(*(*current_char+1)) && isdigit(*(*current_char+2)) ) {
+        // Allocate memory for the second child
+        node *new_struct_1 = malloc(sizeof(node));
+        struct_current->fils = new_struct_1;
+
+        // Call the function for the second child, supposed to be DIGIT
+        digit(current_char, new_struct_1);
+        *current_char += 1;
+
+        // Allocate memory for the third child
+        node *new_struct_2 = malloc(sizeof(node));
+        new_struct_1->frere = new_struct_2;
+
+        // Call the function for the third child, supposed to be DIGIT
+        digit(current_char, new_struct_1);
+        *current_char += 1;
+
+        // Allocate memory for the fourth child
+        node *new_struct_3 = malloc(sizeof(node));
+        new_struct_2->frere = new_struct_3;
+
+        // Call the function for the fourth child, supposed to be DIGIT
+        digit(current_char, new_struct_1);
+    } else if ( **current_char == '2' && (0x30 <= *(*current_char+1) <= 0x34) && isdigit(*(*current_char+2)) ) {
+        // Allocate memory for the second child
+        node *new_struct_1 = malloc(sizeof(node));
+        struct_current->fils = new_struct_1;
+
+        // Call the function for the second child, supposed to be DIGIT
+        digit(current_char, new_struct_1);
+        *current_char += 1;
+
+        // Allocate memory for the third child
+        node *new_struct_2 = malloc(sizeof(node));
+        new_struct_1->frere = new_struct_2;
+
+        // Call the function for the third child, supposed to be DIGIT
+        digit(current_char, new_struct_1);
+        *current_char += 1;
+
+        // Allocate memory for the fourth child
+        node *new_struct_3 = malloc(sizeof(node));
+        new_struct_2->frere = new_struct_3;
+
+        // Call the function for the fourth child, supposed to be DIGIT
+        digit(current_char, new_struct_1);
+    } else if ( **current_char == '2' && *(*current_char+1) == '5' && (0x30 <= *(*current_char+2) <= 0x35) ) {
+        // Allocate memory for the second child
+        node *new_struct_1 = malloc(sizeof(node));
+        struct_current->fils = new_struct_1;
+
+        // Call the function for the second child, supposed to be DIGIT
+        digit(current_char, new_struct_1);
+        *current_char += 1;
+
+        // Allocate memory for the third child
+        node *new_struct_2 = malloc(sizeof(node));
+        new_struct_1->frere = new_struct_2;
+
+        // Call the function for the third child, supposed to be DIGIT
+        digit(current_char, new_struct_1);
+        *current_char += 1;
+
+        // Allocate memory for the fourth child
+        node *new_struct_3 = malloc(sizeof(node));
+        new_struct_2->frere = new_struct_3;
+
+        // Call the function for the fourth child, supposed to be DIGIT
+        digit(current_char, new_struct_1);
+    } else {
+        printf("Error : dec-octet : invalid value");
+        exit(1);
+    }
+
+    struct_current->fin = *current_char;
 }
 
 /** \fn void ip_literal(char **current_char, node *struct_current)
@@ -526,9 +626,120 @@ void ip_literal(char **current_char, node *struct_current){
  *  \brief Function to parse an IPv6address
  *  \param current_char : pointer to the current char
  *  \param struct_current : pointer to the current struct
+ *  IPv6address   =                            6( h16 ":" ) ls32
+              /                       "::" 5( h16 ":" ) ls32
+              / [               h16 ] "::" 4( h16 ":" ) ls32
+              / [ h16 *1( ":" h16 ) ] "::" 3( h16 ":" ) ls32
+              / [ h16 *2( ":" h16 ) ] "::" 2( h16 ":" ) ls32
+              / [ h16 *3( ":" h16 ) ] "::"    h16 ":"   ls32
+              / [ h16 *4( ":" h16 ) ] "::"              ls32
+              / [ h16 *5( ":" h16 ) ] "::"              h16
+              / [ h16 *6( ":" h16 ) ] "::"
+
 */
 void ipv6address(char **current_char, node *struct_current){
-    // TODO 
+    struct_current->debut = *current_char;
+    struct_current->label = IPV6ADDRESS;
+    struct_current->fils = NULL;
+
+    // Allocate memory for the first child
+    node *new_struct_1 = malloc(sizeof(node));
+    struct_current->fils = new_struct_1;
+    node *new_struct_2;
+
+    // Note : i don't know if "::" needs to be stored as two icars, or one icar, or one istring
+    while( !isls32(*current_char) && **current_char != ']'){
+        if(**current_char == ':'){
+            icar(current_char, new_struct_1);
+        } else if(ish16(*current_char)) {
+            h16(current_char, new_struct_1);
+        } else {
+            printf("Error : ipv6address : invalid value");
+            exit(1);
+        }
+
+        *current_char += 1;
+
+        // Allocate memory for the next child
+        new_struct_2 = new_struct_1;
+        new_struct_1 = malloc(sizeof(node));
+        new_struct_2->frere = new_struct_1;
+    }
+
+    // Possibility of ending with a ls32
+    if(isls32(**current_char)){
+        ls32(current_char, new_struct_1);
+    }
+
+    // The end of the struct is known when the son functions are done
+    struct_current->fin = *current_char;    
+}
+
+/** \fn void h16(char **current_char, node *struct_current)
+ *  \brief Function to parse an h16
+ *  \param current_char : pointer to the current char
+ *  \param struct_current : pointer to the current struct
+*/
+void h16(char **current_char, node *struct_current){
+    // h16           = 1*4HEXDIG
+    // Init the struct (ptr, int...), and allocate memory for the first child
+    struct_current->debut = *current_char;
+    struct_current->label = H16;
+    struct_current->fils = NULL;
+
+    // Allocate memory for the first child
+    node *new_struct_1 = malloc(sizeof(node));
+    struct_current->fils = new_struct_1;
+
+    // Call the function for the first child, supposed to be HEXDIG
+    if(isxdigit(**current_char)) {
+        while(isxdigit(**current_char)){
+            hexdig(current_char, new_struct_1);
+            *current_char += 1;
+        }
+    } else {
+        printf("Error : h16 : invalid value");
+        exit(1);
+    }
+
+    *current_char -= 1;
+
+    // The end of the struct is known when the son functions are done
+    struct_current->fin = *current_char;
+}
+
+/** \fn void ls32(char **current_char, node *struct_current)
+ *  \brief Function to parse an ls32
+ *  \param current_char : pointer to the current char
+ *  \param struct_current : pointer to the current struct
+*/
+void ls32(char **current_char, node *struct_current){
+    // ls32          = ( h16 ":" h16 ) / IPv4address
+    // Init the struct (ptr, int...), and allocate memory for the first child
+    struct_current->debut = *current_char;
+    struct_current->label = LS32;
+    struct_current->fils = NULL;
+
+    // Allocate memory for the first child
+    node *new_struct_1 = malloc(sizeof(node));
+    struct_current->fils = new_struct_1;
+
+    // Call the function for the first child, supposed to be h16
+    if(ish16(*current_char)){
+        h16(current_char, new_struct_1);
+        *current_char += 1;
+        icar(current_char, new_struct_1);
+        *current_char += 1;
+        h16(current_char, new_struct_1);
+    } else if(isipv4address(*current_char)){
+        ipv4address(current_char, new_struct_1);
+    } else {
+        printf("Error : ls32 : invalid value");
+        exit(1);
+    }
+
+    // The end of the struct is known when the son functions are done
+    struct_current->fin = *current_char;
 }
 
 /** \fn void ipvfuture(char **current_char, node *struct_current)

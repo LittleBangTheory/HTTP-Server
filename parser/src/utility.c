@@ -85,7 +85,7 @@ void delete_chained_list(node *struct_current){
 }
 */
 
-/** \fn void istchar(char **current_char, node *struct_current, char *label)
+/** \fn int istchar(char **current_char, node *struct_current, char *label)
  * \brief Check if the char belongs to the list of accepted characted for a tchar
  * \param c : char to check
  * The list of accepted characters is : "!" / "#" / "$" / "%" / "&" / "" / "*" / "+" / "-" / "." / "^" / "_" / "`" / "|" / "~" / DIGIT / ALPHA
@@ -103,7 +103,7 @@ int istchar(char c){
     return 0;
 }
 
-/** \fn void isunreserved(char **current_char, node *struct_current, char *label)
+/** \fn int isunreserved(char **current_char, node *struct_current, char *label)
  * \brief Check if the char belongs to the list of accepted characted for a unreserved
  * \param c : char to check
 */
@@ -120,7 +120,7 @@ int isunreserved(char c){
     return 0;
 }
 
-/** \fn void ispct_encoded(char **current_char, node *struct_current, char *label)
+/** \fn int ispct_encoded(char **current_char, node *struct_current, char *label)
  * \brief Check if the char belongs to the list of accepted characted for a pct_encoded
  * \param c : char to check
  * Only check if the first char is a %, too risky to check to chars forward, could be out of the string
@@ -132,7 +132,7 @@ int ispct_encoded(char c){
     return 0;
 }
 
-/** \fn void issub_delims(char **current_char, node *struct_current, char *label)
+/** \fn int issub_delims(char **current_char, node *struct_current, char *label)
  * \brief Check if the char belongs to the list of accepted characted for a sub_delims
  * \param c : char to check
 */
@@ -145,7 +145,7 @@ int issub_delims(char c){
     return 0;
 }
 
-/** \fn void ispchar(char **current_char, node *struct_current, char *label)
+/** \fn int ispchar(char **current_char, node *struct_current, char *label)
  * \brief Check if the char belongs to the list of accepted characted for a pchar
  * \param c : char to check
 */
@@ -156,7 +156,7 @@ int ispchar(char c){
     return 0;
 }
 
-/** \fn void isvchar(char **current_char, node *struct_current, char *label)
+/** \fn int isvchar(char **current_char, node *struct_current, char *label)
  * \brief Check if the char belongs to the list of accepted characted for a vchar
  * \param c : char to check
  * 
@@ -169,7 +169,7 @@ int isvchar(char c){
     return 0;
 }
 
-/** \fn void isobs_text(char **current_char, node *struct_current, char *label)
+/** \fn int isobs_text(char **current_char, node *struct_current, char *label)
  * \brief Check if the char belongs to the list of accepted characted for a obs_text (%x80-FF)
  * \param c : char to check
  * 
@@ -182,7 +182,7 @@ int isobs_text(char c){
     return 0;
 }
 
-/** \fn void isobs_fold(char *current_char, node *struct_current, char *label)
+/** \fn int isobs_fold(char *current_char, node *struct_current, char *label)
  * \brief Check if the char belongs to the list of accepted characted for a obs_fold (%x0D %x0A *(%x20 / %x09))
  * \param current_char : char to check
 */
@@ -193,7 +193,7 @@ int isobs_fold(char *current_char){
     return 0;
 }
 
-/** \fn void isconnection_end(char *current_char)
+/** \fn int isconnection_end(char *current_char)
  * \brief Check if the char belongs to the list of accepted characted for a connection_end (OWS ",")
  * \param current_char : char to check
 */
@@ -208,7 +208,7 @@ int isconnection_end(char *current_char){
     }
 }
 
-/** \fn void isheader_end(char *current_char)
+/** \fn int isheader_end(char *current_char)
  * \brief Check if the char belongs to the list of accepted characted for a header_end (OWS CRLF)
  * \param current_char : char to check
 */
@@ -223,7 +223,39 @@ int isheader_end(char *current_char){
     }
 }
 
+/** \fn int isipv4(char *current_char)
+ * \brief Check if the char and its followers are a valid ipv4 address (dec-octet "." dec-octet "." dec-octet "." dec-octet)
+ * \param current_char : char to check
+*/
 int isipv4(char *current_char){}
+
+/** \fn isip_literal(char *current_char)
+ * \brief Check if the char and its followers are a valid ip_literal ( "[" ( IPv6address / IPvFuture  ) "]" ) -> call is ipv6 and isipvfuture
+ * \param current_char : char to check
+*/
 int isip_literal(char *current_char){}
+
+/** \fn isipv6(char *current_char)
+ * \brief Check if the char and its followers are a valid ipv6 address
+ * \param current_char : char to check
+*/
 int isipv6(char *current_char){}
+
+/** \fn isipvfuture(char *current_char)
+ * \brief Check if the char and its followers are a valid ipvfuture ( "v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" ) )
+ * \param current_char : char to check
+*/
 int isipvfuture(char *current_char){}
+
+/** \fn int ish16(char *current_char)
+ * \brief Check if the char and its followers are a valid h16 ( 1*4HEXDIG )
+ * \param current_char : char to check
+*/
+int ish16(char *current_char){}
+
+/** \fn int isls32(char *current_char)
+ * \brief Check if the char and its followers are a valid ls32 ( ( h16 ":" h16 ) / IPv4address ) 
+ * \param current_char : char to check
+ * Important to check if the char after the ls32 is ']', otherwise it could be mistaken as a simple h16 ":" h16 in a ipv6 address
+*/
+int isls32(char *current_char){}
