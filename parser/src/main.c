@@ -81,7 +81,7 @@ void testMode(){
 	char req[]="GET / HTTP/1.1\n";
 	char *adr=&req[0];
 	node* tete=malloc(sizeof(node));
-	start_line(&adr,&racine);
+	//start_line(&adr,&racibhyne);
 	print_tree(tete,0);
 	exit(true);
 }
@@ -113,5 +113,5 @@ int main(int argc, char const *argv[])
 	char *adr=Request;
 	node* tete=malloc(sizeof(node));
 	http_message(&adr,tete);
-	print_tree(tete,1);
+	print_tree(tete,0);
 }
