@@ -24,4 +24,4 @@ int isls32(char *current_char);
 int ismedia_type_end(char *current_char);
 int isqdtext(char c);
 int iscookie_octet(char c);
-int isspecialheader(char *current_char);
+int stringcompare(char *current_char, char *s2);

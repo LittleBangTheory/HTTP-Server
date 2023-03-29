@@ -189,7 +189,7 @@ int isobs_text(char c){
  * \param current_char : char to check
 */
 int isobs_fold(char *current_char){
-    if(*current_char == '\r' && *current_char+1 == '\n' && (*current_char+2 == ' ' || *current_char+2 == '\t')){
+    if(*current_char == '\r' && *(current_char+1) == '\n' && (*(current_char+2) == ' ' || *(current_char+2) == '\t')){
         return 1;
     }
     return 0;
@@ -218,7 +218,7 @@ int isheader_end(char *current_char){
     while(*current_char == 0x20 || *current_char == 0x09){
         current_char++;
     }
-    if(*current_char == '\r' && *current_char+1 == '\n'){
+    if(*current_char == '\r' && *(current_char+1) == '\n'){
         return 1;
     } else {
         return 0;
@@ -357,7 +357,7 @@ int ismedia_type_end(char *current_char){
     while(*current_char == 0x20 || *current_char == 0x09){
         current_char++;
     }
-    if(*current_char == '\r' && *current_char+1 == '\n'){
+    if(*current_char == '\r' && *(current_char+1) == '\n'){
         return 1;
     } else {
         return 0;
@@ -387,20 +387,18 @@ int iscookie_octet(char c){
     return 0;
 }
 
-int isspecialheader(char *current_char){
-    if(strncmp(*current_char, "Connection", 10) == 0){
-        return 1;
-    } else if(strncmp(*current_char, "Content-Length", 14)){
-        return 1;
-    } else if(strncmp(*current_char, "Content-Type", 12)){
-        return 1;
-    } else if(strncmp(*current_char, "Transfer-Encoding", 17) == 0){
-        return 1;
-    } else if(strncmp(*current_char, "Expect", 6) == 0){
-        return 1;
-    } else if(strncmp(*current_char, "Host", 4) == 0){
-        return 1;
-    } else {
-        return 0;
+/** \fn int stringcompare(char *current_char, char *s2)
+ * \brief Check if the char and its followers are equal to the string s2
+ * \param current_char : char to check
+ * \param s2 : string to compare to
+*/
+int stringcompare(char *current_char, char *s){
+    while(*s != '\0'){
+        if(*current_char != *s){
+            return 0;
+        }
+        current_char++;
+        s++;
     }
+    return 1;
 }

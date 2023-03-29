@@ -152,19 +152,19 @@ void header_field(char **current_char, node *struct_current){
     node *new_struct_1 = malloc(sizeof(node));
     struct_current->fils = new_struct_1;
 
-    if(strncmp(*current_char, "Connection", 10) == 0){
+    if(stringcompare(*current_char, "Connection")){
         istring(current_char, new_struct_1, 10);
-    } else if(strncmp(*current_char, "Content-Length", 14)){
+    } else if(stringcompare(*current_char, "Content-Length")){
         istring(current_char, new_struct_1, 14);
-    } else if(strncmp(*current_char, "Content-Type", 12)){
+    } else if(stringcompare(*current_char, "Content-Type")){
         istring(current_char, new_struct_1, 12);
-    } else if(strncmp(*current_char, "Transfer-Encoding", 17) == 0){
+    } else if(stringcompare(*current_char, "Transfer-Encoding")){
         istring(current_char, new_struct_1, 17);
-    } else if(strncmp(*current_char, "Expect", 6) == 0){
+    } else if(stringcompare(*current_char, "Expect")){
         istring(current_char, new_struct_1, 6);
-    } else if(strncmp(*current_char, "Host", 4) == 0){
+    } else if(stringcompare(*current_char, "Host")){
         istring(current_char, new_struct_1, 4);
-    } else if(strncmp(*current_char, "Cookie:", 7) == 0) {
+    } else if(stringcompare(*current_char, "Cookie:")) {
         istring(current_char, new_struct_1, 7);
     } else {
         // Call the function for the first child, supposed to be field-name
@@ -2620,7 +2620,7 @@ void istring(char **current_char, node *struct_current, int length){
     struct_current->fils = NULL;
     struct_current->debut = *current_char;
 
-    *current_char+=length;
+    *current_char+=length-1;
 
     // The end of the field_vchar is the end of the obs_text or vchar
     struct_current->fin = *current_char;
