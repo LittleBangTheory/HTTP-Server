@@ -353,10 +353,49 @@ void host_header(char **current_char, node *struct_current){
         new_struct_2->frere = new_struct_3;
 
         // Call the function for the third child, supposed to be host-port
-        host_port(current_char, new_struct_3);
+        port(current_char, new_struct_3);
     }
 
     // The end of the struct is known when the son functions are done
+    struct_current->fin = *current_char;
+}
+
+/** \fn void port(char **current_char, node *struct_current)
+ * \brief Parse the port
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * 
+*/
+void port(char **current_char, node *struct_current){
+    // port = *DIGIT
+    // Init the struct (ptr, int...), and allocate memory for the first child
+    struct_current->debut = *current_char;
+    struct_current->label = PORT;
+    struct_current->fils = NULL;
+
+    // Allocate memory for the first child
+    node *new_struct_1 = malloc(sizeof(node));
+    struct_current->fils = new_struct_1;
+    node *new_struct_2;
+
+
+    // While the next element is a DIGIT
+    while(isdigit(**current_char)){
+        digit(current_char, new_struct_1);
+
+        *current_char += 1;
+
+        // If the next element is a DIGIT
+        if(isdigit(**current_char)){
+            // Allocate memory for the next child
+            new_struct_2 = new_struct_1;
+            new_struct_1 = malloc(sizeof(node));
+            new_struct_2->frere = new_struct_1;
+        }
+    }
+
+    // The end of the struct is known when the son functions are done
+    *current_char -= 1;
     struct_current->fin = *current_char;
 }
 
@@ -834,7 +873,7 @@ void ipvfuture(char **current_char, node *struct_current){
  * \param struct_current : pointer to the current struct
  * 
 */
-void regname(char **current_char, node *struct_current){
+void reg_name(char **current_char, node *struct_current){
     // reg-name      = *( unreserved / pct-encoded / sub-delims )
     // Init the struct (ptr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
@@ -2181,14 +2220,18 @@ void obs_text(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-void host_port(char** current_char, node* struct_current){}
-
-int isipv4address(char* current_char){}
-
-int isipv6address(char* current_char){}
-
-int issubdelims(char c){}
-
-int subdelims(char** current_char, node* struct_current){}
-
-void reg_name(char** current_char, node* struct_current){}
+/** \fn void sub_delims(char **current_char, node *struct_current)
+ * \brief Parse the sub_delims (sub-delims = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "=") characters of the request
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+*/
+void sub_delims(char **current_char, node *struct_current){
+    if (!issub_delims(**current_char)){
+        printf("Error: Expected a sub-delims, not %c", **current_char);
+        exit(1);
+    }
+    struct_current->label = SUB_DELIMS;
+    struct_current->fils = NULL;
+    struct_current->debut = *current_char;
+    struct_current->fin = *current_char;
+}

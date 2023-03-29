@@ -227,7 +227,7 @@ int isheader_end(char *current_char){
  * \brief Check if the char and its followers are a valid ipv4 address (dec-octet "." dec-octet "." dec-octet "." dec-octet)
  * \param current_char : char to check
 */
-int isipv4(char *current_char){}
+int isipv4address(char *current_char){}
 
 /** \fn isip_literal(char *current_char)
  * \brief Check if the char and its followers are a valid ip_literal ( "[" ( IPv6address / IPvFuture  ) "]" ) -> call is ipv6 and isipvfuture
