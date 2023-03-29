@@ -265,8 +265,19 @@ int isip_literal(char *current_char){
 /** \fn isipv6(char *current_char)
  * \brief Check if the char and its followers are a valid ipv6 address
  * \param current_char : char to check
+ * IPv6address   =                            6( h16 ":" ) ls32
+              /                       "::" 5( h16 ":" ) ls32
+              / [               h16 ] "::" 4( h16 ":" ) ls32
+              / [ h16 *1( ":" h16 ) ] "::" 3( h16 ":" ) ls32
+              / [ h16 *2( ":" h16 ) ] "::" 2( h16 ":" ) ls32
+              / [ h16 *3( ":" h16 ) ] "::"    h16 ":"   ls32
+              / [ h16 *4( ":" h16 ) ] "::"              ls32
+              / [ h16 *5( ":" h16 ) ] "::"              h16
+              / [ h16 *6( ":" h16 ) ] "::"
 */
-int isipv6(char *current_char){}
+int isipv6(char *current_char){
+    
+}
 
 /** \fn isipvfuture(char *current_char)
  * \brief Check if the char and its followers are a valid ipvfuture ( "v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" ) )
@@ -299,14 +310,36 @@ int isipvfuture(char *current_char){
  * \brief Check if the char and its followers are a valid h16 ( 1*4HEXDIG )
  * \param current_char : char to check
 */
-int ish16(char *current_char){}
+int ish16(char *current_char){
+    if(isxdigit(*current_char)){
+        current_char++;
+        while(isxdigit(*current_char)){
+            current_char++;
+        }
+        return 1;
+    }
+    return 0;
+}
 
 /** \fn int isls32(char *current_char)
  * \brief Check if the char and its followers are a valid ls32 ( ( h16 ":" h16 ) / IPv4address ) 
  * \param current_char : char to check
  * Important to check if the char after the ls32 is ']', otherwise it could be mistaken as a simple h16 ":" h16 in a ipv6 address
 */
-int isls32(char *current_char){}
+int isls32(char *current_char){
+    if(ish16(current_char)){
+        current_char++;
+        if(*current_char == ':'){
+            current_char++;
+            if(ish16(current_char)){
+                return 1;
+            }
+        }
+    } else if(isipv4address(current_char)){
+        return 1;
+    }
+    return 0;
+}
 
 /** \fn int ismedia_type_end(char *current_char)
  * \brief Check if the char belongs to the list of accepted chars for a media_type_end (OWS CRLF)
