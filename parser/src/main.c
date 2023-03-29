@@ -76,6 +76,12 @@ char PARAMETER[]="parameter";
 char QUOTED_STRING[]="quoted_string";
 char QDTEXT[]="qdtext";
 char QUOTED_PAIR[]="quoted_pair";
+char COOKIE_STRING[]="cookie_string";
+char COOKIE_PAIR[]="cookie_pair";
+char COOKIE_NAME[]="cookie_name";
+char COOKIE_VALUE[]="cookie_value";
+char COOKIE_OCTET[]="cookie_octet";
+char TRANSFER_ENCODING_HEADER[]="transfer_encoding_header";
 
 node* racine;
 

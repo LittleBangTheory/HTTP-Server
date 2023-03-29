@@ -24,7 +24,6 @@ void locateFields(_Token* current,node* noeud,char* field){
 
 }
 
-
 // Fonction qui recherche dans l'arbre tous les noeuds dont l'etiquette est egale à la chaine de caractères en argument.   
 // Par convention si start == NULL alors on commence à la racine 
 // sinon on effectue une recherche dans le sous-arbre à partir du noeud start 

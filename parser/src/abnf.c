@@ -1308,7 +1308,227 @@ void quoted_pair(char **current_char, node *struct_current){
  * \param struct_current : pointer to the current struct
  * 
 */
-void cookie_header(char **current_char, node *struct_current){}
+void cookie_string(char **current_char, node *struct_current){
+    // cookie-string  = cookie-pair *( ";" SP cookie-pair )
+    // Init the struct (ptr, int...), and allocate memory for the first child
+    struct_current->debut = *current_char;
+    struct_current->label = COOKIE_STRING;
+    struct_current->fils = NULL;
+
+    // Allocate memory for the first child
+    node *new_struct_1 = malloc(sizeof(node));
+    struct_current->fils = new_struct_1;
+
+    // Call the function for the first child, supposed to be cookie-pair
+    cookie_pair(current_char, new_struct_1);
+    *current_char+=1;
+
+    // Allocate memory for the second child
+    node *new_struct_2 = malloc(sizeof(node));
+    new_struct_1->frere = new_struct_2;
+
+    // Call the function for the second child, supposed to be *( ";" SP cookie-pair )
+    while(**current_char == ';'){
+        // Call the function for the next child, supposed to be ";" SP cookie-pair
+        if(**current_char == ';'){
+
+            icar(current_char, new_struct_2);
+            *current_char+=1;
+
+            // Allocate memory for the next child
+            new_struct_1 = new_struct_2;
+            new_struct_2 = malloc(sizeof(node));
+            new_struct_1->frere = new_struct_2;
+
+            if(**current_char == 0x20){
+                icar(current_char, new_struct_2);
+
+                // Allocate memory for the next child
+                new_struct_1 = new_struct_2;
+                new_struct_2 = malloc(sizeof(node));
+                new_struct_1->frere = new_struct_2;
+
+                *current_char+=1;
+            }else{
+                printf("Error : ' ' expected, %c found", **current_char);
+                exit(1);
+            }
+
+            cookie_pair(current_char, new_struct_2);
+            *current_char+=1;
+        }else{
+            printf("Error : ';' expected, %c found", **current_char);
+            exit(1);
+        }
+
+        if(**current_char == ';') {
+            // Allocate memory for the next child
+            new_struct_1 = new_struct_2;
+            new_struct_2 = malloc(sizeof(node));
+            new_struct_1->frere = new_struct_2;
+        }
+    }
+
+    // The end of the struct is known when the son functions are done
+    *current_char-=1;
+    struct_current->fin = *current_char;
+}
+
+/** \fn void cookie_pair(char **current_char, node *struct_current)
+ * \brief Function to parse a cookie-pair
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+*/
+void cookie_pair(char **current_char, node *struct_current){
+    // cookie-pair    = cookie-name "=" cookie-value
+    // Init the struct (ptr, int...), and allocate memory for the first child
+    struct_current->debut = *current_char;
+    struct_current->label = COOKIE_PAIR;
+    struct_current->fils = NULL;
+
+    // Allocate memory for the first child
+    node *new_struct_1 = malloc(sizeof(node));
+    struct_current->fils = new_struct_1;
+
+    // Call the function for the first child, supposed to be cookie-name
+    cookie_name(current_char, new_struct_1);
+    *current_char+=1;
+
+    // Allocate memory for the second child
+    node *new_struct_2 = malloc(sizeof(node));
+    new_struct_1->frere = new_struct_2;
+
+    // Call the function for the second child, supposed to be "="
+    if(**current_char == '='){
+        icar(current_char, new_struct_2);
+    }else{
+        printf("Error : '=' expected, %c found", **current_char);
+        exit(1);
+    }
+
+    // Allocate memory for the third child
+    node *new_struct_3 = malloc(sizeof(node));
+    new_struct_2->frere = new_struct_3;
+
+    // Call the function for the third child, supposed to be cookie-value
+    cookie_value(current_char, new_struct_3);
+
+    // The end of the struct is known when the son functions are done
+    struct_current->fin = *current_char;
+}
+
+/** \fn void cookie_name(char **current_char, node *struct_current)
+ * \brief Function to parse a cookie-name
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * 
+*/
+void cookie_name(char **current_char, node *struct_current){
+    // cookie-name    = token
+    // Init the struct (ptr, int...), and allocate memory for the first child
+    struct_current->debut = *current_char;
+    struct_current->label = COOKIE_NAME;
+    struct_current->fils = NULL;
+
+    // Allocate memory for the first child
+    node *new_struct_1 = malloc(sizeof(node));
+    struct_current->fils = new_struct_1;
+
+    // Call the function for the first child, supposed to be token
+    token(current_char, new_struct_1);
+
+    // The end of the struct is known when the son functions are done
+    struct_current->fin = *current_char;
+}
+
+/** \fn void cookie_value(char **current_char, node *struct_current)
+ * \brief Function to parse a cookie-value
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+*/
+void cookie_value(char **current_char, node *struct_current){
+    // cookie-value   = *cookie-octet / ( DQUOTE *cookie-octet DQUOTE )
+    // Init the struct (ptr, int...), and allocate memory for the first child
+    struct_current->debut = *current_char;
+    struct_current->label = COOKIE_VALUE;
+    struct_current->fils = NULL;
+
+    // Allocate memory for the first child
+    node *new_struct_1 = malloc(sizeof(node));
+    struct_current->fils = new_struct_1;
+    node *new_struct_2;
+
+    int isdquote = 0;
+
+    if(**current_char == '"'){
+        icar(current_char, new_struct_1);
+        *current_char+=1;
+
+        // Allocate memory for the second child
+        new_struct_2 = new_struct_1;
+        node *new_struct_1 = malloc(sizeof(node));
+        new_struct_2->frere = new_struct_1;
+
+        isdquote = 1;
+    }
+
+    while(iscookie_octet(**current_char)){
+        // Call the function for the second child, supposed to be *cookie-octet
+        cookie_octet(current_char, new_struct_1);
+        *current_char+=1;
+
+        if(iscookie_octet(**current_char)){
+            // Allocate memory for the next child
+            new_struct_2 = new_struct_1;
+            new_struct_1 = malloc(sizeof(node));
+            new_struct_2->frere = new_struct_1;
+        }
+    }
+    
+    if(isdquote){
+        // Allocate memory for the second child
+        new_struct_2 = new_struct_1;
+        node *new_struct_1 = malloc(sizeof(node));
+        new_struct_2->frere = new_struct_1;
+
+        // Call the function for the second child, supposed to be DQUOTE
+        if(**current_char == '"'){
+            icar(current_char, new_struct_1);
+        }else{
+            printf("Error : '\"' expected, %c found", **current_char);
+            exit(1);
+        }
+    }
+
+    // The end of the struct is known when the son functions are done
+    struct_current->fin = *current_char;
+}
+
+/** \fn void cookie_octet(char **current_char, node *struct_current)
+ * \brief Function to parse a cookie-octet
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+*/
+void cookie_octet(char **current_char, node *struct_current){
+    // cookie-octet   = %x21 / %x23-2B / %x2D-3A / %x3C-5B / %x5D-7E (! / # -> + / - -> : / < -> [ / ] -> ~)
+    // Init the struct (ptr, int...), and allocate memory for the first child
+    struct_current->debut = *current_char;
+    struct_current->label = COOKIE_OCTET;
+    struct_current->fils = NULL;
+
+    // Allocate memory for the first child
+    node *new_struct_1 = malloc(sizeof(node));
+    struct_current->fils = new_struct_1;
+
+    // Call the function for the first child, supposed to be %x21
+    if(!iscookie_octet(**current_char)){
+        printf("Error : 0x21 expected, %c found", **current_char);
+        exit(1);
+    }
+
+    // The end of the struct is known when the son functions are done
+    struct_current->fin = *current_char;
+}
 
 /** \fn void transfer_encoding_header(char **current_char, node *struct_current)
  * \brief Function to parse a transfer-encoding header
@@ -1316,7 +1536,89 @@ void cookie_header(char **current_char, node *struct_current){}
  * \param struct_current : pointer to the current struct
  * 
 */
-void transfer_encoding_header(char **current_char, node *struct_current){}
+void transfer_encoding_header(char **current_char, node *struct_current){
+    // transfer-encoding-header = "Transfer-Encoding" ":" 1#transfer-coding
+    // Init the struct (ptr, int...), and allocate memory for the first child
+    struct_current->debut = *current_char;
+    struct_current->label = TRANSFER_ENCODING_HEADER;
+    struct_current->fils = NULL;
+
+    // Allocate memory for the first child
+    node *new_struct_1 = malloc(sizeof(node));
+    struct_current->fils = new_struct_1;
+    node *new_struct_2;
+
+    while(**current_char == ','){
+        icar(current_char, new_struct_1);
+        *current_char+=1;
+
+        // Allocate memory for the next child
+        new_struct_2 = new_struct_1;
+        new_struct_1 = malloc(sizeof(node));
+        new_struct_2->frere = new_struct_1;
+
+        ows(current_char, new_struct_1);
+        *current_char+=1;
+
+        // Allocate memory for the next child
+        new_struct_2 = new_struct_1;
+        new_struct_1 = malloc(sizeof(node));
+        new_struct_2->frere = new_struct_1;
+    }
+
+    transfer_encoding(current_char, new_struct_1);
+    *current_char+=1;
+
+    // Allocate memory for the next child
+    new_struct_2 = new_struct_1;
+    new_struct_1 = malloc(sizeof(node));
+    new_struct_2->frere = new_struct_1;
+
+    while( ((**current_char == ',' || **current_char == ' ') && **current_char == '\t') || **current_char == '\t'){
+        while(**current_char == 0x09 || **current_char == 0x20){
+            ows(current_char, new_struct_1);
+            *current_char+=1;
+
+            // Allocate memory for the next child
+            new_struct_2 = new_struct_1;
+            new_struct_1 = malloc(sizeof(node));
+            new_struct_2->frere = new_struct_1;
+        }
+
+        icar(current_char, new_struct_1);
+        *current_char+=1;
+
+        // Allocate memory for the next child
+        new_struct_2 = new_struct_1;
+        new_struct_1 = malloc(sizeof(node));
+        new_struct_2->frere = new_struct_1;
+
+        if( (**current_char == 0x09 || **current_char == 0x20) && *(*current_char+1) != ';'){
+            while(**current_char == 0x09 || **current_char == 0x20){
+                ows(current_char, new_struct_1);
+                *current_char+=1;
+
+                // Allocate memory for the next child
+                new_struct_2 = new_struct_1;
+                new_struct_1 = malloc(sizeof(node));
+                new_struct_2->frere = new_struct_1;
+            }   
+            
+            transfer_encoding(current_char, new_struct_1);
+            *current_char+=1;
+        }
+
+        if(((**current_char == ',' || **current_char == ' ') && **current_char == '\t') || **current_char == '\t'){
+            new_struct_2 = new_struct_1;
+            new_struct_1 = malloc(sizeof(node));
+            new_struct_2->frere = new_struct_1;
+        }
+    }
+
+    // The end of the struct is known when the son functions are done
+    *current_char-=1;
+    struct_current->fin = *current_char;
+}
 
 /** \fn void expect_header(char **current_char, node *struct_current)
  * \brief Function to parse an expect header

@@ -285,3 +285,15 @@ int isqdtext(char c){
     }
     return 0;
 }
+
+/** \fn int iscookie_octet(char c)
+ * \brief Check if the char belongs to the list of accepted characted for a cookie_octet
+ * \param c : char to check
+ * Chars accepted : 0x21, 0x23-0x2b, 0x2d-0x3a, 0x3c-0x5b, 0x5d-0x7e
+*/
+int iscookie_octet(char c){
+    if(c == 0x21 || 0x23 <= c <= 0x2b || 0x2d <= c <= 0x3a || 0x3c <= c <= 0x5b || 0x5d <= c <= 0x7e){
+        return 1;
+    }
+    return 0;
+}
