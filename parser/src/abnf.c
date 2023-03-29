@@ -686,6 +686,75 @@ void ipv6address(char **current_char, node *struct_current){
     struct_current->fils = new_struct_1;
     node *new_struct_2;
 
+    int count = 0;
+    int isdoublecolon = 0;
+
+    while(count < 9){
+        if(ish16(*current_char)){
+            h16(current_char, new_struct_1);
+            *current_char += 1;
+            count += 1;
+
+            if(**current_char == ':'){
+                // Allocate memory for the second child
+                new_struct_2 = new_struct_1;
+                new_struct_1 = malloc(sizeof(node));
+                new_struct_2->frere = new_struct_1;
+
+                // Store the ':'
+                icar(current_char, new_struct_1);
+                *current_char += 1;
+
+            // If we have a double ':', we pass it
+            } else if ((**current_char == ':') && (*(current_char + 1) == ':')){
+                if(isdoublecolon){
+                    printf("Error : ipv6address : invalid value, double '::' found");
+                    exit(1);
+                }
+
+                isdoublecolon = 1;
+
+                // Allocate memory for the second child
+                new_struct_2 = new_struct_1;
+                new_struct_1 = malloc(sizeof(node));
+                new_struct_2->frere = new_struct_1;
+
+                // Store the ':'
+                icar(current_char, new_struct_1);
+                *current_char += 1;
+
+                // Allocate memory for the second child
+                new_struct_2 = new_struct_1;
+                new_struct_1 = malloc(sizeof(node));
+                new_struct_2->frere = new_struct_1;
+
+                // Store the ':'
+                icar(current_char, new_struct_1);
+                *current_char += 1;
+                count += 1;
+
+                // If it's the end
+                if(**current_char == ']'){
+                    count = 8;
+                }
+            // Else if if it's not the end, it's an error
+            } else if(**current_char != ']') {
+                printf("Error : ipv6address : invalid value");
+                exit(1);
+            }
+        } else if(isls32(*current_char) && 0 < count < 7){
+            ls32(current_char, new_struct_1);
+            *current_char += 1;
+
+            // If there is a ls32, it's the end
+            count = 8;
+        } else {
+            printf("Error : ipv6address : invalid value");
+            exit(1);
+        }
+    }
+
+
     // Note : i don't know if "::" needs to be stored as two icars, or one icar, or one istring
     while( !isls32(*current_char) && **current_char != ']'){
         if(**current_char == ':'){
@@ -706,7 +775,7 @@ void ipv6address(char **current_char, node *struct_current){
     }
 
     // Possibility of ending with a ls32
-    if(isls32(**current_char)){
+    if(isls32(*current_char)){
         ls32(current_char, new_struct_1);
     }
 

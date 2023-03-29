@@ -93,12 +93,15 @@ void printNode(node* obj){
 }
 
 void testMode(){
+	/*
 	char req[]="GET / HTTP/1.1\n";
 	char *adr=&req[0];
 	node* tete=malloc(sizeof(node));
 	//start_line(&adr,&racibhyne);
 	print_tree(tete,0);
-	exit(true);
+	*/
+	printf("2 args detected, nothing to test, please edit the testMode function in main.c\n");
+	exit(0);
 }
 
 

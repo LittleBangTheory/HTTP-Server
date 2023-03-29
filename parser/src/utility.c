@@ -295,7 +295,7 @@ int isipv6address(char *current_char){
     // if there is not a "::", there must be a ls32 at the end
     if(!isdoublecolon){
         for(int i=0; i<6; i++){
-            if(!ish16(*current_char)){
+            if(!ish16(current_char)){
                 return 0;
             }
             current_char++;
@@ -304,7 +304,7 @@ int isipv6address(char *current_char){
             }
             current_char++;
         }
-        if(!isls32(*current_char)){
+        if(!isls32(current_char)){
             return 0;
         }
         return 1;
@@ -314,11 +314,13 @@ int isipv6address(char *current_char){
     int total = 8;
     count = 0;
     while(count < total){
-        if(ish16(*current_char) && *current_char+1 == ':'){
+        if(ish16(current_char) && *(current_char+1) == ':'){
             *current_char+=2;
             count +=1;
         }
     }
+
+    return EXIT_FAILURE;
 }
 
 

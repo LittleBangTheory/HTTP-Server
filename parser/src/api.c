@@ -82,4 +82,6 @@ void purgeTree(void *root){
 } 
 
 // L'appel à votre parser un char* et une longueur à parser.  
-int parseur(char *req, int len){} 
+int parseur(char *req, int len){
+    return 0;
+}
