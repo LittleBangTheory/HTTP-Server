@@ -274,10 +274,53 @@ int isip_literal(char *current_char){
               / [ h16 *4( ":" h16 ) ] "::"              ls32
               / [ h16 *5( ":" h16 ) ] "::"              h16
               / [ h16 *6( ":" h16 ) ] "::"
+ * h16 : h16 : h16 : h16 : h16 : h16 : h16 :: 
 */
-int isipv6(char *current_char){
-    
+
+int isipv6address(char *current_char){
+    // read the entire address to check is there is a "::". If not, there must be a ls32 at the end
+    int count = 0;
+    int isdoublecolon = 0;
+    char *temp = current_char;
+    while(!isls32(temp) && count < 7 && !isdoublecolon){
+        if(*temp == ':' && *temp+1 == ':'){
+            isdoublecolon = 1;
+        }else if(*temp == ':' && *temp+1 != ':'){
+            count += 1;
+        }
+        temp++;
+    }
+
+
+    // if there is not a "::", there must be a ls32 at the end
+    if(!isdoublecolon){
+        for(int i=0; i<6; i++){
+            if(!ish16(*current_char)){
+                return 0;
+            }
+            current_char++;
+            if(*current_char != ':'){
+                return 0;
+            }
+            current_char++;
+        }
+        if(!isls32(*current_char)){
+            return 0;
+        }
+        return 1;
+    } else {
+
+    }
+    int total = 8;
+    count = 0;
+    while(count < total){
+        if(ish16(*current_char) && *current_char+1 == ':'){
+            *current_char+=2;
+            count +=1;
+        }
+    }
 }
+
 
 /** \fn isipvfuture(char *current_char)
  * \brief Check if the char and its followers are a valid ipvfuture ( "v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" ) )
@@ -373,7 +416,7 @@ int isqdtext(char c){
  * Chars accepted : 0x21, 0x23-0x2b, 0x2d-0x3a, 0x3c-0x5b, 0x5d-0x7e
 */
 int iscookie_octet(char c){
-    if(c == 0x21 || 0x23 <= c <= 0x2b || 0x2d <= c <= 0x3a || 0x3c <= c <= 0x5b || 0x5d <= c <= 0x7e){
+    if(c == 0x21 || ((0x23 <= c) && (c <= 0x2b)) || ((0x2d <= c) && (c<= 0x3a)) || ((0x3c <= c) && (c <= 0x5b)) || ((0x5d <= c) && (c <= 0x7e))){
         return 1;
     }
     return 0;

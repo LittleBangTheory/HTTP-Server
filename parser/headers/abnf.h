@@ -56,7 +56,7 @@ extern char IPV4ADDRESS[];
 extern char IP_LITERAL[];
 extern char REG_NAME[];
 extern char HOST_LOWER[];
-extern char IPV6ADDRESS[];
+extern char IPV6_ADDRESS[];
 extern char IPVFUTURE[];
 extern char DEC_OCTET[];
 extern char H16[];

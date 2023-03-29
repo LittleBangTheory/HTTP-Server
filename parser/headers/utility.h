@@ -4,7 +4,7 @@
 #endif
 void print_request(node*, char*, int);
 void print_tree(node*, int);
-void delete_chained_list(node*);
+//void delete_chained_list(node*);
 int istchar(char c);
 int ispchar(char c);
 int isunreserved(char c);
@@ -15,10 +15,12 @@ int isobs_text(char c);
 int isobs_fold(char *current_char);
 int isconnection_end(char *current_char);
 int isheader_end(char *current_char);
-int isipv4(char *current_char);
+int isipv4address(char *current_char);
 int isip_literal(char *current_char);
-int isipv6(char *current_char);
+int isipv6address(char *current_char);
 int isipvfuture(char *current_char);
 int ish16(char *current_char);
 int isls32(char *current_char);
 int ismedia_type_end(char *current_char);
+int isqdtext(char c);
+int iscookie_octet(char c);

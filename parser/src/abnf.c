@@ -193,7 +193,7 @@ void header_field(char **current_char, node *struct_current){
     }
     else if(strcmp(new_struct_1->label, "Cookie") == 0){
         // Call the function for the fourth child, supposed to be Cookie-header
-        cookie_header(current_char, new_struct_3);
+        cookie_string(current_char, new_struct_3);
     }
     else if(strcmp(new_struct_1->label, "Transfer-Encoding") == 0){
         // Call the function for the fourth child, supposed to be Transfer-Encoding-header
@@ -443,7 +443,7 @@ void host(char **current_char, node *struct_current){
     // Call the function for the first child, supposed to be IP-literal / IPv4address / reg-name
     if(isip_literal(*current_char)){
         ip_literal(current_char, new_struct_1);
-    }else if(isipv4(*current_char)){
+    }else if(isipv4address(*current_char)){
         ipv4address(current_char, new_struct_1);
     }else{
         reg_name(current_char, new_struct_1);
@@ -516,7 +516,7 @@ void dec_octet(char **current_char, node *struct_current){
 
         // Call the function for the second child, supposed to be DIGIT
         digit(current_char, new_struct_1);
-    } else if ( (0x31 <= **current_char <= 0x39) && isdigit(*(*current_char+1)) ) {
+    } else if ( ((0x31 <= **current_char) && (**current_char <= 0x39)) && isdigit(*(*current_char+1)) ) {
         // Allocate memory for the second child
         node *new_struct_1 = malloc(sizeof(node));
         struct_current->fils = new_struct_1;
@@ -555,7 +555,7 @@ void dec_octet(char **current_char, node *struct_current){
 
         // Call the function for the fourth child, supposed to be DIGIT
         digit(current_char, new_struct_1);
-    } else if ( **current_char == '2' && (0x30 <= *(*current_char+1) <= 0x34) && isdigit(*(*current_char+2)) ) {
+    } else if ( **current_char == '2' && ((0x30 <= *(*current_char+1)) && (*(*current_char+1) <= 0x34)) && isdigit(*(*current_char+2)) ) {
         // Allocate memory for the second child
         node *new_struct_1 = malloc(sizeof(node));
         struct_current->fils = new_struct_1;
@@ -578,7 +578,7 @@ void dec_octet(char **current_char, node *struct_current){
 
         // Call the function for the fourth child, supposed to be DIGIT
         digit(current_char, new_struct_1);
-    } else if ( **current_char == '2' && *(*current_char+1) == '5' && (0x30 <= *(*current_char+2) <= 0x35) ) {
+    } else if ( **current_char == '2' && *(*current_char+1) == '5' && ((0x30 <= *(*current_char+2)) && (*(*current_char+2) <= 0x35)) ) {
         // Allocate memory for the second child
         node *new_struct_1 = malloc(sizeof(node));
         struct_current->fils = new_struct_1;
@@ -678,7 +678,7 @@ void ip_literal(char **current_char, node *struct_current){
 */
 void ipv6address(char **current_char, node *struct_current){
     struct_current->debut = *current_char;
-    struct_current->label = IPV6ADDRESS;
+    struct_current->label = IPV6_ADDRESS;
     struct_current->fils = NULL;
 
     // Allocate memory for the first child
@@ -844,18 +844,18 @@ void ipvfuture(char **current_char, node *struct_current){
     new_struct_1->frere = new_struct_2;
 
     // Call the function for the fourth child, supposed to be 1*( unreserved / sub-delims / ":" )
-    while(isunreserved(**current_char) || issubdelims(**current_char) || **current_char == ':'){
+    while(isunreserved(**current_char) || issub_delims(**current_char) || **current_char == ':'){
         if(isunreserved(**current_char)){
             unreserved(current_char, new_struct_2);
-        }else if(issubdelims(**current_char)){
-            subdelims(current_char, new_struct_2);
+        }else if(issub_delims(**current_char)){
+            sub_delims(current_char, new_struct_2);
         }else{
             icar(current_char, new_struct_2);
         }
         *current_char += 1;
 
         // Allocate memory for the next child
-        if(isunreserved(**current_char) || issubdelims(**current_char) || **current_char == ':'){
+        if(isunreserved(**current_char) || issub_delims(**current_char) || **current_char == ':'){
             new_struct_1 = new_struct_2;
             new_struct_2 = malloc(sizeof(node));
             new_struct_1->frere = new_struct_2;
@@ -885,18 +885,18 @@ void reg_name(char **current_char, node *struct_current){
     struct_current->fils = new_struct_1;
 
     // Call the function for the first child, supposed to be *( unreserved / pct-encoded / sub-delims )
-    while(isunreserved(**current_char) || ispct_encoded(**current_char) || issubdelims(**current_char)){
+    while(isunreserved(**current_char) || ispct_encoded(**current_char) || issub_delims(**current_char)){
         if(isunreserved(**current_char)){
             unreserved(current_char, new_struct_1);
         }else if(ispct_encoded(**current_char)){
             pct_encoded(current_char, new_struct_1);
         }else{
-            subdelims(current_char, new_struct_1);
+            sub_delims(current_char, new_struct_1);
         }
         *current_char += 1;
 
         // Allocate memory for the next child
-        if(isunreserved(**current_char) || ispct_encoded(**current_char) || issubdelims(**current_char)){
+        if(isunreserved(**current_char) || ispct_encoded(**current_char) || issub_delims(**current_char)){
             new_struct_1 = new_struct_1->frere;
             new_struct_1 = malloc(sizeof(node));
         }
@@ -1302,7 +1302,7 @@ void quoted_pair(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void cookie_header(char **current_char, node *struct_current)
+/** \fn void cookie_string(char **current_char, node *struct_current)
  * \brief Function to parse a cookie header
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
@@ -1566,7 +1566,7 @@ void transfer_encoding_header(char **current_char, node *struct_current){
         new_struct_2->frere = new_struct_1;
     }
 
-    transfer_encoding(current_char, new_struct_1);
+    transfer_encoding_header(current_char, new_struct_1);
     *current_char+=1;
 
     // Allocate memory for the next child
@@ -1604,7 +1604,7 @@ void transfer_encoding_header(char **current_char, node *struct_current){
                 new_struct_2->frere = new_struct_1;
             }   
             
-            transfer_encoding(current_char, new_struct_1);
+            transfer_encoding_header(current_char, new_struct_1);
             *current_char+=1;
         }
 
@@ -2527,22 +2527,6 @@ void obs_text(char **current_char, node *struct_current){
         exit(1);
     }
     struct_current->label = OBS_TEXT;
-    struct_current->fils = NULL;
-    struct_current->debut = *current_char;
-    struct_current->fin = *current_char;
-}
-
-/** \fn void sub_delims(char **current_char, node *struct_current)
- * \brief Parse the sub_delims (sub-delims = "!" / "$" / "&" / "'" / "(" / ")" / "*" / "+" / "," / ";" / "=") characters of the request
- * \param current_char : pointer to the current char
- * \param struct_current : pointer to the current struct
-*/
-void sub_delims(char **current_char, node *struct_current){
-    if (!issub_delims(**current_char)){
-        printf("Error: Expected a sub-delims, not %c", **current_char);
-        exit(1);
-    }
-    struct_current->label = SUB_DELIMS;
     struct_current->fils = NULL;
     struct_current->debut = *current_char;
     struct_current->fin = *current_char;
