@@ -227,13 +227,40 @@ int isheader_end(char *current_char){
  * \brief Check if the char and its followers are a valid ipv4 address (dec-octet "." dec-octet "." dec-octet "." dec-octet)
  * \param current_char : char to check
 */
-int isipv4address(char *current_char){}
+int isipv4address(char *current_char){
+    int n = 0;
+    for(int i=0; i<4; i++){
+        n = 0;
+        if(!isdigit(*current_char)){
+            return 0;
+        }
+        while(isdigit(*current_char) && n<4){
+            current_char++;
+        }
+        if(*current_char != '.'){
+            return 0;
+        }
+        current_char++;
+    }
+    return 1;
+}
 
 /** \fn isip_literal(char *current_char)
  * \brief Check if the char and its followers are a valid ip_literal ( "[" ( IPv6address / IPvFuture  ) "]" ) -> call is ipv6 and isipvfuture
  * \param current_char : char to check
 */
-int isip_literal(char *current_char){}
+int isip_literal(char *current_char){
+    if(*current_char == '['){
+        current_char++;
+        if(isipv6address(current_char) || isipvfuture(current_char)){
+            current_char++;
+            if(*current_char == ']'){
+                return 1;
+            }
+        }
+    }
+    return 0;
+}
 
 /** \fn isipv6(char *current_char)
  * \brief Check if the char and its followers are a valid ipv6 address
@@ -245,7 +272,28 @@ int isipv6(char *current_char){}
  * \brief Check if the char and its followers are a valid ipvfuture ( "v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" ) )
  * \param current_char : char to check
 */
-int isipvfuture(char *current_char){}
+int isipvfuture(char *current_char){
+    if(*current_char == 'v'){
+        current_char++;
+        if(isxdigit(*current_char)){
+            current_char++;
+            while(isxdigit(*current_char)){
+                current_char++;
+            }
+            if(*current_char == '.'){
+                current_char++;
+                if(isunreserved(*current_char) || issub_delims(*current_char) || *current_char == ':'){
+                    current_char++;
+                    while(isunreserved(*current_char) || issub_delims(*current_char) || *current_char == ':'){
+                        current_char++;
+                    }
+                    return 1;
+                }
+            }
+        }
+    }
+    return 0;
+}
 
 /** \fn int ish16(char *current_char)
  * \brief Check if the char and its followers are a valid h16 ( 1*4HEXDIG )
