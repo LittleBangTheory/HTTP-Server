@@ -32,12 +32,6 @@ char sub_delims_list[] = {0x21, 0x24, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b, 0x2c, 
  *  \param first_char Pointer to the first char of the request
  *  \param length Length of the request
 */
-/*
-void print_request(node *struct_current, char* first_char, int length){
-    printf("message: %s\n",first_char);
-    // call the print_tree function with and indent of 1
-    print_tree(struct_current, 1);
-}
 
 
 /** \fn void print_tree(node *struct_current)
@@ -69,23 +63,6 @@ void print_tree(node *struct_current, int depth){
         print_tree(struct_current->frere, depth);
     }
 }
-
-/** \fn void delete_chained_list(node *struct_current)
- *  \brief Function to delete the chained list and free the memory
- *  \param struct_current Pointer to the current element of the chained list
- *  NOTE : This function is not used, as it has been replaced by the purge_tree() function in api.c
-*/
-/*
-void delete_chained_list(node *struct_current){
-    if (struct_current->frere != NULL) {
-        delete_chained_list(struct_current->frere);
-    }
-    if (struct_current->fils != NULL) {
-        delete_chained_list(struct_current->fils);
-    }
-    free(struct_current);
-}
-*/
 
 /** \fn int istchar(char **current_char, node *struct_current, char *label)
  * \brief Check if the char belongs to the list of accepted characted for a tchar
@@ -401,4 +378,19 @@ int stringcompare(char *current_char, char *s){
         s++;
     }
     return 1;
+}
+
+/** \fn int istransfer_extension_end(char *current_char)
+ * \brief Check if the char belongs to the list of accepted chars for a transfer_extension_end (OWS ";")
+ * \param current_char : char to check
+*/
+int istransfer_extension_end(char *current_char){
+    while(*current_char == 0x20 || *current_char == 0x09){
+        current_char++;
+    }
+    if(*current_char == ';'){
+        return 1;
+    } else {
+        return 0;
+    }
 }

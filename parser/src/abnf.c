@@ -11,10 +11,6 @@
  * - Always check in a function that the character(s) to store is/are the right one(s) (example : in tchar(), check that the character is a tchar)
 */
 
-/* TODO :
-- Check that our syntax corresponds to the one of the teacher (example : __alpha instead of alpha)
-*/
-
 /* NOTE :
 - Those simple tests need to be failed (the requests are incorrect) :  6, 8, 9, 10, and 12 
 - Those simple tests need to be passed (the requests are correct) : 1, 2, 3, 4, 5, 7, 11
@@ -109,7 +105,9 @@ void message_body(char **current_char, node *struct_current){
     node *new_struct_2;
     struct_current->fils = new_struct_1;
 
-    while(**current_char != '\0'){
+    int end = 0;
+
+    while(**current_char != '\0' && end == 0){
         // Call the function for the first child, supposed to be octet
         octet(current_char, new_struct_1);
 
@@ -119,6 +117,8 @@ void message_body(char **current_char, node *struct_current){
             new_struct_2 = new_struct_1;
             new_struct_1 = malloc(sizeof(node));
             new_struct_2->frere = new_struct_1;
+        } else {
+            end = 1;
         }
     }
 }
@@ -204,23 +204,23 @@ void header_field(char **current_char, node *struct_current){
         // Call the function for the fourth child, supposed to be Content-Length-header
         content_length_header(current_char, new_struct_3);
     }
-    else if(strcmp(new_struct_1->label, "Content-Type") == 0){
+    else if(stringcompare(new_struct_1->debut, "Content-Type")){
         // Call the function for the fourth child, supposed to be Content-Type-header
         content_type_header(current_char, new_struct_3);
     }
-    else if(strcmp(new_struct_1->label, "Cookie") == 0){
+    else if(stringcompare(new_struct_1->debut, "Cookie")){
         // Call the function for the fourth child, supposed to be Cookie-header
         cookie_string(current_char, new_struct_3);
     }
-    else if(strcmp(new_struct_1->label, "Transfer-Encoding") == 0){
+    else if(stringcompare(new_struct_1->debut, "Transfer-Encoding")){
         // Call the function for the fourth child, supposed to be Transfer-Encoding-header
         transfer_encoding_header(current_char, new_struct_3);
     }
-    else if(strcmp(new_struct_1->label, "Expect") == 0){
+    else if(stringcompare(new_struct_1->debut, "Expect")){
         // Call the function for the fourth child, supposed to be Expect-header
         expect_header(current_char, new_struct_3);
     }
-    else if(strcmp(new_struct_1->label, "Host") == 0){
+    else if(stringcompare(new_struct_1->debut, "Host")){
         // Call the function for the fourth child, supposed to be Host-header
         host_header(current_char, new_struct_3);
     }
@@ -966,8 +966,11 @@ void reg_name(char **current_char, node *struct_current){
             unreserved(current_char, new_struct_1);
         }else if(ispct_encoded(**current_char)){
             pct_encoded(current_char, new_struct_1);
-        }else{
+        }else if(issub_delims(**current_char)){
             sub_delims(current_char, new_struct_1);
+        } else {
+            printf("Error : unreserved, pct-encoded or sub-delims expected, %c found", **current_char);
+            exit(1);
         }
         *current_char += 1;
 
@@ -1642,7 +1645,7 @@ void transfer_encoding_header(char **current_char, node *struct_current){
         new_struct_2->frere = new_struct_1;
     }
 
-    transfer_encoding_header(current_char, new_struct_1);
+    transfer_coding(current_char, new_struct_1);
     *current_char+=1;
 
     // Allocate memory for the next child
@@ -1680,7 +1683,7 @@ void transfer_encoding_header(char **current_char, node *struct_current){
                 new_struct_2->frere = new_struct_1;
             }   
             
-            transfer_encoding_header(current_char, new_struct_1);
+            transfer_coding(current_char, new_struct_1);
             *current_char+=1;
         }
 
@@ -1693,6 +1696,171 @@ void transfer_encoding_header(char **current_char, node *struct_current){
 
     // The end of the struct is known when the son functions are done
     *current_char-=1;
+    struct_current->fin = *current_char;
+}
+
+/** \fn void transfer_coding(char **current_char, node *struct_current)
+ * \brief Function to parse a transfer-coding
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+*/
+void transfer_coding(char **current_char, node *struct_current){
+    // transfer-coding = "chunked" / "compress" / "deflate" / "gzip" /  transfer-extension
+    // Init the struct (ptr, int...), and allocate memory for the first child
+    struct_current->debut = *current_char;
+    struct_current->label = TRANSFER_CODING;
+    struct_current->fils = NULL;
+
+    // Allocate memory for the first child
+    node *new_struct_1 = malloc(sizeof(node));
+    struct_current->fils = new_struct_1;
+
+    if(stringcompare(*current_char, "chunked")){
+        // The end of the struct is known when the son functions are done
+        istring(current_char, new_struct_1, 7);
+    } else if (stringcompare(*current_char, "compress")){
+        // The end of the struct is known when the son functions are done
+        istring(current_char, new_struct_1, 8);
+    } else if (stringcompare(*current_char, "deflate")){
+        // The end of the struct is known when the son functions are done
+        istring(current_char, new_struct_1, 7);
+    } else if (stringcompare(*current_char, "gzip")){
+        // The end of the struct is known when the son functions are done
+        istring(current_char, new_struct_1, 4);
+    } else {
+        transfer_extension(current_char, new_struct_1);
+        // The end of the struct is known when the son functions are done
+        struct_current->fin = *current_char;
+    }
+}
+
+/** \fn void transfer_extension(char **current_char, node *struct_current)
+ * \brief Function to parse a transfer-extension
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+*/
+void transfer_extension(char **current_char, node *struct_current){
+    // transfer-extension = token *( OWS ";" OWS transfer-parameter )
+    // Init the struct (ptr, int...), and allocate memory for the first child
+    struct_current->debut = *current_char;
+    struct_current->label = TRANSFER_EXTENSION;
+    struct_current->fils = NULL;
+
+    // Allocate memory for the first child
+    node *new_struct_1 = malloc(sizeof(node));
+    struct_current->fils = new_struct_1;
+
+    token(current_char, new_struct_1);
+    *current_char+=1;
+
+    // Allocate memory for the next child
+    node *new_struct_2 = new_struct_1;
+    new_struct_1 = malloc(sizeof(node));
+    new_struct_2->frere = new_struct_1;
+
+    while(istransfer_extension_end(*current_char)){
+        if(**current_char == 0x09 || **current_char == 0x20){
+            ows(current_char, new_struct_1);
+            *current_char+=1;
+
+            // Allocate memory for the next child
+            new_struct_2 = new_struct_1;
+            new_struct_1 = malloc(sizeof(node));
+            new_struct_2->frere = new_struct_1;
+        }
+        if(**current_char == ';') {
+            icar(current_char, new_struct_1);
+            *current_char+=1;
+        } else {
+            printf("Error : transfer-extension : ';' expected");
+            exit(1);
+        }
+
+        // Allocate memory for the next child
+        new_struct_2 = new_struct_1;
+        new_struct_1 = malloc(sizeof(node));
+        new_struct_2->frere = new_struct_1;
+
+        transfer_parameter(current_char, new_struct_1);
+        *current_char+=1;
+        if(istransfer_extension_end(*current_char)){
+            // Allocate memory for the next child
+            new_struct_2 = new_struct_1;
+            new_struct_1 = malloc(sizeof(node));
+            new_struct_2->frere = new_struct_1;
+        }
+    }
+
+    // The end of the struct is known when the son functions are done
+    *current_char-=1;
+    struct_current->fin = *current_char;
+}
+
+/** \fn void transfer_parameter(char **current_char, node *struct_current)
+ * \brief Function to parse a transfer-parameter
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+*/
+void transfer_parameter(char **current_char, node *struct_current){
+    // transfer-parameter = token BWS "=" BWS ( token / quoted-string )
+    // Init the struct (ptr, int...), and allocate memory for the first child
+    struct_current->debut = *current_char;
+    struct_current->label = TRANSFER_PARAMETER;
+    struct_current->fils = NULL;
+
+    // Allocate memory for the first child
+    node *new_struct_1 = malloc(sizeof(node));
+    node *new_struct_2;
+    struct_current->fils = new_struct_1;
+
+    token(current_char, new_struct_1);
+    *current_char+=1;
+
+    if(**current_char == 0x09 || **current_char == 0x20){
+        // Allocate memory for the next child
+        new_struct_2 = new_struct_1;
+        new_struct_1 = malloc(sizeof(node));
+        new_struct_2->frere = new_struct_1;
+
+        ows(current_char, new_struct_1);
+        *current_char+=1;
+    }
+
+    if(**current_char == '='){
+            // Allocate memory for the next child
+        new_struct_2 = new_struct_1;
+        new_struct_1 = malloc(sizeof(node));
+        new_struct_2->frere = new_struct_1;
+
+        icar(current_char, new_struct_1);
+        *current_char+=1;
+    } else {
+        printf("Error : transfer-parameter : '=' expected");
+        exit(1);
+    }
+
+    if(**current_char == 0x09 || **current_char == 0x20){
+        // Allocate memory for the next child
+        new_struct_2 = new_struct_1;
+        new_struct_1 = malloc(sizeof(node));
+        new_struct_2->frere = new_struct_1;
+
+        ows(current_char, new_struct_1);
+        *current_char+=1;
+    }
+
+    // Allocate memory for the next child
+    new_struct_2 = new_struct_1;
+    new_struct_1 = malloc(sizeof(node));
+    new_struct_2->frere = new_struct_1;
+
+    if(**current_char == '"'){
+        quoted_string(current_char, new_struct_1);
+    } else {
+        token(current_char, new_struct_1);
+    }
+
+    // The end of the struct is known when the son functions are done
     struct_current->fin = *current_char;
 }
 
@@ -1870,7 +2038,7 @@ void field_content(char **current_char, node *struct_current){
     field_vchar(current_char, new_struct_1);
 
     // Allocate memory for the second child (if it's a SP or HTAB)
-    if(*(*current_char+1) == 0x20 || *(*current_char+1) == 0x09){
+    if((*(*current_char+1) == 0x20 || *(*current_char+1) == 0x09) && *(*current_char+2) != '\r'){
         // Go one char forward
         *current_char+=1;
         // Allocate memory for the second child
@@ -2214,14 +2382,38 @@ void absolute_path(char **current_char, node *struct_current){
     struct_current->fils = NULL;
 
     if(**current_char=='/'){
-        icar(current_char, struct_current);
-        *current_char+=1;
         // Allocate memory for the first child
-        node *new_struct = malloc(sizeof(node));
-        struct_current->fils = new_struct;
-        segment(current_char, new_struct);
+        node *new_struct_1 = malloc(sizeof(node));
+        node *new_struct_2;
+        struct_current->fils = new_struct_1;
+
+        while(**current_char=='/'){
+            icar(current_char, new_struct_1);
+            *current_char+=1;
+
+            // Allocate memory for the next child
+            new_struct_2 = new_struct_1;
+            new_struct_1 = malloc(sizeof(node));
+            new_struct_2->frere = new_struct_1;
+
+            // Call segment
+            segment(current_char, new_struct_1);
+            *current_char+=1;
+
+            if(**current_char=='/'){
+                // Allocate memory for the first child
+                new_struct_2 = new_struct_1;
+                new_struct_1 = malloc(sizeof(node));
+                new_struct_2->frere = new_struct_1;
+            }  
+        }   
+    } else {
+        printf("Error : absolute_path must start with a '/'");
+        exit(1);
     }
+    
     // The end is known when the son functions are done
+    *current_char-=1;
     struct_current->fin = *current_char;
 }
 
@@ -2240,15 +2432,18 @@ void segment(char **current_char, node *struct_current){
     if(ispchar(**current_char)){
         // Allocate memory for the first child
         node *new_struct_1 = malloc(sizeof(node));
+        node *new_struct_2;
         struct_current->fils = new_struct_1;
-        do{
-            node *new_struct_2 = malloc(sizeof(node));
-            pchar(current_char, new_struct_2);
-            // move one struct forward 
-            new_struct_1->frere = new_struct_2;
-            new_struct_1 = new_struct_2;
+        while(ispchar(**current_char)){
+            pchar(current_char, new_struct_1);
             *current_char+=1;
-        }while(ispchar(*(*current_char+1)));
+
+            if(ispchar(**current_char)) {
+                new_struct_2 = new_struct_1;
+                new_struct_1 = malloc(sizeof(node));
+                new_struct_2->frere = new_struct_1;
+            }
+        }
     }
     *current_char-=1;
     struct_current->fin = *current_char;
@@ -2448,7 +2643,7 @@ void alpha(char **current_char, node *struct_current){
 */
 void digit(char **current_char, node *struct_current){
     if (!isdigit(**current_char)){
-        printf("Error: Expected a digit, not %c", **current_char);
+        printf("Error: Expected a digit, not %c\n", **current_char);
         exit(1);
     }
     struct_current->label = DIGIT;
@@ -2568,6 +2763,7 @@ void field_vchar(char **current_char, node *struct_current){
     } else{
         printf("Error: Expected a VCHAR or an obs-text, not %c", **current_char);
         exit(1);
+        printf("test ?");
     }
 
     // The end of the field_vchar is the end of the obs_text or vchar

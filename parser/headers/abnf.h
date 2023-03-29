@@ -77,6 +77,9 @@ extern char COOKIE_OCTET[];
 extern char TRANSFER_ENCODING_HEADER[];
 extern char EXPECT_HEADER[];
 extern char ISTRING[];
+extern char TRANSFER_CODING[];
+extern char TRANSFER_EXTENSION[];
+extern char TRANSFER_PARAMETER[];
 
 extern node* racine;
 
@@ -147,3 +150,6 @@ void cookie_name(char **current_char, node *struct_current);
 void cookie_value(char **current_char, node *struct_current);
 void cookie_octet(char **current_char, node *struct_current);
 void istring(char **current_char, node *struct_current, int length);
+void transfer_coding(char **current_char, node *struct_current);
+void transfer_parameter(char **current_char, node *struct_current);
+void transfer_extension(char **current_char, node *struct_current);
