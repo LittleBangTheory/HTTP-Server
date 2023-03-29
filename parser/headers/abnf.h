@@ -76,6 +76,7 @@ extern char COOKIE_VALUE[];
 extern char COOKIE_OCTET[];
 extern char TRANSFER_ENCODING_HEADER[];
 extern char EXPECT_HEADER[];
+extern char ISTRING[];
 
 extern node* racine;
 
@@ -145,3 +146,4 @@ void cookie_pair(char **current_char, node *struct_current);
 void cookie_name(char **current_char, node *struct_current);
 void cookie_value(char **current_char, node *struct_current);
 void cookie_octet(char **current_char, node *struct_current);
+void istring(char **current_char, node *struct_current, int length);

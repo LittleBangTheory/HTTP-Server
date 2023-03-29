@@ -386,3 +386,21 @@ int iscookie_octet(char c){
     }
     return 0;
 }
+
+int isspecialheader(char *current_char){
+    if(strncmp(*current_char, "Connection", 10) == 0){
+        return 1;
+    } else if(strncmp(*current_char, "Content-Length", 14)){
+        return 1;
+    } else if(strncmp(*current_char, "Content-Type", 12)){
+        return 1;
+    } else if(strncmp(*current_char, "Transfer-Encoding", 17) == 0){
+        return 1;
+    } else if(strncmp(*current_char, "Expect", 6) == 0){
+        return 1;
+    } else if(strncmp(*current_char, "Host", 4) == 0){
+        return 1;
+    } else {
+        return 0;
+    }
+}

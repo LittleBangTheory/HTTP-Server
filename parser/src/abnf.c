@@ -152,12 +152,28 @@ void header_field(char **current_char, node *struct_current){
     node *new_struct_1 = malloc(sizeof(node));
     struct_current->fils = new_struct_1;
 
-    
-    // Call the function for the first child, supposed to be field-name
-    field_name(current_char, new_struct_1);
+    if(strncmp(*current_char, "Connection", 10) == 0){
+        istring(current_char, new_struct_1, 10);
+    } else if(strncmp(*current_char, "Content-Length", 14)){
+        istring(current_char, new_struct_1, 14);
+    } else if(strncmp(*current_char, "Content-Type", 12)){
+        istring(current_char, new_struct_1, 12);
+    } else if(strncmp(*current_char, "Transfer-Encoding", 17) == 0){
+        istring(current_char, new_struct_1, 17);
+    } else if(strncmp(*current_char, "Expect", 6) == 0){
+        istring(current_char, new_struct_1, 6);
+    } else if(strncmp(*current_char, "Host", 4) == 0){
+        istring(current_char, new_struct_1, 4);
+    } else if(strncmp(*current_char, "Cookie:", 7) == 0) {
+        istring(current_char, new_struct_1, 7);
+    } else {
+        // Call the function for the first child, supposed to be field-name
+        field_name(current_char, new_struct_1);
+    }
+
     *current_char += 1;
 
-    if(**current_char != ':'){
+    if(**current_char != ':' && *(*current_char-1) != ':'){
         printf("Error : expected ':' in header-field, got '%c' instead\n", **current_char);
         exit(1);
     }
@@ -2401,7 +2417,8 @@ void tchar(char **current_char, node *struct_current){
         }
     // If the next char isnt a tchar or a SP, error
     } else if(!istchar(**current_char)){
-        printf("Error: the method must be composed of tchars, not %c\n", **current_char);
+        printf("Error: the method must be composed of tchars, not \"%c\"\n", **current_char);
+        printf("Reste de la requete");
         exit(1);
     }
 }
@@ -2589,5 +2606,22 @@ void obs_text(char **current_char, node *struct_current){
     struct_current->label = OBS_TEXT;
     struct_current->fils = NULL;
     struct_current->debut = *current_char;
+    struct_current->fin = *current_char;
+}
+
+/** \fn void isstring(char **current_char, node *struct_current, int length)
+ * \brief Parse the isstring
+ * \param current_char : pointer to the current char
+ * \param struct_current : pointer to the current struct
+ * \param length : length of the isstring
+*/
+void istring(char **current_char, node *struct_current, int length){
+    struct_current->label=ISTRING;
+    struct_current->fils = NULL;
+    struct_current->debut = *current_char;
+
+    *current_char+=length;
+
+    // The end of the field_vchar is the end of the obs_text or vchar
     struct_current->fin = *current_char;
 }
