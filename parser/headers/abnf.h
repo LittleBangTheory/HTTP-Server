@@ -140,3 +140,8 @@ void quoted_string(char **current_char, node *struct_current);
 void qdtext(char **current_char, node *struct_current);
 void quoted_pair(char **current_char, node *struct_current);
 void h16(char **current_char, node *struct_current);
+void ls32(char **current_char, node *struct_current);
+void cookie_pair(char **current_char, node *struct_current);
+void cookie_name(char **current_char, node *struct_current);
+void cookie_value(char **current_char, node *struct_current);
+void cookie_octet(char **current_char, node *struct_current);

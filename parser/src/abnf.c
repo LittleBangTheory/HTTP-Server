@@ -152,6 +152,7 @@ void header_field(char **current_char, node *struct_current){
     node *new_struct_1 = malloc(sizeof(node));
     struct_current->fils = new_struct_1;
 
+    
     // Call the function for the first child, supposed to be field-name
     field_name(current_char, new_struct_1);
     *current_char += 1;
@@ -705,8 +706,13 @@ void ipv6address(char **current_char, node *struct_current){
                 icar(current_char, new_struct_1);
                 *current_char += 1;
 
+                // Allocate memory for the next child
+                new_struct_2 = new_struct_1;
+                new_struct_1 = malloc(sizeof(node));
+                new_struct_2->frere = new_struct_1;
+
             // If we have a double ':', we pass it
-            } else if ((**current_char == ':') && (*(current_char + 1) == ':')){
+            } else if ((**current_char == ':') && *(*current_char + 1) == ':'){
                 if(isdoublecolon){
                     printf("Error : ipv6address : invalid value, double '::' found");
                     exit(1);
@@ -736,13 +742,18 @@ void ipv6address(char **current_char, node *struct_current){
                 // If it's the end
                 if(**current_char == ']'){
                     count = 8;
+                } else {
+                    // Allocate memory for the next child
+                    new_struct_2 = new_struct_1;
+                    new_struct_1 = malloc(sizeof(node));
+                    new_struct_2->frere = new_struct_1;
                 }
             // Else if if it's not the end, it's an error
             } else if(**current_char != ']') {
                 printf("Error : ipv6address : invalid value");
                 exit(1);
             }
-        } else if(isls32(*current_char) && 0 < count < 7){
+        } else if(isls32(*current_char) && (0 < count && count < 7)){
             ls32(current_char, new_struct_1);
             *current_char += 1;
 
@@ -754,29 +765,9 @@ void ipv6address(char **current_char, node *struct_current){
         }
     }
 
-
-    // Note : i don't know if "::" needs to be stored as two icars, or one icar, or one istring
-    while( !isls32(*current_char) && **current_char != ']'){
-        if(**current_char == ':'){
-            icar(current_char, new_struct_1);
-        } else if(ish16(*current_char)) {
-            h16(current_char, new_struct_1);
-        } else {
-            printf("Error : ipv6address : invalid value");
-            exit(1);
-        }
-
-        *current_char += 1;
-
-        // Allocate memory for the next child
-        new_struct_2 = new_struct_1;
-        new_struct_1 = malloc(sizeof(node));
-        new_struct_2->frere = new_struct_1;
-    }
-
-    // Possibility of ending with a ls32
-    if(isls32(*current_char)){
-        ls32(current_char, new_struct_1);
+    if(**current_char != ']'){
+        printf("Error : ipv6address too long !");
+        exit(1);
     }
 
     // The end of the struct is known when the son functions are done
@@ -1089,7 +1080,7 @@ void media_type(char **current_char, node *struct_current){
         new_struct_1->frere = new_struct_2;
 
         // If we have a OWS
-        if (**current_char == '0x20' || **current_char == '0x09'){
+        if (**current_char == 0x20 || **current_char == 0x09){
             ows(current_char, new_struct_2);
             *current_char+=1;
 
@@ -1114,7 +1105,7 @@ void media_type(char **current_char, node *struct_current){
         new_struct_1->frere = new_struct_2;
 
         // If we have a OWS
-        if (**current_char == '0x20' || **current_char == '0x09'){
+        if (**current_char == 0x20 || **current_char == 0x09){
             ows(current_char, new_struct_2);
             *current_char+=1;
 

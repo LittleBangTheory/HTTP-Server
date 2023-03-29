@@ -56,6 +56,9 @@ char *getElementValue(void *noeud,int *len){
     {
         res[i]=current->debut[i];
     }
+    if (len!=NULL){
+        *len=taille+2;
+    }
     res[taille+1]=0;
     return res;
     

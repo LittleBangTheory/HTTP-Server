@@ -32,11 +32,13 @@ char sub_delims_list[] = {0x21, 0x24, 0x26, 0x27, 0x28, 0x29, 0x2a, 0x2b, 0x2c, 
  *  \param first_char Pointer to the first char of the request
  *  \param length Length of the request
 */
+/*
 void print_request(node *struct_current, char* first_char, int length){
     printf("message: %s\n",first_char);
     // call the print_tree function with and indent of 1
     print_tree(struct_current, 1);
 }
+
 
 /** \fn void print_tree(node *struct_current)
  *  \brief Function to print the chained list recursively
@@ -265,64 +267,25 @@ int isip_literal(char *current_char){
 /** \fn isipv6(char *current_char)
  * \brief Check if the char and its followers are a valid ipv6 address
  * \param current_char : char to check
- * IPv6address   =                            6( h16 ":" ) ls32
-              /                       "::" 5( h16 ":" ) ls32
-              / [               h16 ] "::" 4( h16 ":" ) ls32
-              / [ h16 *1( ":" h16 ) ] "::" 3( h16 ":" ) ls32
-              / [ h16 *2( ":" h16 ) ] "::" 2( h16 ":" ) ls32
-              / [ h16 *3( ":" h16 ) ] "::"    h16 ":"   ls32
-              / [ h16 *4( ":" h16 ) ] "::"              ls32
-              / [ h16 *5( ":" h16 ) ] "::"              h16
-              / [ h16 *6( ":" h16 ) ] "::"
- * h16 : h16 : h16 : h16 : h16 : h16 : h16 :: 
+ * We only check if the beginning of the address is valid, the rest is checked by the function ipv6address
 */
-
 int isipv6address(char *current_char){
-    // read the entire address to check is there is a "::". If not, there must be a ls32 at the end
-    int count = 0;
-    int isdoublecolon = 0;
-    char *temp = current_char;
-    while(!isls32(temp) && count < 7 && !isdoublecolon){
-        if(*temp == ':' && *temp+1 == ':'){
-            isdoublecolon = 1;
-        }else if(*temp == ':' && *temp+1 != ':'){
-            count += 1;
-        }
-        temp++;
-    }
-
-
-    // if there is not a "::", there must be a ls32 at the end
-    if(!isdoublecolon){
-        for(int i=0; i<6; i++){
-            if(!ish16(current_char)){
-                return 0;
-            }
+    if(*current_char == ':'){
+        current_char++;
+        if(*current_char == ':'){
             current_char++;
-            if(*current_char != ':'){
-                return 0;
-            }
-            current_char++;
+            if(isls32(current_char) || ish16(current_char)){
+                return 1;
+            } 
         }
-        if(!isls32(current_char)){
-            return 0;
-        }
-        return 1;
-    } else {
-
-    }
-    int total = 8;
-    count = 0;
-    while(count < total){
-        if(ish16(current_char) && *(current_char+1) == ':'){
-            *current_char+=2;
-            count +=1;
+    } else if(ish16(current_char)){
+        current_char++;
+        if(*current_char == ':'){
+            return 1;
         }
     }
-
-    return EXIT_FAILURE;
+    return 0;
 }
-
 
 /** \fn isipvfuture(char *current_char)
  * \brief Check if the char and its followers are a valid ipvfuture ( "v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" ) )
