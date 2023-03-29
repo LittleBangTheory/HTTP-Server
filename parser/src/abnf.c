@@ -1624,9 +1624,19 @@ void transfer_encoding_header(char **current_char, node *struct_current){
  * \brief Function to parse an expect header
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
- * 
+ * Expect = "100-continue"
 */
-void expect_header(char **current_char, node *struct_current){}
+void expect_header(char **current_char, node *struct_current){
+    if(strncmp(*current_char, "100-continue", 12) != 0){
+        printf("Error : 100-continue expected, %s found", *current_char);
+        exit(1);
+    }
+    // Initialize the struct
+    struct_current->debut = *current_char;
+    struct_current->label = EXPECT_HEADER;
+    struct_current->fils = NULL;
+    struct_current->fin = *current_char + 12;
+}
 
 /** \fn void connection_option(char **current_char, node *struct_current)
  * \brief Function to parse a connection-option

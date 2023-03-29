@@ -75,6 +75,7 @@ extern char COOKIE_NAME[];
 extern char COOKIE_VALUE[];
 extern char COOKIE_OCTET[];
 extern char TRANSFER_ENCODING_HEADER[];
+extern char EXPECT_HEADER[];
 
 extern node* racine;
 

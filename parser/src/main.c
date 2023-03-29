@@ -82,6 +82,7 @@ char COOKIE_NAME[]="cookie_name";
 char COOKIE_VALUE[]="cookie_value";
 char COOKIE_OCTET[]="cookie_octet";
 char TRANSFER_ENCODING_HEADER[]="transfer_encoding_header";
+char EXPECT_HEADER[]="expect_header";
 
 node* racine;
 
