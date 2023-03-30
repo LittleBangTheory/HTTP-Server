@@ -88,7 +88,7 @@ char TRANSFER_CODING[]="transfer_coding";
 char TRANSFER_EXTENSION[]="transfer_extension";
 char TRANSFER_PARAMETER[]="transfer_parameter";
 
-node* racine;
+node** racine;
 
 void printNode(node* obj){
 	printf("label:%s\n",obj->label);
@@ -134,7 +134,10 @@ int main(int argc, char const *argv[])
 	printf("%s",Request);
 	char *adr=Request;
 	node* tete=malloc(sizeof(node));
+	racine=&tete;
 	http_message(&adr,tete);
+
+	searchTree(tete,METHOD);
 	print_tree(tete,0);
 	printf("\033[0;32m");
 	printf("TOKEN_EXITED\n");

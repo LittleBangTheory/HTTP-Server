@@ -7,7 +7,7 @@ struct abnf {
    node *fils;
    node *frere;
 };
-
+extern node** racine;
 extern char HTTP_MESSAGE[];
 extern char REQUEST_LINE[];
 extern char START_LINE[];
