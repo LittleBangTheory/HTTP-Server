@@ -122,7 +122,7 @@ int main(int argc, char const *argv[])
 	int i;
 	int c=fgetc(fic);
 	while(c!=EOF){requestSize++;c=fgetc(fic);}
-	char Request[requestSize];
+	unsigned char Request[requestSize];
 	fseek(fic,0,0);
 	c=fgetc(fic);
 	for (i = 0; i < requestSize-1; i++)
@@ -132,7 +132,7 @@ int main(int argc, char const *argv[])
 	}
 	Request[i]=0;
 	printf("%s",Request);
-	char *adr=Request;
+	unsigned char *adr=Request;
 	node* tete=malloc(sizeof(node));
 	http_message(&adr,tete);
 	print_tree(tete,0);

@@ -48,7 +48,7 @@ void print_tree(node *struct_current, int depth){
     // print the label
     printf("[%d:%s] = ",depth,struct_current->label);
     // print fields
-    char *c=struct_current->debut;
+    unsigned char *c=struct_current->debut;
     printf("\"");
     while (c!=NULL && c!=(struct_current->fin)+1 && (c<=struct_current->fin)) {
         printf("%c",*c);
@@ -64,12 +64,12 @@ void print_tree(node *struct_current, int depth){
     }
 }
 
-/** \fn int istchar(char **current_char, node *struct_current, char *label)
+/** \fn int istchar(unsigned char **current_char, node *struct_current, char *label)
  * \brief Check if the char belongs to the list of accepted characted for a tchar
  * \param c : char to check
  * The list of accepted characters is : "!" / "#" / "$" / "%" / "&" / "" / "*" / "+" / "-" / "." / "^" / "_" / "`" / "|" / "~" / DIGIT / ALPHA
 */
-int istchar(char c){
+int istchar(unsigned char c){
     if(isalpha(c) || isdigit(c)){
         return 1;
     } else {
@@ -82,11 +82,11 @@ int istchar(char c){
     return 0;
 }
 
-/** \fn int isunreserved(char **current_char, node *struct_current, char *label)
+/** \fn int isunreserved(unsigned char **current_char, node *struct_current, char *label)
  * \brief Check if the char belongs to the list of accepted characted for a unreserved
  * \param c : char to check
 */
-int isunreserved(char c){
+int isunreserved(unsigned char c){
     if(isalpha(c) || isdigit(c)){
         return 1;
     } else {
@@ -99,23 +99,23 @@ int isunreserved(char c){
     return 0;
 }   
 
-/** \fn int ispct_encoded(char **current_char, node *struct_current, char *label)
+/** \fn int ispct_encoded(unsigned char **current_char, node *struct_current, char *label)
  * \brief Check if the char belongs to the list of accepted characted for a pct_encoded
  * \param c : char to check
  * Only check if the first char is a %, too risky to check to chars forward, could be out of the string
 */
-int ispct_encoded(char c){
+int ispct_encoded(unsigned char c){
     if(c == '%'){
         return 1;
     }
     return 0;
 }
 
-/** \fn int issub_delims(char **current_char, node *struct_current, char *label)
+/** \fn int issub_delims(unsigned char **current_char, node *struct_current, char *label)
  * \brief Check if the char belongs to the list of accepted characted for a sub_delims
  * \param c : char to check
 */
-int issub_delims(char c){
+int issub_delims(unsigned char c){
     for(int i=0; i<7; i++){
         if(c == sub_delims_list[i]){
             return 1;
@@ -124,23 +124,23 @@ int issub_delims(char c){
     return 0;
 }
 
-/** \fn int ispchar(char **current_char, node *struct_current, char *label)
+/** \fn int ispchar(unsigned char **current_char, node *struct_current, char *label)
  * \brief Check if the char belongs to the list of accepted characted for a pchar
  * \param c : char to check
 */
-int ispchar(char c){
+int ispchar(unsigned char c){
     if(isunreserved(c) || ispct_encoded(c) || issub_delims(c) || c == ':' || c == '@'){
         return 1;
     }
     return 0;
 }
 
-/** \fn int isvchar(char **current_char, node *struct_current, char *label)
+/** \fn int isvchar(unsigned char **current_char, node *struct_current, char *label)
  * \brief Check if the char belongs to the list of accepted characted for a vchar
  * \param c : char to check
  * 
 */
-int isvchar(char c){
+int isvchar(unsigned char c){
     // check for every char between 0x21 and 0x7e
     if(c >= 0x21 && c <= 0x7e){
         return 1;
@@ -148,12 +148,12 @@ int isvchar(char c){
     return 0;
 }
 
-/** \fn int isobs_text(char **current_char, node *struct_current, char *label)
+/** \fn int isobs_text(unsigned char **current_char, node *struct_current, char *label)
  * \brief Check if the char belongs to the list of accepted characted for a obs_text (%x80-FF)
  * \param c : char to check
  * 
 */
-int isobs_text(char c){
+int isobs_text(unsigned char c){
     // check for every char between 0x80 and 0xff, with a logic AND
     if( 0x80 <= (c & 0xff) && (c & 0xff) <= 0xff){
         return 1;
@@ -161,22 +161,22 @@ int isobs_text(char c){
     return 0;
 }
 
-/** \fn int isobs_fold(char *current_char, node *struct_current, char *label)
+/** \fn int isobs_fold(unsigned char *current_char, node *struct_current, char *label)
  * \brief Check if the char belongs to the list of accepted characted for a obs_fold (%x0D %x0A *(%x20 / %x09))
  * \param current_char : char to check
 */
-int isobs_fold(char *current_char){
+int isobs_fold(unsigned char *current_char){
     if(*current_char == '\r' && *(current_char+1) == '\n' && (*(current_char+2) == ' ' || *(current_char+2) == '\t')){
         return 1;
     }
     return 0;
 }
 
-/** \fn int isconnection_end(char *current_char)
+/** \fn int isconnection_end(unsigned char *current_char)
  * \brief Check if the char belongs to the list of accepted characted for a connection_end (OWS ",")
  * \param current_char : char to check
 */
-int isconnection_end(char *current_char){
+int isconnection_end(unsigned char *current_char){
     while(*current_char == 0x20 || *current_char == 0x09){
         current_char++;
     }
@@ -187,11 +187,11 @@ int isconnection_end(char *current_char){
     }
 }
 
-/** \fn int isheader_end(char *current_char)
+/** \fn int isheader_end(unsigned char *current_char)
  * \brief Check if the char belongs to the list of accepted characted for a header_end (OWS CRLF)
  * \param current_char : char to check
 */
-int isheader_end(char *current_char){
+int isheader_end(unsigned char *current_char){
     while(*current_char == 0x20 || *current_char == 0x09){
         current_char++;
     }
@@ -202,11 +202,11 @@ int isheader_end(char *current_char){
     }
 }
 
-/** \fn int isipv4(char *current_char)
+/** \fn int isipv4(unsigned char *current_char)
  * \brief Check if the char and its followers are a valid ipv4 address (dec-octet "." dec-octet "." dec-octet "." dec-octet)
  * \param current_char : char to check
 */
-int isipv4address(char *current_char){
+int isipv4address(unsigned char *current_char){
     int n = 0;
     for(int i=0; i<4; i++){
         n = 0;
@@ -224,11 +224,11 @@ int isipv4address(char *current_char){
     return 1;
 }
 
-/** \fn isip_literal(char *current_char)
+/** \fn isip_literal(unsigned char *current_char)
  * \brief Check if the char and its followers are a valid ip_literal ( "[" ( IPv6address / IPvFuture  ) "]" ) -> call is ipv6 and isipvfuture
  * \param current_char : char to check
 */
-int isip_literal(char *current_char){
+int isip_literal(unsigned char *current_char){
     if(*current_char == '['){
         current_char++;
         if(isipv6address(current_char) || isipvfuture(current_char)){
@@ -238,12 +238,12 @@ int isip_literal(char *current_char){
     return 0;
 }
 
-/** \fn isipv6(char *current_char)
+/** \fn isipv6(unsigned char *current_char)
  * \brief Check if the char and its followers are a valid ipv6 address
  * \param current_char : char to check
  * We only check if the beginning of the address is valid, the rest is checked by the function ipv6address
 */
-int isipv6address(char *current_char){
+int isipv6address(unsigned char *current_char){
     if(*current_char == ':'){
         current_char++;
         if(*current_char == ':'){
@@ -261,11 +261,11 @@ int isipv6address(char *current_char){
     return 0;
 }
 
-/** \fn isipvfuture(char *current_char)
+/** \fn isipvfuture(unsigned char *current_char)
  * \brief Check if the char and its followers are a valid ipvfuture ( "v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" ) )
  * \param current_char : char to check
 */
-int isipvfuture(char *current_char){
+int isipvfuture(unsigned char *current_char){
     if(*current_char == 'v'){
         current_char++;
         if(isxdigit(*current_char)){
@@ -288,11 +288,11 @@ int isipvfuture(char *current_char){
     return 0;
 }
 
-/** \fn int ish16(char *current_char)
+/** \fn int ish16(unsigned char *current_char)
  * \brief Check if the char and its followers are a valid h16 ( 1*4HEXDIG )
  * \param current_char : char to check
 */
-int ish16(char *current_char){
+int ish16(unsigned char *current_char){
     if(isxdigit(*current_char)){
         current_char++;
         while(isxdigit(*current_char)){
@@ -303,12 +303,12 @@ int ish16(char *current_char){
     return 0;
 }
 
-/** \fn int isls32(char *current_char)
+/** \fn int isls32(unsigned char *current_char)
  * \brief Check if the char and its followers are a valid ls32 ( ( h16 ":" h16 ) / IPv4address ) 
  * \param current_char : char to check
  * Important to check if the char after the ls32 is ']', otherwise it could be mistaken as a simple h16 ":" h16 in a ipv6 address
 */
-int isls32(char *current_char){
+int isls32(unsigned char *current_char){
     if(ish16(current_char) && *(current_char+1) == ':' && ish16(current_char+2) && *(current_char+3) == ']'){
         return 1;
     } else if(isipv4address(current_char)){
@@ -317,11 +317,11 @@ int isls32(char *current_char){
     return 0;
 }
 
-/** \fn int ismedia_type_end(char *current_char)
+/** \fn int ismedia_type_end(unsigned char *current_char)
  * \brief Check if the char belongs to the list of accepted chars for a media_type_end (OWS CRLF)
  * \param current_char : char to check
 */
-int ismedia_type_end(char *current_char){
+int ismedia_type_end(unsigned char *current_char){
     while(*current_char == 0x20 || *current_char == 0x09){
         current_char++;
     }
@@ -332,35 +332,35 @@ int ismedia_type_end(char *current_char){
     }
 }
 
-/** \fn int isqdtext(char c)
+/** \fn int isqdtext(unsigned char c)
  * \brief Check if the char belongs to the list of accepted characted for a qdtext
  * \param c : char to check
 */
-int isqdtext(char c){
+int isqdtext(unsigned char c){
     if(c == 0x20 || c == 0x09 || c == 0x21 || (c >= 0x23 && c <= 0x5b) || (c >= 0x5d && c <= 0x7e) || isobs_text(c)){
         return 1;
     }
     return 0;
 }
 
-/** \fn int iscookie_octet(char c)
+/** \fn int iscookie_octet(unsigned char c)
  * \brief Check if the char belongs to the list of accepted characted for a cookie_octet
  * \param c : char to check
  * Chars accepted : 0x21, 0x23-0x2b, 0x2d-0x3a, 0x3c-0x5b, 0x5d-0x7e
 */
-int iscookie_octet(char c){
+int iscookie_octet(unsigned char c){
     if(c == 0x21 || ((0x23 <= c) && (c <= 0x2b)) || ((0x2d <= c) && (c<= 0x3a)) || ((0x3c <= c) && (c <= 0x5b)) || ((0x5d <= c) && (c <= 0x7e))){
         return 1;
     }
     return 0;
 }
 
-/** \fn int stringcompare(char *current_char, char *s2)
+/** \fn int stringcompare(unsigned char *current_char, char *s2)
  * \brief Check if the char and its followers are equal to the string s2
  * \param current_char : char to check
  * \param s2 : string to compare to
 */
-int stringcompare(char *current_char, char *s){
+int stringcompare(unsigned char *current_char, char *s){
     while(*s != '\0'){
         if(*current_char != *s){
             return 0;
@@ -371,11 +371,11 @@ int stringcompare(char *current_char, char *s){
     return 1;
 }
 
-/** \fn int istransfer_extension_end(char *current_char)
+/** \fn int istransfer_extension_end(unsigned char *current_char)
  * \brief Check if the char belongs to the list of accepted chars for a transfer_extension_end (OWS ";")
  * \param current_char : char to check
 */
-int istransfer_extension_end(char *current_char){
+int istransfer_extension_end(unsigned char *current_char){
     while(*current_char == 0x20 || *current_char == 0x09){
         current_char++;
     }
@@ -386,11 +386,11 @@ int istransfer_extension_end(char *current_char){
     }
 }
 
-/** \fn int istransfer_encoding_end(char *current_char)
+/** \fn int istransfer_encoding_end(unsigned char *current_char)
  * \brief Check if the char belongs to the list of accepted chars for a transfer_encoding_end (OWS ",")
  * \param current_char : char to check
 */
-int istransfer_encoding_end(char *current_char){
+int istransfer_encoding_end(unsigned char *current_char){
     while(*current_char == 0x20 || *current_char == 0x09){
         current_char++;
     }

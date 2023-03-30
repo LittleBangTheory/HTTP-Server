@@ -23,12 +23,12 @@
 #include "../headers/abnf.h"
 #include "../headers/utility.h"
 
-/** \fn void http_message(char **current_char, node *struct_current)
+/** \fn void http_message(unsigned char **current_char, node *struct_current)
  * \brief Parse the http message
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
 */
-void http_message(char **current_char, node *struct_current){
+void http_message(unsigned char **current_char, node *struct_current){
     // Init the struct (ptr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
     struct_current->label = HTTP_MESSAGE;
@@ -88,13 +88,13 @@ void http_message(char **current_char, node *struct_current){
     }
 }
 
-/** \fn void message_body(char **current_char, node *struct_current)
+/** \fn void message_body(unsigned char **current_char, node *struct_current)
  * \brief Parse the message body
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void message_body(char **current_char, node *struct_current){
+void message_body(unsigned char **current_char, node *struct_current){
     // Init the struct (ptr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
     struct_current->label = MESSAGE_BODY;
@@ -123,12 +123,12 @@ void message_body(char **current_char, node *struct_current){
     }
 }
 
-/** \fn void octet(char **current_char, node *struct_current)
+/** \fn void octet(unsigned char **current_char, node *struct_current)
  * \brief Parse the octet
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
 */
-void octet(char **current_char, node *struct_current){
+void octet(unsigned char **current_char, node *struct_current){
     // Init the struct (ptr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
     struct_current->label = OCTET;
@@ -136,13 +136,13 @@ void octet(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn header_field(char **current_char, node *struct_current)
+/** \fn header_field(unsigned char **current_char, node *struct_current)
  * \brief Parse the header field
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * WORK IN PROGRESS, TO COMMENT IN ORDER TO TEST EVERYTHING ELSE
 */
-void header_field(char **current_char, node *struct_current){
+void header_field(unsigned char **current_char, node *struct_current){
     // Init the struct (ptr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
     struct_current->label = HEADER_FIELD;
@@ -254,13 +254,13 @@ void header_field(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void connection(char **current_char, node *struct_current)
+/** \fn void connection(unsigned char **current_char, node *struct_current)
  * \brief Parse the connection header
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void connection_header(char **current_char, node *struct_current){
+void connection_header(unsigned char **current_char, node *struct_current){
     // Connection = *( "," OWS ) connection-option *( OWS "," [ OWS connection-option ] )
     // Init the struct (ptr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
@@ -339,13 +339,13 @@ void connection_header(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void host_header(char **current_char, node *struct_current)
+/** \fn void host_header(unsigned char **current_char, node *struct_current)
  * \brief Parse the host header
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void host_header(char **current_char, node *struct_current){
+void host_header(unsigned char **current_char, node *struct_current){
     // Host = uri_host [ ":" host-port ]
     // Init the struct (ptr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
@@ -382,13 +382,13 @@ void host_header(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void port(char **current_char, node *struct_current)
+/** \fn void port(unsigned char **current_char, node *struct_current)
  * \brief Parse the port
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void port(char **current_char, node *struct_current){
+void port(unsigned char **current_char, node *struct_current){
     // port = *DIGIT
     // Init the struct (ptr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
@@ -421,13 +421,13 @@ void port(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void uri_host(char **current_char, node *struct_current)
+/** \fn void uri_host(unsigned char **current_char, node *struct_current)
  * \brief Parse the uri-host
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void uri_host(char **current_char, node *struct_current){
+void uri_host(unsigned char **current_char, node *struct_current){
     // uri-host = IP-literal / IPv4address / reg-name
     // Init the struct (pParse the hosttr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
@@ -445,13 +445,13 @@ void uri_host(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void host(char **current_char, node *struct_current)
+/** \fn void host(unsigned char **current_char, node *struct_current)
  * \brief Parse the host
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void host(char **current_char, node *struct_current){
+void host(unsigned char **current_char, node *struct_current){
     // host = hostname / IPv4address / IPv6reference
     // Init the struct (ptr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
@@ -475,13 +475,13 @@ void host(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn ipv4address(char **current_char, node *struct_current)
+/** \fn ipv4address(unsigned char **current_char, node *struct_current)
  * \brief Parse the ipv4address
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  *
 */
-void ipv4address(char **current_char, node *struct_current){
+void ipv4address(unsigned char **current_char, node *struct_current){
     // IPv4address = dec-octet "." dec-octet "." dec-octet "." dec-octet
     // Init the struct (ptr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
@@ -530,13 +530,13 @@ void ipv4address(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void dec_octet(char **current_char, node *struct_current)
+/** \fn void dec_octet(unsigned char **current_char, node *struct_current)
  * \brief Parse the dec-octet
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * NOTE : PROBABLY DOESN'T RESPECT THE RULE OF ABNF, NEED TO CHECK (some elements stored as digit could need to be stored as istring ?)
 */
-void dec_octet(char **current_char, node *struct_current){
+void dec_octet(unsigned char **current_char, node *struct_current){
     struct_current->debut = *current_char;
     struct_current->label = DEC_OCTET;
     struct_current->fils = NULL;
@@ -641,12 +641,12 @@ void dec_octet(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void ip_literal(char **current_char, node *struct_current)
+/** \fn void ip_literal(unsigned char **current_char, node *struct_current)
  * \brief Parse the ip-literal
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
 */
-void ip_literal(char **current_char, node *struct_current){
+void ip_literal(unsigned char **current_char, node *struct_current){
     // IP-literal = "[" ( IPv6address / IPvFuture  ) "]"
     // Init the struct (ptr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
@@ -693,7 +693,7 @@ void ip_literal(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void ipv6address(char **current_char, node *struct_current)
+/** \fn void ipv6address(unsigned char **current_char, node *struct_current)
  *  \brief Function to parse an IPv6address
  *  \param current_char : pointer to the current char
  *  \param struct_current : pointer to the current struct
@@ -708,7 +708,7 @@ void ip_literal(char **current_char, node *struct_current){
               / [ h16 *6( ":" h16 ) ] "::"
 
 */
-void ipv6address(char **current_char, node *struct_current){
+void ipv6address(unsigned char **current_char, node *struct_current){
     struct_current->debut = *current_char;
     struct_current->label = IPV6_ADDRESS;
     struct_current->fils = NULL;
@@ -805,12 +805,12 @@ void ipv6address(char **current_char, node *struct_current){
     struct_current->fin = *current_char;    
 }
 
-/** \fn void h16(char **current_char, node *struct_current)
+/** \fn void h16(unsigned char **current_char, node *struct_current)
  *  \brief Function to parse an h16
  *  \param current_char : pointer to the current char
  *  \param struct_current : pointer to the current struct
 */
-void h16(char **current_char, node *struct_current){
+void h16(unsigned char **current_char, node *struct_current){
     // h16           = 1*4HEXDIG
     // Init the struct (ptr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
@@ -838,12 +838,12 @@ void h16(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void ls32(char **current_char, node *struct_current)
+/** \fn void ls32(unsigned char **current_char, node *struct_current)
  *  \brief Function to parse an ls32
  *  \param current_char : pointer to the current char
  *  \param struct_current : pointer to the current struct
 */
-void ls32(char **current_char, node *struct_current){
+void ls32(unsigned char **current_char, node *struct_current){
     // ls32          = ( h16 ":" h16 ) / IPv4address
     // Init the struct (ptr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
@@ -872,12 +872,12 @@ void ls32(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void ipvfuture(char **current_char, node *struct_current)
+/** \fn void ipvfuture(unsigned char **current_char, node *struct_current)
  *  \brief Function to parse an IPvFuture
  *  \param current_char : pointer to the current char
  *  \param struct_current : pointer to the current struct
 */
-void ipvfuture(char **current_char, node *struct_current){
+void ipvfuture(unsigned char **current_char, node *struct_current){
     // IPvFuture     = "v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" )
 
     // Init the struct (ptr, int...), and allocate memory for the first child
@@ -958,13 +958,13 @@ void ipvfuture(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void regname(char **current_char, node *struct_current)
+/** \fn void regname(unsigned char **current_char, node *struct_current)
  * \brief Function to parse a reg-name
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void reg_name(char **current_char, node *struct_current){
+void reg_name(unsigned char **current_char, node *struct_current){
     // reg-name      = *( unreserved / pct-encoded / sub-delims )
     // Init the struct (ptr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
@@ -1001,13 +1001,13 @@ void reg_name(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void content_length_header(char **current_char, node *struct_current)
+/** \fn void content_length_header(unsigned char **current_char, node *struct_current)
  * \brief Function to parse a content-length header
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void content_length_header(char **current_char, node *struct_current){
+void content_length_header(unsigned char **current_char, node *struct_current){
     // content-length = 1*DIGIT
     // Init the struct (ptr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
@@ -1040,13 +1040,13 @@ void content_length_header(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void content_type_header(char **current_char, node *struct_current)
+/** \fn void content_type_header(unsigned char **current_char, node *struct_current)
  * \brief Function to parse a content-type header
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void content_type_header(char **current_char, node *struct_current){
+void content_type_header(unsigned char **current_char, node *struct_current){
     // content-type   = media-type
     // Init the struct (ptr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
@@ -1064,13 +1064,13 @@ void content_type_header(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void media_type(char **current_char, node *struct_current)
+/** \fn void media_type(unsigned char **current_char, node *struct_current)
  * \brief Function to parse a media-type
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void media_type(char **current_char, node *struct_current){
+void media_type(unsigned char **current_char, node *struct_current){
     // media-type     = type "/" subtype *( OWS ";" OWS parameter )
     // Init the struct (ptr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
@@ -1159,13 +1159,13 @@ void media_type(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void type(char **current_char, node *struct_current)
+/** \fn void type(unsigned char **current_char, node *struct_current)
  * \brief Function to parse a type
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void type(char **current_char, node *struct_current){
+void type(unsigned char **current_char, node *struct_current){
     // type           = token
     // Init the struct (ptr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
@@ -1182,13 +1182,13 @@ void type(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void subtype(char **current_char, node *struct_current)
+/** \fn void subtype(unsigned char **current_char, node *struct_current)
  * \brief Function to parse a subtype
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void subtype(char **current_char, node *struct_current){
+void subtype(unsigned char **current_char, node *struct_current){
     // subtype        = token
     // Init the struct (ptr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
@@ -1205,13 +1205,13 @@ void subtype(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void parameter(char **current_char, node *struct_current)
+/** \fn void parameter(unsigned char **current_char, node *struct_current)
  * \brief Function to parse a parameter
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void parameter(char **current_char, node *struct_current){
+void parameter(unsigned char **current_char, node *struct_current){
     // parameter      = token "=" ( token / quoted-string )
     // Init the struct (ptr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
@@ -1258,12 +1258,12 @@ void parameter(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void quoted_string(char **current_char, node *struct_current)
+/** \fn void quoted_string(unsigned char **current_char, node *struct_current)
  * \brief Function to parse a quoted-string
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct 
 */
-void quoted_string(char **current_char, node *struct_current){
+void quoted_string(unsigned char **current_char, node *struct_current){
     // quoted-string  = ( <"> *(qdtext | quoted-pair ) <"> )
     // Init the struct (ptr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
@@ -1318,13 +1318,13 @@ void quoted_string(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void qdtext(char **current_char, node *struct_current)
+/** \fn void qdtext(unsigned char **current_char, node *struct_current)
  * \brief Function to parse a qdtext
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void qdtext(char **current_char, node *struct_current){
+void qdtext(unsigned char **current_char, node *struct_current){
     // qdtext         = <any TEXT except <">>
     // Init the struct (ptr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
@@ -1351,12 +1351,12 @@ void qdtext(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void quoted_pair(char **current_char, node *struct_current)
+/** \fn void quoted_pair(unsigned char **current_char, node *struct_current)
  * \brief Function to parse a quoted-pair
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
 */
-void quoted_pair(char **current_char, node *struct_current){
+void quoted_pair(unsigned char **current_char, node *struct_current){
     // quoted-pair    = "\" (HTAB / SP / VCHAR / obs-text)
     // Init the struct (ptr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
@@ -1396,13 +1396,13 @@ void quoted_pair(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void cookie_string(char **current_char, node *struct_current)
+/** \fn void cookie_string(unsigned char **current_char, node *struct_current)
  * \brief Function to parse a cookie header
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void cookie_string(char **current_char, node *struct_current){
+void cookie_string(unsigned char **current_char, node *struct_current){
     // cookie-string  = cookie-pair *( ";" SP cookie-pair )
     // Init the struct (ptr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
@@ -1468,12 +1468,12 @@ void cookie_string(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void cookie_pair(char **current_char, node *struct_current)
+/** \fn void cookie_pair(unsigned char **current_char, node *struct_current)
  * \brief Function to parse a cookie-pair
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
 */
-void cookie_pair(char **current_char, node *struct_current){
+void cookie_pair(unsigned char **current_char, node *struct_current){
     // cookie-pair    = cookie-name "=" cookie-value
     // Init the struct (ptr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
@@ -1512,13 +1512,13 @@ void cookie_pair(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void cookie_name(char **current_char, node *struct_current)
+/** \fn void cookie_name(unsigned char **current_char, node *struct_current)
  * \brief Function to parse a cookie-name
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void cookie_name(char **current_char, node *struct_current){
+void cookie_name(unsigned char **current_char, node *struct_current){
     // cookie-name    = token
     // Init the struct (ptr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
@@ -1536,12 +1536,12 @@ void cookie_name(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void cookie_value(char **current_char, node *struct_current)
+/** \fn void cookie_value(unsigned char **current_char, node *struct_current)
  * \brief Function to parse a cookie-value
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
 */
-void cookie_value(char **current_char, node *struct_current){
+void cookie_value(unsigned char **current_char, node *struct_current){
     // cookie-value   = *cookie-octet / ( DQUOTE *cookie-octet DQUOTE )
     // Init the struct (ptr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
@@ -1601,12 +1601,12 @@ void cookie_value(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void cookie_octet(char **current_char, node *struct_current)
+/** \fn void cookie_octet(unsigned char **current_char, node *struct_current)
  * \brief Function to parse a cookie-octet
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
 */
-void cookie_octet(char **current_char, node *struct_current){
+void cookie_octet(unsigned char **current_char, node *struct_current){
     // cookie-octet   = %x21 / %x23-2B / %x2D-3A / %x3C-5B / %x5D-7E (! / # -> + / - -> : / < -> [ / ] -> ~)
     // Init the struct (ptr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
@@ -1627,13 +1627,13 @@ void cookie_octet(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void transfer_encoding_header(char **current_char, node *struct_current)
+/** \fn void transfer_encoding_header(unsigned char **current_char, node *struct_current)
  * \brief Function to parse a transfer-encoding header
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void transfer_encoding_header(char **current_char, node *struct_current){
+void transfer_encoding_header(unsigned char **current_char, node *struct_current){
     // transfer-encoding-header = "Transfer-Encoding" ":" 1#transfer-coding
     // Init the struct (ptr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
@@ -1720,12 +1720,12 @@ void transfer_encoding_header(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void transfer_coding(char **current_char, node *struct_current)
+/** \fn void transfer_coding(unsigned char **current_char, node *struct_current)
  * \brief Function to parse a transfer-coding
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
 */
-void transfer_coding(char **current_char, node *struct_current){
+void transfer_coding(unsigned char **current_char, node *struct_current){
     // transfer-coding = "chunked" / "compress" / "deflate" / "gzip" /  transfer-extension
     // Init the struct (ptr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
@@ -1755,12 +1755,12 @@ void transfer_coding(char **current_char, node *struct_current){
     }
 }
 
-/** \fn void transfer_extension(char **current_char, node *struct_current)
+/** \fn void transfer_extension(unsigned char **current_char, node *struct_current)
  * \brief Function to parse a transfer-extension
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
 */
-void transfer_extension(char **current_char, node *struct_current){
+void transfer_extension(unsigned char **current_char, node *struct_current){
     // transfer-extension = token *( OWS ";" OWS transfer-parameter )
     // Init the struct (ptr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
@@ -1828,12 +1828,12 @@ void transfer_extension(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void transfer_parameter(char **current_char, node *struct_current)
+/** \fn void transfer_parameter(unsigned char **current_char, node *struct_current)
  * \brief Function to parse a transfer-parameter
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
 */
-void transfer_parameter(char **current_char, node *struct_current){
+void transfer_parameter(unsigned char **current_char, node *struct_current){
     // transfer-parameter = token BWS "=" BWS ( token / quoted-string )
     // Init the struct (ptr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
@@ -1896,14 +1896,14 @@ void transfer_parameter(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void expect_header(char **current_char, node *struct_current)
+/** \fn void expect_header(unsigned char **current_char, node *struct_current)
  * \brief Function to parse an expect header
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * Expect = "100-continue"
 */
-void expect_header(char **current_char, node *struct_current){
-    if(strncmp(*current_char, "100-continue", 12) != 0){
+void expect_header(unsigned char **current_char, node *struct_current){
+    if(!stringcompare(*current_char, "100-continue")){
         printf("Error : 100-continue expected, %s found", *current_char);
         exit(1);
     }
@@ -1914,13 +1914,13 @@ void expect_header(char **current_char, node *struct_current){
     struct_current->fin = *current_char + 12;
 }
 
-/** \fn void connection_option(char **current_char, node *struct_current)
+/** \fn void connection_option(unsigned char **current_char, node *struct_current)
  * \brief Function to parse a connection-option
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void connection_option(char **current_char, node *struct_current){
+void connection_option(unsigned char **current_char, node *struct_current){
     // connection-option = token
     // Init the struct (ptr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
@@ -1938,13 +1938,13 @@ void connection_option(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void field_name(char **current_char, node *struct_current)
+/** \fn void field_name(unsigned char **current_char, node *struct_current)
  * \brief Parse the field name
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void field_name(char **current_char, node *struct_current){
+void field_name(unsigned char **current_char, node *struct_current){
     // Init the struct (ptr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
     struct_current->label = FIELD_NAME;
@@ -1961,13 +1961,13 @@ void field_name(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void ows(char **current_char, node *struct_current)
+/** \fn void ows(unsigned char **current_char, node *struct_current)
  * \brief Parse the ows
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void ows(char **current_char, node *struct_current){
+void ows(unsigned char **current_char, node *struct_current){
     if(**current_char == 0x20 || **current_char == 0x09){
         // Init the struct (ptr, int...), and allocate memory for the first child
         struct_current->debut = *current_char;
@@ -2005,13 +2005,13 @@ void ows(char **current_char, node *struct_current){
     }
 }
 
-/** \fn void field_value(char **current_char, node *struct_current)
+/** \fn void field_value(unsigned char **current_char, node *struct_current)
  * \brief Parse the field value
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void field_value(char **current_char, node *struct_current){
+void field_value(unsigned char **current_char, node *struct_current){
     // Init the struct (ptr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
     struct_current->label = FIELD_VALUE;
@@ -2051,12 +2051,12 @@ void field_value(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void field_content(char **current_char, node *struct_current)
+/** \fn void field_content(unsigned char **current_char, node *struct_current)
  * \brief Parse the field content
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
 */
-void field_content(char **current_char, node *struct_current){
+void field_content(unsigned char **current_char, node *struct_current){
     // Init the struct (ptr, int...), and allocate memory for the first child
     struct_current->debut = *current_char;
     struct_current->label = FIELD_CONTENT;
@@ -2109,12 +2109,12 @@ void field_content(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void start_line(char **current_char, node *struct_current)
+/** \fn void start_line(unsigned char **current_char, node *struct_current)
  * \brief Parse the start line of the request
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
 */
-void start_line(char **current_char, node *struct_current){
+void start_line(unsigned char **current_char, node *struct_current){
     // Init the struct (ptr, int...)
     struct_current->debut = *current_char;
     struct_current->label = START_LINE;
@@ -2131,12 +2131,12 @@ void start_line(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void request_line(char **current_char, node *struct_current)
+/** \fn void request_line(unsigned char **current_char, node *struct_current)
  * \brief Parse the request line of the request
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
 */
-void request_line(char **current_char, node *struct_current){
+void request_line(unsigned char **current_char, node *struct_current){
     // Init the struct (ptr, int...)
     struct_current->debut = *current_char;
     struct_current->label = REQUEST_LINE;
@@ -2186,13 +2186,13 @@ void request_line(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void crlf(char **current_char, node *struct_current)
+/** \fn void crlf(unsigned char **current_char, node *struct_current)
  * \brief Parse the CRLF of the request
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void crlf(char **current_char, node *struct_current){
+void crlf(unsigned char **current_char, node *struct_current){
     // Init the struct (ptr, int...)
     struct_current->debut = *current_char;
     struct_current->label = CRLF;
@@ -2210,13 +2210,13 @@ void crlf(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void http_version(char **current_char, node *struct_current)
+/** \fn void http_version(unsigned char **current_char, node *struct_current)
  * \brief Parse the http version of the request
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void http_version(char **current_char, node *struct_current){
+void http_version(unsigned char **current_char, node *struct_current){
     // Init the struct (ptr, int...)
     struct_current->debut = *current_char;
     struct_current->label = HTTP_VERSION;
@@ -2258,13 +2258,13 @@ void http_version(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void http_name(char **current_char, node *struct_current)
+/** \fn void http_name(unsigned char **current_char, node *struct_current)
  * \brief Parse the name of the http version
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void http_name(char **current_char, node *struct_current){
+void http_name(unsigned char **current_char, node *struct_current){
     // Init the struct (ptr, int...)
     struct_current->debut = *current_char;
     struct_current->label = HTTP_NAME;
@@ -2280,13 +2280,13 @@ void http_name(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void method(char **current_char, node *struct_current)
+/** \fn void method(unsigned char **current_char, node *struct_current)
  * \brief Parse the method of the request
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct 
  * 
 */
-void method(char **current_char, node *struct_current){
+void method(unsigned char **current_char, node *struct_current){
     // Init the struct (ptr, int...)
     struct_current->debut = *current_char;
     struct_current->label = METHOD;
@@ -2302,12 +2302,12 @@ void method(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void token(char **current_char, node *struct_current)
+/** \fn void token(unsigned char **current_char, node *struct_current)
  * \brief Parse the method of the request
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
 */
-void token(char **current_char, node *struct_current){
+void token(unsigned char **current_char, node *struct_current){
     // Init the struct (ptr, int...)
     struct_current->debut = *current_char;
     struct_current->label = TOKEN;
@@ -2330,12 +2330,12 @@ void token(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void request_target(char **current_char, node *struct_current)
+/** \fn void request_target(unsigned char **current_char, node *struct_current)
  * \brief Parse the request-target element of the request
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
 */
-void request_target(char **current_char, node *struct_current){
+void request_target(unsigned char **current_char, node *struct_current){
     // Init the struct (ptr, int...)
     struct_current->debut = *current_char;
     struct_current->label = REQUEST_TARGET;
@@ -2366,13 +2366,13 @@ void request_target(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void query(char **current_char, node *struct_current)
+/** \fn void query(unsigned char **current_char, node *struct_current)
  * \brief Parse the query element of the request
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void query(char **current_char, node *struct_current){
+void query(unsigned char **current_char, node *struct_current){
     // Init the struct (ptr, int...)
     struct_current->debut = *current_char;
     struct_current->label = QUERY;
@@ -2403,13 +2403,13 @@ void query(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void absolute_path(char **current_char, node *struct_current)
+/** \fn void absolute_path(unsigned char **current_char, node *struct_current)
  * \brief Parse the absolute-path element of the request
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void absolute_path(char **current_char, node *struct_current){
+void absolute_path(unsigned char **current_char, node *struct_current){
     // Init the struct (ptr, int...)
     struct_current->debut = *current_char;
     struct_current->label = ABSOLUTE_PATH;
@@ -2451,13 +2451,13 @@ void absolute_path(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void segment(char **current_char, node *struct_current)
+/** \fn void segment(unsigned char **current_char, node *struct_current)
  * \brief Parse the segment element of the request
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void segment(char **current_char, node *struct_current){
+void segment(unsigned char **current_char, node *struct_current){
     // Init the struct (ptr, int...)
     struct_current->debut = *current_char;
     struct_current->label = SEGMENT;
@@ -2483,13 +2483,13 @@ void segment(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void pchar(char **current_char, node *struct_current)
+/** \fn void pchar(unsigned char **current_char, node *struct_current)
  * \brief Parse the pchar element of the request
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void pchar(char **current_char, node *struct_current){
+void pchar(unsigned char **current_char, node *struct_current){
     // Init the struct (ptr, int...)
     struct_current->debut = *current_char;
     struct_current->label = PCHAR;
@@ -2512,13 +2512,13 @@ void pchar(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void unreserved(char **current_char, node *struct_current)
+/** \fn void unreserved(unsigned char **current_char, node *struct_current)
  * \brief Parse the unreserved element of the request
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void unreserved(char **current_char, node *struct_current){
+void unreserved(unsigned char **current_char, node *struct_current){
     // Init the struct (ptr, int...)
     struct_current->debut = *current_char;
     struct_current->label = UNRESERVED;
@@ -2540,13 +2540,13 @@ void unreserved(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void pct_encoded(char **current_char, node *struct_current)
+/** \fn void pct_encoded(unsigned char **current_char, node *struct_current)
  * \brief Parse the pct-encoded element of the request
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void pct_encoded(char **current_char, node *struct_current){
+void pct_encoded(unsigned char **current_char, node *struct_current){
     // Init the struct (ptr, int...)
     struct_current->debut = *current_char;
     struct_current->label = PCT_ENCODED;
@@ -2572,13 +2572,13 @@ void pct_encoded(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void hexdig(char **current_char, node *struct_current)
+/** \fn void hexdig(unsigned char **current_char, node *struct_current)
  * \brief Parse the hexdig element of the request
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void hexdig(char **current_char, node *struct_current){
+void hexdig(unsigned char **current_char, node *struct_current){
     // Init the struct (ptr, int...)
     struct_current->debut = *current_char;
     struct_current->label = HEXDIG;
@@ -2590,13 +2590,13 @@ void hexdig(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void sub_delims(char **current_char, node *struct_current)
+/** \fn void sub_delims(unsigned char **current_char, node *struct_current)
  * \brief Parse the sub_delims element of the request
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void sub_delims(char **current_char, node *struct_current){
+void sub_delims(unsigned char **current_char, node *struct_current){
     // Init the struct (ptr, int...)
     struct_current->debut = *current_char;
     struct_current->label = SUB_DELIMS;
@@ -2608,13 +2608,13 @@ void sub_delims(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void tchar(char **current_char, node *struct_current)
+/** \fn void tchar(unsigned char **current_char, node *struct_current)
  * \brief Parse the tchar of the request
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void tchar(char **current_char, node *struct_current){
+void tchar(unsigned char **current_char, node *struct_current){
     // Init the struct (ptr, int...)
     struct_current->debut = *current_char;
     struct_current->fin = *current_char;
@@ -2651,13 +2651,13 @@ void tchar(char **current_char, node *struct_current){
     }
 }
 
-/** \fn void alpha(char **current_char, node *struct_current)
+/** \fn void alpha(unsigned char **current_char, node *struct_current)
  * \brief Parse the alpha characters of the request
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void alpha(char **current_char, node *struct_current){
+void alpha(unsigned char **current_char, node *struct_current){
     if (!isalpha(**current_char)){
         printf("Error: Expected a char, not %c", **current_char);
         exit(1);
@@ -2668,13 +2668,13 @@ void alpha(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void digit(char **current_char, node *struct_current)
+/** \fn void digit(unsigned char **current_char, node *struct_current)
  * \brief Parse the digit characters of the request
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void digit(char **current_char, node *struct_current){
+void digit(unsigned char **current_char, node *struct_current){
     if (!isdigit(**current_char)){
         printf("Error: Expected a digit, not %c\n", **current_char);
         exit(1);
@@ -2685,13 +2685,13 @@ void digit(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void sp(char **current_char, node *struct_current)
+/** \fn void sp(unsigned char **current_char, node *struct_current)
  * \brief Parse the SP character of the request
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void sp(char **current_char, node *struct_current){
+void sp(unsigned char **current_char, node *struct_current){
     if (**current_char != 0x20){
         printf("Error: Expected a SP, not %c\n", **current_char);
         exit(1);
@@ -2702,13 +2702,13 @@ void sp(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void htab(char **current_char, node *struct_current)
+/** \fn void htab(unsigned char **current_char, node *struct_current)
  * \brief Parse the HTAB character of the request
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void htab(char **current_char, node *struct_current){
+void htab(unsigned char **current_char, node *struct_current){
     if (**current_char != 0x09){
         printf("Error: Expected a HTAB, not %c\n", **current_char);
         exit(1);
@@ -2719,26 +2719,26 @@ void htab(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void icar(char **current_char, node *struct_current)75
+/** \fn void icar(unsigned char **current_char, node *struct_current)75
  * \brief Parse the icar character of the request
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void icar(char **current_char, node *struct_current){
+void icar(unsigned char **current_char, node *struct_current){
     struct_current->label = ICAR;
     struct_current->fils = NULL;
     struct_current->debut = *current_char;
     struct_current->fin = *current_char;
 }
 
-/** \fn void obs_fold(char **current_char, node *struct_current)
+/** \fn void obs_fold(unsigned char **current_char, node *struct_current)
  * \brief Parse the obs_fold (obs-fold = CRLF 1*( SP / HTAB )) characters of the request
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void obs_fold(char **current_char, node *struct_current){
+void obs_fold(unsigned char **current_char, node *struct_current){
     struct_current->label=OBS_FOLD;
     struct_current->fils = NULL;
     struct_current->debut = *current_char;
@@ -2771,13 +2771,13 @@ void obs_fold(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void field_vchar(char **current_char, node *struct_current)
+/** \fn void field_vchar(unsigned char **current_char, node *struct_current)
  * \brief Parse the field_vchar (field-vchar = VCHAR / obs-text) characters of the request
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void field_vchar(char **current_char, node *struct_current){
+void field_vchar(unsigned char **current_char, node *struct_current){
     struct_current->label=FIELD_VCHAR;
     struct_current->fils = NULL;
     struct_current->debut = *current_char;
@@ -2803,13 +2803,13 @@ void field_vchar(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void vchar(char **current_char, node *struct_current)
+/** \fn void vchar(unsigned char **current_char, node *struct_current)
  * \brief Parse the vchar (vchar = %x21-7E) characters of the request
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void vchar(char **current_char, node *struct_current){
+void vchar(unsigned char **current_char, node *struct_current){
     
     if (!isvchar(**current_char)){
         printf("Error: Expected a VCHAR, not %c", **current_char);
@@ -2821,13 +2821,13 @@ void vchar(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void obs_text(char **current_char, node *struct_current)
+/** \fn void obs_text(unsigned char **current_char, node *struct_current)
  * \brief Parse the obs_text (obs-text = %x80-FF) characters of the request
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * 
 */
-void obs_text(char **current_char, node *struct_current){
+void obs_text(unsigned char **current_char, node *struct_current){
     if (!isobs_text(**current_char)){
         printf("Error: Expected an obs-text, not %c", **current_char);
         exit(1);
@@ -2838,13 +2838,13 @@ void obs_text(char **current_char, node *struct_current){
     struct_current->fin = *current_char;
 }
 
-/** \fn void isstring(char **current_char, node *struct_current, int length)
+/** \fn void isstring(unsigned char **current_char, node *struct_current, int length)
  * \brief Parse the isstring
  * \param current_char : pointer to the current char
  * \param struct_current : pointer to the current struct
  * \param length : length of the isstring
 */
-void istring(char **current_char, node *struct_current, int length){
+void istring(unsigned char **current_char, node *struct_current, int length){
     struct_current->label=ISTRING;
     struct_current->fils = NULL;
     struct_current->debut = *current_char;
