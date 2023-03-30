@@ -136,7 +136,14 @@ int main(int argc, char const *argv[])
 	node* tete=malloc(sizeof(node));
 	racine=&tete;
 	http_message(&adr,tete);
-	_Token* kol = searchTree(tete,HTTP_MESSAGE);
+	_Token* tok = searchTree(tete,HEADER_FIELD);
+	while (tok->node) {
+		int l; 
+		char *s; 
+		s=getElementValue(tok->node,&l); 
+		printf("FOUND [%.*s]\n",l,s);
+		tok=tok->next; 
+	}
 
 
 	print_tree(tete,0);

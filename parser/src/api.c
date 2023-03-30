@@ -10,19 +10,16 @@ void *getRootTree(){
 /*
 Fonction interne d'aide a searchTree
 */
-void locateFields(_Token** currenting,node* noeud,char* field){
-    _Token* current = *currenting;
-    if(noeud==NULL)return;
-    _Token* new=current;
-    if (!strcmp(field,noeud->label)){
-        new = malloc(sizeof(_Token));
-        new->next=NULL;
-        new->node=noeud;
-        current->next=new;
+void locateFields(_Token* current,node* noeud,char* name){
+    if (noeud==NULL)return;
+    _Token* next=current;
+    if (!strcmp(noeud->label,name)){
+        current->node=noeud;
+        current->next=malloc(sizeof(_Token));
+        next=current->next;
     }
-    //locateFields(new,noeud->fils,field);
-    //locateFields(new,noeud->frere,field);
-
+    locateFields(next,noeud->fils,name);
+    locateFields(next,noeud->frere,name);
 }
 
 // Fonction qui recherche dans l'arbre tous les noeuds dont l'etiquette est egale à la chaine de caractères en argument.   
@@ -33,7 +30,7 @@ _Token *searchTree(void *start,char *name){
       start=getRootTree();
     }
     _Token* head = malloc(sizeof(_Token));
-    locateFields(&head,(node*)start,name);
+    locateFields(head,(node*)start,name);
     return head;
 }
 
@@ -51,11 +48,12 @@ char *getElementTag(void *noeud,int *len){
 // et indique (si len!=NULL) dans *len la longueur de cette chaine.
 char *getElementValue(void *noeud,int *len){
     node* current = noeud;
-    int taille=current->fin - current->debut;
+    int taille=0;
+    while(current->debut + taille !=current->fin) taille++;
     char* res = malloc((taille+2)*sizeof(char));
     for (int i = 0; i <= taille; i++)
     {
-        res[i]=current->debut[i];
+        res[i]=(current->debut)[i];
     }
     if (len!=NULL){
         *len=taille+2;
