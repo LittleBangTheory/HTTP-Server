@@ -28,3 +28,4 @@ int stringcompare(unsigned char *current_char, char *s);
 int istransfer_extension_end(unsigned char *current_char);
 int istransfer_encoding_end(unsigned char *current_char);
 int isfield_value(unsigned char *current_char);
+int isreg_name(unsigned char c);

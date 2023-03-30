@@ -356,8 +356,11 @@ void host_header(unsigned char **current_char, node *struct_current){
     node *new_struct_1 = malloc(sizeof(node));
     struct_current->fils = new_struct_1;
 
-    // Call the function for the first child, supposed to be host-name
-    uri_host(current_char, new_struct_1);
+    if(isreg_name(**current_char) || isipv4address(*current_char) || isip_literal(*current_char)){
+        // Call the function for the first child, supposed to be host-name
+        uri_host(current_char, new_struct_1);
+    }
+
 
     // If the next element is a ':' (optional)
     if(*(*current_char+1) == ':'){
@@ -467,7 +470,7 @@ void host(unsigned char **current_char, node *struct_current){
         ip_literal(current_char, new_struct_1);
     }else if(isipv4address(*current_char)){
         ipv4address(current_char, new_struct_1);
-    }else{
+    }else if(isreg_name(**current_char)){
         reg_name(current_char, new_struct_1);
     }
 

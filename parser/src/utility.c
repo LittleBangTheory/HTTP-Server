@@ -116,7 +116,7 @@ int ispct_encoded(unsigned char c){
  * \param c : char to check
 */
 int issub_delims(unsigned char c){
-    for(int i=0; i<7; i++){
+    for(int i=0; i<11; i++){
         if(c == sub_delims_list[i]){
             return 1;
         }
@@ -304,6 +304,13 @@ int isipvfuture(unsigned char *current_char){
                 }
             }
         }
+    }
+    return 0;
+}
+
+int isreg_name(unsigned char c){
+    if(isunreserved(c) || issub_delims(c) || ispct_encoded(c)){
+        return 1;
     }
     return 0;
 }
