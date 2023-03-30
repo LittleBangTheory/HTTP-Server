@@ -493,7 +493,9 @@ void ipv4address(char **current_char, node *struct_current){
     node *new_struct_2;
     struct_current->fils = new_struct_1;
 
-    for(int i=0; i<4; i++){
+    int i = 0;
+
+    while(i<4 && isdigit(**current_char)){
         // Call the function for the first child, supposed to be dec-octet
         dec_octet(current_char, new_struct_1);
         *current_char += 1;
@@ -504,20 +506,28 @@ void ipv4address(char **current_char, node *struct_current){
         new_struct_2->frere = new_struct_1;
 
         // Call the function for the second child, supposed to be '.'
-        if(**current_char != '.'){
-            printf("Error : ipv4address : '.' expected");
+        if(**current_char != '.' && i < 3){
+            printf("Error : ipv4address : '.' expected, for turn %d and character %c\n",i, **current_char);
             exit(1);
+        } else if(**current_char == '.') {
+            icar(current_char, new_struct_1);
+            *current_char += 1;
         }
-        icar(current_char, new_struct_1);
+
+        i += 1;
 
         // Allocate memory for the third child
-        if(i != 3){
+        if(i<4 && isdigit(**current_char)){
             new_struct_2 = new_struct_1;
             new_struct_1 = malloc(sizeof(node));
             new_struct_2->frere = new_struct_1;
         }
 
     }
+
+    // The end of the struct is known when the son functions are done
+    *current_char -= 1;
+    struct_current->fin = *current_char;
 }
 
 /** \fn void dec_octet(char **current_char, node *struct_current)
@@ -530,31 +540,8 @@ void dec_octet(char **current_char, node *struct_current){
     struct_current->debut = *current_char;
     struct_current->label = DEC_OCTET;
     struct_current->fils = NULL;
-
-    if(isdigit(**current_char)){
-        // Allocate memory for the second child
-        node *new_struct_1 = malloc(sizeof(node));
-        struct_current->fils = new_struct_1;
-
-        // Call the function for the second child, supposed to be DIGIT
-        digit(current_char, new_struct_1);
-    } else if ( ((0x31 <= **current_char) && (**current_char <= 0x39)) && isdigit(*(*current_char+1)) ) {
-        // Allocate memory for the second child
-        node *new_struct_1 = malloc(sizeof(node));
-        struct_current->fils = new_struct_1;
-
-        // Call the function for the second child, supposed to be DIGIT
-        digit(current_char, new_struct_1);
-        *current_char += 1;
-
-        // Allocate memory for the third child
-        node *new_struct_2 = new_struct_1;
-        new_struct_1 = malloc(sizeof(node));
-        new_struct_2->frere = new_struct_1;
-
-        // Call the function for the third child, supposed to be DIGIT
-        digit(current_char, new_struct_1);
-    } else if ( **current_char == '1' && isdigit(*(*current_char+1)) && isdigit(*(*current_char+2)) ) {
+    
+    if ( **current_char == '2' && *(*current_char+1) == '5' && ((0x30 <= *(*current_char+2)) && (*(*current_char+2) <= 0x35)) ) {
         // Allocate memory for the second child
         node *new_struct_1 = malloc(sizeof(node));
         struct_current->fils = new_struct_1;
@@ -600,7 +587,7 @@ void dec_octet(char **current_char, node *struct_current){
 
         // Call the function for the fourth child, supposed to be DIGIT
         digit(current_char, new_struct_1);
-    } else if ( **current_char == '2' && *(*current_char+1) == '5' && ((0x30 <= *(*current_char+2)) && (*(*current_char+2) <= 0x35)) ) {
+    } else if ( **current_char == '1' && isdigit(*(*current_char+1)) && isdigit(*(*current_char+2)) ) {
         // Allocate memory for the second child
         node *new_struct_1 = malloc(sizeof(node));
         struct_current->fils = new_struct_1;
@@ -622,6 +609,29 @@ void dec_octet(char **current_char, node *struct_current){
         new_struct_2->frere = new_struct_3;
 
         // Call the function for the fourth child, supposed to be DIGIT
+        digit(current_char, new_struct_1);
+    } else if ( ((0x31 <= **current_char) && (**current_char <= 0x39)) && isdigit(*(*current_char+1)) ) {
+        // Allocate memory for the second child
+        node *new_struct_1 = malloc(sizeof(node));
+        struct_current->fils = new_struct_1;
+
+        // Call the function for the second child, supposed to be DIGIT
+        digit(current_char, new_struct_1);
+        *current_char += 1;
+
+        // Allocate memory for the third child
+        node *new_struct_2 = new_struct_1;
+        new_struct_1 = malloc(sizeof(node));
+        new_struct_2->frere = new_struct_1;
+
+        // Call the function for the third child, supposed to be DIGIT
+        digit(current_char, new_struct_1);
+    } else if(isdigit(**current_char)) {
+        // Allocate memory for the second child
+        node *new_struct_1 = malloc(sizeof(node));
+        struct_current->fils = new_struct_1;
+
+        // Call the function for the second child, supposed to be DIGIT
         digit(current_char, new_struct_1);
     } else {
         printf("Error : dec-octet : invalid value");
@@ -712,30 +722,20 @@ void ipv6address(char **current_char, node *struct_current){
     int isdoublecolon = 0;
 
     while(count < 9){
-        if(ish16(*current_char)){
+        if(isls32(*current_char) && (0 < count && count < 7)){
+            ls32(current_char, new_struct_1);
+            *current_char += 1;
+
+            // If there is a ls32, it's the end
+            count = 9;
+        } else if(ish16(*current_char)){
             h16(current_char, new_struct_1);
             *current_char += 1;
             count += 1;
 
-            if(**current_char == ':'){
-                // Allocate memory for the second child
-                new_struct_2 = new_struct_1;
-                new_struct_1 = malloc(sizeof(node));
-                new_struct_2->frere = new_struct_1;
-
-                // Store the ':'
-                icar(current_char, new_struct_1);
-                *current_char += 1;
-
-                // Allocate memory for the next child
-                new_struct_2 = new_struct_1;
-                new_struct_1 = malloc(sizeof(node));
-                new_struct_2->frere = new_struct_1;
-
-            // If we have a double ':', we pass it
-            } else if ((**current_char == ':') && *(*current_char + 1) == ':'){
+            if ((**current_char == ':') && *(*current_char + 1) == ':'){
                 if(isdoublecolon){
-                    printf("Error : ipv6address : invalid value, double '::' found");
+                    printf("Error : ipv6address : invalid value, double '::' found\n");
                     exit(1);
                 }
 
@@ -770,24 +770,34 @@ void ipv6address(char **current_char, node *struct_current){
                     new_struct_2->frere = new_struct_1;
                 }
             // Else if if it's not the end, it's an error
+            } else if(**current_char == ':'){
+                // Allocate memory for the second child
+                new_struct_2 = new_struct_1;
+                new_struct_1 = malloc(sizeof(node));
+                new_struct_2->frere = new_struct_1;
+
+                // Store the ':'
+                icar(current_char, new_struct_1);
+                *current_char += 1;
+
+                // Allocate memory for the next child
+                new_struct_2 = new_struct_1;
+                new_struct_1 = malloc(sizeof(node));
+                new_struct_2->frere = new_struct_1;
+
+            // If we have a double ':', we pass it
             } else if(**current_char != ']') {
-                printf("Error : ipv6address : invalid value");
+                printf("Error : ipv6address : invalid value, ] expected, %c found !\n", **current_char);
                 exit(1);
             }
-        } else if(isls32(*current_char) && (0 < count && count < 7)){
-            ls32(current_char, new_struct_1);
-            *current_char += 1;
-
-            // If there is a ls32, it's the end
-            count = 8;
         } else {
-            printf("Error : ipv6address : invalid value");
+            printf("Error : ipv6address : invalid value, h16 expected, %c found !\n", **current_char);
             exit(1);
         }
     }
 
     if(**current_char != ']'){
-        printf("Error : ipv6address too long !");
+        printf("Error : ipv6address too long ! Current char : %c\n", **current_char);
         exit(1);
     }
 
@@ -844,15 +854,15 @@ void ls32(char **current_char, node *struct_current){
     node *new_struct_1 = malloc(sizeof(node));
     struct_current->fils = new_struct_1;
 
-    // Call the function for the first child, supposed to be h16
-    if(ish16(*current_char)){
+    // Call the function for the first child, supposed to be h16 or IPv4address
+    if(isipv4address(*current_char)){
+        ipv4address(current_char, new_struct_1);
+    } else if(ish16(*current_char)){
         h16(current_char, new_struct_1);
         *current_char += 1;
         icar(current_char, new_struct_1);
         *current_char += 1;
         h16(current_char, new_struct_1);
-    } else if(isipv4address(*current_char)){
-        ipv4address(current_char, new_struct_1);
     } else {
         printf("Error : ls32 : invalid value");
         exit(1);

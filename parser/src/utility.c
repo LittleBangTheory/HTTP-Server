@@ -216,7 +216,7 @@ int isipv4address(char *current_char){
         while(isdigit(*current_char) && n<4){
             current_char++;
         }
-        if(*current_char != '.'){
+        if(*current_char != '.' && i < 3){
             return 0;
         }
         current_char++;
@@ -309,14 +309,8 @@ int ish16(char *current_char){
  * Important to check if the char after the ls32 is ']', otherwise it could be mistaken as a simple h16 ":" h16 in a ipv6 address
 */
 int isls32(char *current_char){
-    if(ish16(current_char)){
-        current_char++;
-        if(*current_char == ':'){
-            current_char++;
-            if(ish16(current_char)){
-                return 1;
-            }
-        }
+    if(ish16(current_char) && *(current_char+1) == ':' && ish16(current_char+2) && *(current_char+3) == ']'){
+        return 1;
     } else if(isipv4address(current_char)){
         return 1;
     }
