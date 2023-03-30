@@ -131,9 +131,12 @@ int main(int argc, char const *argv[])
 		c=fgetc(fic);
 	}
 	Request[i]=0;
-	printf("%s",Request);
+	//printf("%s",Request);
 	char *adr=Request;
 	node* tete=malloc(sizeof(node));
 	http_message(&adr,tete);
 	print_tree(tete,0);
+	printf("\033[0;32m");
+	printf("TOKEN_EXITED\n");
+	printf("\033[0m"); 
 }
