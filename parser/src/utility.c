@@ -273,7 +273,10 @@ int isipv6address(unsigned char *current_char){
             } 
         }
     } else if(ish16(current_char)){
-        current_char++;
+        int count = 0;
+        while(ish16(current_char) && count < 4){
+            current_char++;
+        }
         if(*current_char == ':'){
             return 1;
         }
@@ -308,6 +311,10 @@ int isipvfuture(unsigned char *current_char){
     return 0;
 }
 
+/** \fn isreg_name(unsigned char c)
+ * \brief Check if the char belongs to the list of accepted characted for a reg_name (unreserved / sub-delims / pct-encoded)
+ * \param current_char : char to check
+*/
 int isreg_name(unsigned char c){
     if(isunreserved(c) || issub_delims(c) || ispct_encoded(c)){
         return 1;

@@ -206,37 +206,41 @@ void header_field(unsigned char **current_char, node *struct_current){
     }
 
     //Treat every case for header_field : Connection-header / Content-Length-header / Content-Type-header / Cookie-header / Transfer-Encoding-header / Expect-header / Host-header / ( field-name ":" OWS field-value OWS ) 
-    if(stringcompare(new_struct_temp->debut, "Connection")){
-        // Call the function for the fourth child, supposed to be Connection-header
-        connection_header(current_char, new_struct_2);
-    }
-    else if(stringcompare(new_struct_temp->debut, "Content-Length")){
-        // Call the function for the fourth child, supposed to be Content-Length-header
-        content_length_header(current_char, new_struct_2);
-    }
-    else if(stringcompare(new_struct_temp->debut, "Content-Type")){
-        // Call the function for the fourth child, supposed to be Content-Type-header
-        content_type_header(current_char, new_struct_2);
-    }
-    else if(stringcompare(new_struct_temp->debut, "Cookie:")){
-        // Call the function for the fourth child, supposed to be Cookie-header
-        cookie_string(current_char, new_struct_2);
-    }
-    else if(stringcompare(new_struct_temp->debut, "Transfer-Encoding")){
-        // Call the function for the fourth child, supposed to be Transfer-Encoding-header
-        transfer_encoding_header(current_char, new_struct_2);
-    }
-    else if(stringcompare(new_struct_temp->debut, "Expect")){
-        // Call the function for the fourth child, supposed to be Expect-header
-        expect_header(current_char, new_struct_2);
-    }
-    else if(stringcompare(new_struct_temp->debut, "Host")){
-        // Call the function for the fourth child, supposed to be Host-header
-        host_header(current_char, new_struct_2);
-    }
-    else{
-        // Call the function for the fourth child, supposed to be field-value
-        field_value(current_char, new_struct_2);
+    if(**current_char == '\r') {
+        *current_char -= 1;
+    } else {
+        if(stringcompare(new_struct_temp->debut, "Connection")){
+            // Call the function for the fourth child, supposed to be Connection-header
+            connection_header(current_char, new_struct_2);
+        }
+        else if(stringcompare(new_struct_temp->debut, "Content-Length")){
+            // Call the function for the fourth child, supposed to be Content-Length-header
+            content_length_header(current_char, new_struct_2);
+        }
+        else if(stringcompare(new_struct_temp->debut, "Content-Type")){
+            // Call the function for the fourth child, supposed to be Content-Type-header
+            content_type_header(current_char, new_struct_2);
+        }
+        else if(stringcompare(new_struct_temp->debut, "Cookie:")){
+            // Call the function for the fourth child, supposed to be Cookie-header
+            cookie_string(current_char, new_struct_2);
+        }
+        else if(stringcompare(new_struct_temp->debut, "Transfer-Encoding")){
+            // Call the function for the fourth child, supposed to be Transfer-Encoding-header
+            transfer_encoding_header(current_char, new_struct_2);
+        }
+        else if(stringcompare(new_struct_temp->debut, "Expect")){
+            // Call the function for the fourth child, supposed to be Expect-header
+            expect_header(current_char, new_struct_2);
+        }
+        else if(stringcompare(new_struct_temp->debut, "Host")){
+            // Call the function for the fourth child, supposed to be Host-header
+            host_header(current_char, new_struct_2);
+        }
+        else {
+            // Call the function for the fourth child, supposed to be field-value
+            field_value(current_char, new_struct_2);
+        }
     }
 
     if(*(*current_char+1) == 0x20 || *(*current_char+1) == 0x09) {
@@ -356,15 +360,15 @@ void host_header(unsigned char **current_char, node *struct_current){
     node *new_struct_1 = malloc(sizeof(node));
     struct_current->fils = new_struct_1;
 
-    if(isreg_name(**current_char) || isipv4address(*current_char) || isip_literal(*current_char)){
-        // Call the function for the first child, supposed to be host-name
+    // Call the function for the first child, supposed to be host-name
+    if(isipv4address(*current_char) || isip_literal(*current_char) || isreg_name(**current_char)){
         uri_host(current_char, new_struct_1);
     }
-
-
     // If the next element is a ':' (optional)
-    if(*(*current_char+1) == ':'){
-        *current_char += 1;
+    if(**current_char == ':' || *(*current_char+1) == ':'){
+        if(*(*current_char+1) == ':'){
+            *current_char += 1;
+        }
         // Allocate memory for the second child
         node *new_struct_2 = malloc(sizeof(node));
         new_struct_1->frere = new_struct_2;
@@ -470,7 +474,7 @@ void host(unsigned char **current_char, node *struct_current){
         ip_literal(current_char, new_struct_1);
     }else if(isipv4address(*current_char)){
         ipv4address(current_char, new_struct_1);
-    }else if(isreg_name(**current_char)){
+    }else {
         reg_name(current_char, new_struct_1);
     }
 
@@ -977,30 +981,31 @@ void reg_name(unsigned char **current_char, node *struct_current){
     // Allocate memory for the first child
     node *new_struct_1 = malloc(sizeof(node));
     struct_current->fils = new_struct_1;
+    if(isunreserved(**current_char) || ispct_encoded(**current_char) || issub_delims(**current_char)){
+        // Call the function for the first child, supposed to be *( unreserved / pct-encoded / sub-delims )
+        while(isunreserved(**current_char) || ispct_encoded(**current_char) || issub_delims(**current_char)){
+            if(isunreserved(**current_char)){
+                unreserved(current_char, new_struct_1);
+            }else if(ispct_encoded(**current_char)){
+                pct_encoded(current_char, new_struct_1);
+            }else if(issub_delims(**current_char)){
+                sub_delims(current_char, new_struct_1);
+            } else {
+                printf("Error : unreserved, pct-encoded or sub-delims expected, %c found", **current_char);
+                exit(1);
+            }
+            *current_char += 1;
 
-    // Call the function for the first child, supposed to be *( unreserved / pct-encoded / sub-delims )
-    while(isunreserved(**current_char) || ispct_encoded(**current_char) || issub_delims(**current_char)){
-        if(isunreserved(**current_char)){
-            unreserved(current_char, new_struct_1);
-        }else if(ispct_encoded(**current_char)){
-            pct_encoded(current_char, new_struct_1);
-        }else if(issub_delims(**current_char)){
-            sub_delims(current_char, new_struct_1);
-        } else {
-            printf("Error : unreserved, pct-encoded or sub-delims expected, %c found", **current_char);
-            exit(1);
+            // Allocate memory for the next child
+            if(isunreserved(**current_char) || ispct_encoded(**current_char) || issub_delims(**current_char)){
+                new_struct_1 = new_struct_1->frere;
+                new_struct_1 = malloc(sizeof(node));
+            }
         }
-        *current_char += 1;
-
-        // Allocate memory for the next child
-        if(isunreserved(**current_char) || ispct_encoded(**current_char) || issub_delims(**current_char)){
-            new_struct_1 = new_struct_1->frere;
-            new_struct_1 = malloc(sizeof(node));
-        }
+        *current_char -= 1;
     }
 
     // The end of the struct is known when the son functions are done
-    *current_char -= 1;
     struct_current->fin = *current_char;
 }
 
