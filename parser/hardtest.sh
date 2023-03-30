@@ -4,10 +4,10 @@ RED="\e[31m"
 GREEN="\e[32m"
 ENDCOLOR="\e[0m"
 
-FILES="./alltests/simplesfiles/*"
+FILES="./alltests/hardcorefiles/*"
 for file in $FILES
 do
-RES=$(./ourParser $file | grep "TOKEN_EXITED" | wc -l)
+RES=$(./ourParser $file | grep -a "TOKEN_EXITED" | wc -l)
 SOL=$(./httpparser_ $file | wc -l)
 if [ "$RES" -eq 1 -a "$SOL" -ne 0 ] #Requete OK par nous et httpparser
 then

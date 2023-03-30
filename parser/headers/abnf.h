@@ -7,7 +7,7 @@ struct abnf {
    node *fils;
    node *frere;
 };
-
+extern node** racine;
 extern char HTTP_MESSAGE[];
 extern char REQUEST_LINE[];
 extern char START_LINE[];
@@ -80,8 +80,6 @@ extern char ISTRING[];
 extern char TRANSFER_CODING[];
 extern char TRANSFER_EXTENSION[];
 extern char TRANSFER_PARAMETER[];
-
-extern node* racine;
 
 void http_message(unsigned char **current_char, node *struct_current);
 void icar(unsigned char** current_char, node *new_struct_2);

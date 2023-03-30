@@ -4,13 +4,14 @@
 #include <stdlib.h>
 // Fonction qui retourne un pointeur (type opaque) vers la racine de l'arbre construit. 
 void *getRootTree(){
-    return &racine;
+    return *racine;
 }
 
 /*
 Fonction interne d'aide a searchTree
 */
-void locateFields(_Token* current,node* noeud,char* field){
+void locateFields(_Token** currenting,node* noeud,char* field){
+    _Token* current = *currenting;
     if(noeud==NULL)return;
     _Token* new=current;
     if (!strcmp(field,noeud->label)){
@@ -31,8 +32,8 @@ _Token *searchTree(void *start,char *name){
     if (start==NULL){
       start=getRootTree();
     }
-    _Token* head = NULL;
-    locateFields(head,(node*)start,name);
+    _Token* head = malloc(sizeof(_Token));
+    locateFields(&head,(node*)start,name);
     return head;
 }
 
