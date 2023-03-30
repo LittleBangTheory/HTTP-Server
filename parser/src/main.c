@@ -136,17 +136,17 @@ int main(int argc, char const *argv[])
 	node* tete=malloc(sizeof(node));
 	racine=&tete;
 	http_message(&adr,tete);
-	_Token* tok = searchTree(tete,HEADER_FIELD);
+	_Token* tok = searchTree(tete,VCHAR);
 	while (tok->node) {
 		int l; 
 		char *s; 
-		s=getElementValue(tok->node,&l); 
+		s=getElementValue(tok->node,&l);
 		printf("FOUND [%.*s]\n",l,s);
 		tok=tok->next; 
 	}
 
 
-	print_tree(tete,0);
+	//print_tree(tete,0);
 	printf("\033[0;32m");
 	printf("TOKEN_EXITED\n");
 	printf("\033[0m"); 

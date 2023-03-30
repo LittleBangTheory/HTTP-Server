@@ -17,6 +17,7 @@ void locateFields(_Token* current,node* noeud,char* name){
         current->node=noeud;
         current->next=malloc(sizeof(_Token));
         next=current->next;
+        printf("HIT\n");
     }
     locateFields(next,noeud->fils,name);
     locateFields(next,noeud->frere,name);
@@ -85,5 +86,8 @@ void purgeTree(void *root){
 
 // L'appel à votre parser un char* et une longueur à parser.  
 int parseur(char *req, int len){
-    return 0;
+    node* tete=malloc(sizeof(node));
+    racine=&tete;
+    http_message(&req,tete);
+    return 1;
 }
