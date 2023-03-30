@@ -7,6 +7,7 @@ field-content = field-vchar [ 1*( SP / HTAB ) field-vchar ]
 field-name = token
 field-value = *( field-content / obs-fold )
 field-vchar = VCHAR / obs-text
+VCHAR = %x21-7E
 
 last-chunk = 1*"0" [ chunk-ext ] CRLF
 

@@ -2017,27 +2017,27 @@ void field_value(unsigned char **current_char, node *struct_current){
     struct_current->label = FIELD_VALUE;
     struct_current->fils = NULL;
     node *new_struct_1, *new_struct_2;
-    if(isobs_fold(*current_char) || isvchar(**current_char)){
+    if(isobs_fold(*current_char) || isfield_value(*current_char) ){
         // Allocate memory for the first child
         new_struct_1 = malloc(sizeof(node));
         struct_current->fils = new_struct_1;
     }
 
     // Store as many field-content as needed. 
-    while(isobs_fold(*current_char) || isvchar(**current_char)) {
+    while(isobs_fold(*current_char) || isfield_value(*current_char)) {
 
         // Call the function for the first child, supposed to be field-content or obs-fold
         if(isobs_fold(*current_char)){
             // osb_fold : CRLF 1*( SP / HTAB )
             obs_fold(current_char, new_struct_1);
-        } else if(isvchar(**current_char)){
+        } else if(isvchar(**current_char) || isobs_text(**current_char)){
             // field-content = field-vchar [ 1*( SP / HTAB ) field-vchar ]
             field_content(current_char, new_struct_1);
         }
 
         *current_char += 1;
         // Allocate memory for the second child (if needed)
-        if(isobs_fold(*current_char) || isvchar(**current_char)){
+        if(isobs_fold(*current_char) || isfield_value(*current_char)){
             // Allocate memory for the second child
             new_struct_2 = new_struct_1;
             new_struct_1 = malloc(sizeof(node));
@@ -2070,7 +2070,7 @@ void field_content(unsigned char **current_char, node *struct_current){
     field_vchar(current_char, new_struct_1);
 
     // Allocate memory for the second child (if it's a SP or HTAB)
-    if((*(*current_char+1) == 0x20 || *(*current_char+1) == 0x09) && *(*current_char+2) != '\r'){
+    if((*(*current_char+1) == 0x20 || *(*current_char+1) == 0x09) && !isheader_end(*(current_char)+1)){
         // Go one char forward
         *current_char+=1;
         // Allocate memory for the second child
@@ -2793,10 +2793,9 @@ void field_vchar(unsigned char **current_char, node *struct_current){
     } else if(isobs_text(**current_char)){
         obs_text(current_char, new_struct);
     // Else, it's an error
-    } else{
-        printf("Error: Expected a VCHAR or an obs-text, not %c", **current_char);
+    } else {
+        printf("Error: Expected a VCHAR or an obs-text, not %c\n", **current_char);
         exit(1);
-        printf("test ?");
     }
 
     // The end of the field_vchar is the end of the obs_text or vchar

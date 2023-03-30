@@ -155,7 +155,7 @@ int isvchar(unsigned char c){
 */
 int isobs_text(unsigned char c){
     // check for every char between 0x80 and 0xff, with a logic AND
-    if( 0x80 <= (c & 0xff) && (c & 0xff) <= 0xff){
+    if( 0x80 <= (c & 0xff)){
         return 1;
     }
     return 0;
@@ -196,10 +196,30 @@ int isheader_end(unsigned char *current_char){
         current_char++;
     }
     if(*current_char == '\r' && *(current_char+1) == '\n'){
-        return 1;
+        current_char += 2;
+
+        // Two CRLF means the end of the headers
+        if(*current_char == '\r' && *(current_char+1) == '\n'){
+            return 1;
+        } else if (isvchar(*current_char) && isvchar(*(current_char+1))){
+            return 1;
+        } else {
+            return 0;
+        }
     } else {
         return 0;
     }
+}
+
+/** \fn int isfield_value(unsigned char *current_char)
+ * \brief Check if the char belongs to the list of accepted characted for a field_value (VCHAR / obs-text)
+ * \param current_char : char to check
+*/
+int isfield_value(unsigned char *current_char){
+    if( (isvchar(*current_char) || isobs_text(*current_char)) && !isheader_end(current_char) ){
+        return 1;
+    }
+    return 0;
 }
 
 /** \fn int isipv4(unsigned char *current_char)
