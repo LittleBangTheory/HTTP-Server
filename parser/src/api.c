@@ -10,17 +10,23 @@ void *getRootTree(){
 /*
 Fonction interne d'aide a searchTree
 */
-void locateFields(_Token* current,node* noeud,char* name){
+void locateFields(_Token** current2,node* noeud,char* name){
+    _Token* current = *current2;
     if (noeud==NULL)return;
-    _Token* next=current;
+    _Token* next;
     if (!strcmp(noeud->label,name)){
         current->node=noeud;
-        current->next=malloc(sizeof(_Token));
-        next=current->next;
-        printf("HIT\n");
+        next=malloc(sizeof(_Token));
+        current->next=next;
+        printf("Je suis %p je me lie a %p\n",current,next);
     }
-    locateFields(next,noeud->fils,name);
-    locateFields(next,noeud->frere,name);
+    else
+    {
+        next=current;
+    }
+    
+    locateFields(&next,noeud->fils,name);
+    locateFields(&next,noeud->frere,name);
 }
 
 // Fonction qui recherche dans l'arbre tous les noeuds dont l'etiquette est egale à la chaine de caractères en argument.   
@@ -31,7 +37,7 @@ _Token *searchTree(void *start,char *name){
       start=getRootTree();
     }
     _Token* head = malloc(sizeof(_Token));
-    locateFields(head,(node*)start,name);
+    locateFields(&head,(node*)start,name);
     return head;
 }
 
