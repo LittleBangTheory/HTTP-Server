@@ -136,8 +136,9 @@ int main(int argc, char const *argv[])
 	node* tete=malloc(sizeof(node));
 	racine=&tete;
 	http_message(&adr,tete);
+	_Token* kol = searchTree(tete,HTTP_MESSAGE);
 
-	//searchTree(tete,METHOD);
+
 	print_tree(tete,0);
 	printf("\033[0;32m");
 	printf("TOKEN_EXITED\n");

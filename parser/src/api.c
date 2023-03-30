@@ -20,8 +20,8 @@ void locateFields(_Token** currenting,node* noeud,char* field){
         new->node=noeud;
         current->next=new;
     }
-    locateFields(new,noeud->fils,field);
-    locateFields(new,noeud->frere,field);
+    //locateFields(new,noeud->fils,field);
+    //locateFields(new,noeud->frere,field);
 
 }
 
