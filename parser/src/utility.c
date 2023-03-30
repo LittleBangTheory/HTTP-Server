@@ -18,7 +18,7 @@ char tchar_list[] = {0x21, 0x23, 0x24, 0x25, 0x26, 0x27, 0x2a, 0x2b, 0x2d, 0x2e,
  * \brief List of accepted characters for a unreserved
  * The list of accepted characters is : "-" / "." / "_" / "~"
 */
-char unreserved_list[] = {'-', '.', '_', '_'};
+char unreserved_list[] = {'-', '.', '_', '~'};
 
 /** \var char sub_delims_list[]
  * \brief List of accepted characters for a sub-delims

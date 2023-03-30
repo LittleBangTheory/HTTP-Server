@@ -81,8 +81,6 @@ extern char TRANSFER_CODING[];
 extern char TRANSFER_EXTENSION[];
 extern char TRANSFER_PARAMETER[];
 
-extern node* racine;
-
 void http_message(char **current_char, node *struct_current);
 void icar(char** current_char, node *new_struct_2);
 void request_line(char **current_char, node *struct_current);

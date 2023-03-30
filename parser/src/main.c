@@ -137,7 +137,7 @@ int main(int argc, char const *argv[])
 	racine=&tete;
 	http_message(&adr,tete);
 
-	searchTree(tete,METHOD);
+	//searchTree(tete,METHOD);
 	print_tree(tete,0);
 	printf("\033[0;32m");
 	printf("TOKEN_EXITED\n");
