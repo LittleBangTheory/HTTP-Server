@@ -26,3 +26,4 @@ int isqdtext(char c);
 int iscookie_octet(char c);
 int stringcompare(char *current_char, char *s);
 int istransfer_extension_end(char *current_char);
+int istransfer_encoding_end(char *current_char);

@@ -18,7 +18,7 @@ char tchar_list[] = {0x21, 0x23, 0x24, 0x25, 0x26, 0x27, 0x2a, 0x2b, 0x2d, 0x2e,
  * \brief List of accepted characters for a unreserved
  * The list of accepted characters is : "-" / "." / "_" / "~"
 */
-char unreserved_list[] = {0x2d, 0x2e, 0x5f, 0x7e};
+char unreserved_list[] = {'-', '.', '_', '_'};
 
 /** \var char sub_delims_list[]
  * \brief List of accepted characters for a sub-delims
@@ -90,14 +90,14 @@ int isunreserved(char c){
     if(isalpha(c) || isdigit(c)){
         return 1;
     } else {
-        for(int i=0; i<15; i++){
+        for(int i=0; i<4; i++){
             if(c == unreserved_list[i]){
                 return 1;
             }
         }
     }
     return 0;
-}
+}   
 
 /** \fn int ispct_encoded(char **current_char, node *struct_current, char *label)
  * \brief Check if the char belongs to the list of accepted characted for a pct_encoded
@@ -154,8 +154,8 @@ int isvchar(char c){
  * 
 */
 int isobs_text(char c){
-    // check for every char between 0x80 and 0xff
-    if(c >= 0x80 && c <= 0xff){
+    // check for every char between 0x80 and 0xff, with a logic AND
+    if( 0x80 <= (c & 0xff) && (c & 0xff) <= 0xff){
         return 1;
     }
     return 0;
@@ -389,6 +389,21 @@ int istransfer_extension_end(char *current_char){
         current_char++;
     }
     if(*current_char == ';'){
+        return 1;
+    } else {
+        return 0;
+    }
+}
+
+/** \fn int istransfer_encoding_end(char *current_char)
+ * \brief Check if the char belongs to the list of accepted chars for a transfer_encoding_end (OWS ",")
+ * \param current_char : char to check
+*/
+int istransfer_encoding_end(char *current_char){
+    while(*current_char == 0x20 || *current_char == 0x09){
+        current_char++;
+    }
+    if(*current_char == ','){
         return 1;
     } else {
         return 0;

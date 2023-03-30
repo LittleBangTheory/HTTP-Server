@@ -192,15 +192,15 @@ void header_field(char **current_char, node *struct_current){
     if(**current_char == 0x20 || **current_char == 0x09) {
         // Call the function for the third child, supposed to be OWS
         ows(current_char, new_struct_3);
+        *current_char += 1;
     }
-    *current_char += 1;
 
     //Treat every case for header_field : Connection-header / Content-Length-header / Content-Type-header / Cookie-header / Transfer-Encoding-header / Expect-header / Host-header / ( field-name ":" OWS field-value OWS ) 
-    if(strcmp(new_struct_1->label, "Connection") == 0){
+    if(stringcompare(new_struct_1->debut, "Connection")){
         // Call the function for the fourth child, supposed to be Connection-header
         connection_header(current_char, new_struct_3);
     }
-    else if(strcmp(new_struct_1->label, "Content-Length") == 0){
+    else if(stringcompare(new_struct_1->debut, "Content-Length")){
         // Call the function for the fourth child, supposed to be Content-Length-header
         content_length_header(current_char, new_struct_3);
     }
@@ -208,7 +208,7 @@ void header_field(char **current_char, node *struct_current){
         // Call the function for the fourth child, supposed to be Content-Type-header
         content_type_header(current_char, new_struct_3);
     }
-    else if(stringcompare(new_struct_1->debut, "Cookie")){
+    else if(stringcompare(new_struct_1->debut, "Cookie:")){
         // Call the function for the fourth child, supposed to be Cookie-header
         cookie_string(current_char, new_struct_3);
     }
@@ -1636,13 +1636,16 @@ void transfer_encoding_header(char **current_char, node *struct_current){
         new_struct_1 = malloc(sizeof(node));
         new_struct_2->frere = new_struct_1;
 
-        ows(current_char, new_struct_1);
-        *current_char+=1;
+        if(**current_char == 0x20 || **current_char == 0x09){
+            ows(current_char, new_struct_1);
+            *current_char+=1;
 
-        // Allocate memory for the next child
-        new_struct_2 = new_struct_1;
-        new_struct_1 = malloc(sizeof(node));
-        new_struct_2->frere = new_struct_1;
+            // Allocate memory for the next child
+            new_struct_2 = new_struct_1;
+            new_struct_1 = malloc(sizeof(node));
+            new_struct_2->frere = new_struct_1;
+        }
+    
     }
 
     transfer_coding(current_char, new_struct_1);
@@ -1653,7 +1656,7 @@ void transfer_encoding_header(char **current_char, node *struct_current){
     new_struct_1 = malloc(sizeof(node));
     new_struct_2->frere = new_struct_1;
 
-    while( ((**current_char == ',' || **current_char == ' ') && **current_char == '\t') || **current_char == '\t'){
+    while(istransfer_encoding_end(*current_char)){
         while(**current_char == 0x09 || **current_char == 0x20){
             ows(current_char, new_struct_1);
             *current_char+=1;
@@ -1672,7 +1675,7 @@ void transfer_encoding_header(char **current_char, node *struct_current){
         new_struct_1 = malloc(sizeof(node));
         new_struct_2->frere = new_struct_1;
 
-        if( (**current_char == 0x09 || **current_char == 0x20) && *(*current_char+1) != ';'){
+        if(!isheader_end(*current_char)){
             while(**current_char == 0x09 || **current_char == 0x20){
                 ows(current_char, new_struct_1);
                 *current_char+=1;
@@ -1768,6 +1771,7 @@ void transfer_extension(char **current_char, node *struct_current){
             new_struct_1 = malloc(sizeof(node));
             new_struct_2->frere = new_struct_1;
         }
+
         if(**current_char == ';') {
             icar(current_char, new_struct_1);
             *current_char+=1;
@@ -1780,6 +1784,16 @@ void transfer_extension(char **current_char, node *struct_current){
         new_struct_2 = new_struct_1;
         new_struct_1 = malloc(sizeof(node));
         new_struct_2->frere = new_struct_1;
+
+        if(**current_char == 0x09 || **current_char == 0x20){
+            ows(current_char, new_struct_1);
+            *current_char+=1;
+
+            // Allocate memory for the next child
+            new_struct_2 = new_struct_1;
+            new_struct_1 = malloc(sizeof(node));
+            new_struct_2->frere = new_struct_1;
+        }
 
         transfer_parameter(current_char, new_struct_1);
         *current_char+=1;
@@ -2284,18 +2298,16 @@ void token(char **current_char, node *struct_current){
     // Allocate memory for the child and its brothers)
     node *new_struct_1 = malloc(sizeof(node));
     node *new_struct_2;
-    tchar(current_char, new_struct_1);
-    *current_char+=1;
-    struct_current->fils = new_struct_1;
-    do{
-        new_struct_2 = malloc(sizeof(node));
-        tchar(current_char, new_struct_2);
-        new_struct_1->frere = new_struct_2;
-        // move one struct forward 
-        new_struct_1 = new_struct_2;
+    while(istchar(**current_char)){
+        tchar(current_char, new_struct_1);
         *current_char+=1;
-    }while(istchar(*(*current_char)));
 
+        if(istchar(**current_char)){
+            new_struct_2 = new_struct_1;
+            new_struct_1 = malloc(sizeof(node));
+            new_struct_2->frere = new_struct_1;
+        }       
+    }
     *current_char-=1;
     struct_current->fin = *current_char;
 }
@@ -2318,7 +2330,7 @@ void request_target(char **current_char, node *struct_current){
 
     if(*(*current_char+1)=='?'){
         // Store the question mark
-        current_char+=1;
+        *current_char+=1;
         node *new_struct_2 = malloc(sizeof(node));
         new_struct_1->frere = new_struct_2;
         icar(current_char, new_struct_2);
@@ -2350,18 +2362,22 @@ void query(char **current_char, node *struct_current){
 
     // Allocate memory for the child and its brothers)
     node *new_struct_1 = malloc(sizeof(node));
+    node *new_struct_2;
     struct_current->fils = new_struct_1;
     while(ispchar(**current_char) || **current_char=='/' || **current_char=='?'){
-        node *new_struct_2 = malloc(sizeof(node));
         if(ispchar(**current_char)) {
             pchar(current_char, new_struct_1);
         } else {
             icar(current_char, new_struct_1);
         }
-        new_struct_1->frere = new_struct_2;
-        // move one struct forward 
-        new_struct_1 = new_struct_2;
+
         *current_char+=1;
+        
+        if(ispchar(**current_char) || **current_char=='/' || **current_char=='?'){
+            new_struct_2 = new_struct_1;
+            new_struct_1 = malloc(sizeof(node));
+            new_struct_2->frere = new_struct_1;
+        }
     }
 
     // Go back one char to be on the last char of the query
@@ -2500,10 +2516,9 @@ void unreserved(char **current_char, node *struct_current){
     }else if(**current_char=='-' || **current_char=='.' || **current_char=='_' || **current_char=='~'){
         icar(current_char, new_struct);
     }else{
-        printf("Error : unreserved not recognized");
+        printf("Error : unreserved not recognized, excepted alpha, digit, '-', '.', '_', '~', got %c\n", **current_char);
         exit(1);
     }
-    *current_char+=1;
     struct_current->fin = *current_char;
 }
 
