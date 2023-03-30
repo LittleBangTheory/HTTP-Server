@@ -131,7 +131,7 @@ int main(int argc, char const *argv[])
 		c=fgetc(fic);
 	}
 	Request[i]=0;
-	//printf("%s",Request);
+	printf("%s",Request);
 	char *adr=Request;
 	node* tete=malloc(sizeof(node));
 	http_message(&adr,tete);

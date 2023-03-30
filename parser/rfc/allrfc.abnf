@@ -507,7 +507,7 @@ User-Agent-header = "User-Agent" ":" OWS User-Agent OWS
 cookie-pair       = cookie-name "=" cookie-value
 cookie-name       = token
 cookie-value      = ( DQUOTE *cookie-octet DQUOTE ) / *cookie-octet 
-cookie-octet      = %x21 / %x23-2B / %x2D-3A / %x3C-5B / %x5D-7E
+cookie-octet      = %x21 / %x23-2B / %x2D-3A / %x3C-5B / %x5D-7E ; US-ASCII characters excluding CTLs, whitespace DQUOTE, comma, semicolon, and backslash
 Cookie-header = "Cookie:" OWS cookie-string OWS
 cookie-string = cookie-pair *( ";" SP cookie-pair )
 

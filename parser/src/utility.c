@@ -232,12 +232,9 @@ int isip_literal(char *current_char){
     if(*current_char == '['){
         current_char++;
         if(isipv6address(current_char) || isipvfuture(current_char)){
-            current_char++;
-            if(*current_char == ']'){
-                return 1;
-            }
+            return 1;
         }
-    }
+    }   
     return 0;
 }
 

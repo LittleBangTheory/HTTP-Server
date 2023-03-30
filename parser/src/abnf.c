@@ -150,6 +150,7 @@ void header_field(char **current_char, node *struct_current){
 
     // Allocate memory for the first child
     node *new_struct_1 = malloc(sizeof(node));
+    node *new_struct_2;
     struct_current->fils = new_struct_1;
 
     if(stringcompare(*current_char, "Connection")){
@@ -171,67 +172,71 @@ void header_field(char **current_char, node *struct_current){
         field_name(current_char, new_struct_1);
     }
 
+    // Keep the pointer to new_struct_1 to identify the header type after
+    node *new_struct_temp = new_struct_1;
+
     *current_char += 1;
 
-    if(**current_char != ':' && *(*current_char-1) != ':'){
+    if(**current_char != ':' && !stringcompare(new_struct_temp->debut, "Cookie:")){
         printf("Error : expected ':' in header-field, got '%c' instead\n", **current_char);
         exit(1);
-    }
-    // Allocate memory for the second child
-    node *new_struct_2 = malloc(sizeof(node));
-    new_struct_1->frere = new_struct_2;
+    } else if (!stringcompare(new_struct_temp->debut, "Cookie:")) {
+        // Allocate memory for the second child
+        new_struct_2 = malloc(sizeof(node));
+        new_struct_1->frere = new_struct_2;
 
-    // Call the function for the second child, supposed to be ':'
-    icar(current_char, new_struct_2);
-    *current_char += 1;
-
-    // Keep the pointer to new_struct_1 to identify the header type after
-    node *new_struct_3 = malloc(sizeof(node));
-    new_struct_2->frere = new_struct_3;
-
-    if(**current_char == 0x20 || **current_char == 0x09) {
-        // Call the function for the third child, supposed to be OWS
-        ows(current_char, new_struct_3);
+        // Call the function for the second child, supposed to be ':'
+        icar(current_char, new_struct_2);
         *current_char += 1;
     }
 
+    new_struct_1 = new_struct_2;
+    new_struct_2 = malloc(sizeof(node));
+    new_struct_1->frere = new_struct_2;
+
+    if(**current_char == 0x20 || **current_char == 0x09) {
+        // Call the function for the third child, supposed to be OWS
+        ows(current_char, new_struct_2);
+        *current_char += 1;
+
+            // Keep the pointer to new_struct_1 to identify the header type after
+        new_struct_1 = new_struct_2;
+        new_struct_2 = malloc(sizeof(node));
+        new_struct_1->frere = new_struct_2;
+    }
+
     //Treat every case for header_field : Connection-header / Content-Length-header / Content-Type-header / Cookie-header / Transfer-Encoding-header / Expect-header / Host-header / ( field-name ":" OWS field-value OWS ) 
-    if(stringcompare(new_struct_1->debut, "Connection")){
+    if(stringcompare(new_struct_temp->debut, "Connection")){
         // Call the function for the fourth child, supposed to be Connection-header
-        connection_header(current_char, new_struct_3);
+        connection_header(current_char, new_struct_2);
     }
-    else if(stringcompare(new_struct_1->debut, "Content-Length")){
+    else if(stringcompare(new_struct_temp->debut, "Content-Length")){
         // Call the function for the fourth child, supposed to be Content-Length-header
-        content_length_header(current_char, new_struct_3);
+        content_length_header(current_char, new_struct_2);
     }
-    else if(stringcompare(new_struct_1->debut, "Content-Type")){
+    else if(stringcompare(new_struct_temp->debut, "Content-Type")){
         // Call the function for the fourth child, supposed to be Content-Type-header
-        content_type_header(current_char, new_struct_3);
+        content_type_header(current_char, new_struct_2);
     }
-    else if(stringcompare(new_struct_1->debut, "Cookie:")){
+    else if(stringcompare(new_struct_temp->debut, "Cookie:")){
         // Call the function for the fourth child, supposed to be Cookie-header
-        cookie_string(current_char, new_struct_3);
+        cookie_string(current_char, new_struct_2);
     }
-    else if(stringcompare(new_struct_1->debut, "Transfer-Encoding")){
+    else if(stringcompare(new_struct_temp->debut, "Transfer-Encoding")){
         // Call the function for the fourth child, supposed to be Transfer-Encoding-header
-        transfer_encoding_header(current_char, new_struct_3);
+        transfer_encoding_header(current_char, new_struct_2);
     }
-    else if(stringcompare(new_struct_1->debut, "Expect")){
+    else if(stringcompare(new_struct_temp->debut, "Expect")){
         // Call the function for the fourth child, supposed to be Expect-header
-        expect_header(current_char, new_struct_3);
+        expect_header(current_char, new_struct_2);
     }
-    else if(stringcompare(new_struct_1->debut, "Host")){
+    else if(stringcompare(new_struct_temp->debut, "Host")){
         // Call the function for the fourth child, supposed to be Host-header
-        host_header(current_char, new_struct_3);
+        host_header(current_char, new_struct_2);
     }
     else{
-        // Allocate memory for the fourth child
-        new_struct_2 = new_struct_3;
-        new_struct_3 = malloc(sizeof(node));
-        new_struct_2->frere = new_struct_3;
-
         // Call the function for the fourth child, supposed to be field-value
-        field_value(current_char, new_struct_3);
+        field_value(current_char, new_struct_2);
     }
 
     if(*(*current_char+1) == 0x20 || *(*current_char+1) == 0x09) {
@@ -1480,6 +1485,7 @@ void cookie_pair(char **current_char, node *struct_current){
     // Call the function for the second child, supposed to be "="
     if(**current_char == '='){
         icar(current_char, new_struct_2);
+        *current_char+=1;
     }else{
         printf("Error : '=' expected, %c found", **current_char);
         exit(1);
@@ -1573,6 +1579,7 @@ void cookie_value(char **current_char, node *struct_current){
         // Call the function for the second child, supposed to be DQUOTE
         if(**current_char == '"'){
             icar(current_char, new_struct_1);
+            *current_char+=1;
         }else{
             printf("Error : '\"' expected, %c found", **current_char);
             exit(1);
@@ -1580,6 +1587,7 @@ void cookie_value(char **current_char, node *struct_current){
     }
 
     // The end of the struct is known when the son functions are done
+    *current_char-=1;
     struct_current->fin = *current_char;
 }
 
