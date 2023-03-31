@@ -1,5 +1,9 @@
 # HTTP Parser
 
+## Authors
+Gabin Chognot, Julien Da Costa, Amelie Arnaud
+## Description
+
 Parser for the entire HTTP grammar. The programme can parse a request of the HTTP grammar (see the [ABNF](rfc/allrfc.abnf)), by generating a tree that contains the different elements of the request, in the form of a chained list.
 
 Each node (element) is linked in two directions. A brother (horizontally), and a son (vertically). The first node is the root of the tree, and here, it is the `http-request` element.
@@ -25,6 +29,10 @@ Scripts :
 * `compare.sh` to compare our parser's output with the reference one's
     ```
     ./compare.sh <filename>
+    ```
+* `hardtest.sh` to tests the parser for every file of a specified folder
+    ```
+    ./hardtest.sh <foldername>
     ```
 
 Docs :
