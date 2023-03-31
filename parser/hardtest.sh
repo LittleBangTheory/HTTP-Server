@@ -4,7 +4,7 @@ RED="\e[31m"
 GREEN="\e[32m"
 ENDCOLOR="\e[0m"
 
-FILES="/home/userir/Downloads/testFile/*"
+FILES="/home/userir/Downloads/Projet-HTTP/parser/alltests/hardcorefiles/*"
 for file in $FILES
 do
 RES=$(./ourParser $file | grep -a "TOKEN_EXITED" | wc -l)

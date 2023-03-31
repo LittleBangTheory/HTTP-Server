@@ -136,7 +136,7 @@ int main(int argc, char const *argv[])
 	node* tete=malloc(sizeof(node));
 	racine=&tete;
 	http_message(&adr,tete);
-	_Token* tok = searchTree(tete,ALPHA);
+	_Token* tok = searchTree(tete,HEADER_FIELD);
 	while (tok->node) {
 		int l; 
 		char *s; 
