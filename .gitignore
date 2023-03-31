@@ -2,7 +2,9 @@ parser/alltests/hardcorefiles
 parser/alltests/simplesfiles
 parser/alltests/testFile
 parser/alltests/simplefiles/
+parser/rfc/arbres
 simplegrammarparser/testFile
+simplegrammarparser/testFile/*
 parser/premier-jeu-test
 simplegrammarparser/simplegrammar.exe
 simplegrammarparser/abnf.o
