@@ -30,11 +30,9 @@ Scripts :
 Docs :
 * RFCs and a tree view (in Mermaid) : `rfc/`
 * Test files : `alltests/`
-    * Simple tests : `alltests/simpletests.tgz/`
-    * Medium tests : `alltests/mediumtests.tgz/`
-    * Hard tests : `alltests/hardtests.tgz/`
-
-## TODO ARCHIVE THE TESTS
+    * Simple tests : `alltests/simpletests.zip/`
+    * Medium tests : `alltests/mediumtests.zip/`
+    * Hard tests : `alltests/hardtests.zip/`
 
 ## How to use it
 
