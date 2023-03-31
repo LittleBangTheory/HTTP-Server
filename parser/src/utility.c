@@ -352,14 +352,14 @@ int isls32(unsigned char *current_char){
 }
 
 /** \fn int ismedia_type_end(unsigned char *current_char)
- * \brief Check if the char belongs to the list of accepted chars for a media_type_end (OWS CRLF)
+ * \brief Check if the char belongs to the list of accepted chars for a media_type_end (OWS ";")
  * \param current_char : char to check
 */
 int ismedia_type_end(unsigned char *current_char){
     while(*current_char == 0x20 || *current_char == 0x09){
         current_char++;
     }
-    if(*current_char == '\r' && *(current_char+1) == '\n'){
+    if(*current_char == ';'){
         return 1;
     } else {
         return 0;
