@@ -804,7 +804,44 @@ void ipv6address(unsigned char **current_char, node *struct_current){
                 printf("Error : ipv6address : invalid value, ] expected, %c found !\n", **current_char);
                 exit(1);
             }
-        } else {
+        } else if ((**current_char == ':') && *(*current_char + 1) == ':'){
+                if(isdoublecolon){
+                    printf("Error : ipv6address : invalid value, double '::' found\n");
+                    exit(1);
+                }
+
+                isdoublecolon = 1;
+
+                // Allocate memory for the second child
+                new_struct_2 = new_struct_1;
+                new_struct_1 = malloc(sizeof(node));
+                new_struct_2->frere = new_struct_1;
+
+                // Store the ':'
+                icar(current_char, new_struct_1);
+                *current_char += 1;
+
+                // Allocate memory for the second child
+                new_struct_2 = new_struct_1;
+                new_struct_1 = malloc(sizeof(node));
+                new_struct_2->frere = new_struct_1;
+
+                // Store the ':'
+                icar(current_char, new_struct_1);
+                *current_char += 1;
+                count += 1;
+
+                // If it's the end
+                if(**current_char == ']'){
+                    count = 8;
+                } else {
+                    // Allocate memory for the next child
+                    new_struct_2 = new_struct_1;
+                    new_struct_1 = malloc(sizeof(node));
+                    new_struct_2->frere = new_struct_1;
+                }
+            // Else if if it's not the end, it's an error
+            } else {
             printf("Error : ipv6address : invalid value, h16 expected, %c found !\n", **current_char);
             exit(1);
         }
