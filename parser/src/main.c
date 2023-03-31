@@ -136,8 +136,7 @@ int main(int argc, char const *argv[])
 	node* tete=malloc(sizeof(node));
 	racine=&tete;
 	http_message(&adr,tete);
-	/*
-	_Token* tok = searchTree(tete,VCHAR);
+	_Token* tok = searchTree(tete,ALPHA);
 	while (tok->node) {
 		int l; 
 		char *s; 
@@ -145,7 +144,6 @@ int main(int argc, char const *argv[])
 		printf("FOUND [%.*s]\n",l,s);
 		tok=tok->next; 
 	}
-	*/
 
 
 	print_tree(tete,0);

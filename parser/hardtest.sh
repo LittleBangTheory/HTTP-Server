@@ -4,7 +4,7 @@ RED="\e[31m"
 GREEN="\e[32m"
 ENDCOLOR="\e[0m"
 
-FILES="/media/sf_kali_shared_folder/projet_http/parser/alltests/testFile/*"
+FILES="/home/userir/Downloads/testFile/*"
 for file in $FILES
 do
 RES=$(./ourParser $file | grep -a "TOKEN_EXITED" | wc -l)

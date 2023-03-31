@@ -157,7 +157,7 @@ void header_field(unsigned char **current_char, node *struct_current){
 
     // Allocate memory for the first child
     node *new_struct_1 = malloc(sizeof(node));
-    node *new_struct_2;
+    node *new_struct_2 = NULL;
     struct_current->fils = new_struct_1;
 
     if(stringcompare(*current_char, "Connection")){
@@ -195,11 +195,16 @@ void header_field(unsigned char **current_char, node *struct_current){
         // Call the function for the second child, supposed to be ':'
         icar(current_char, new_struct_2);
         *current_char += 1;
-    }
+    } 
 
-    new_struct_1 = new_struct_2;
-    new_struct_2 = malloc(sizeof(node));
-    new_struct_1->frere = new_struct_2;
+    if(new_struct_2 == NULL){
+        new_struct_2 = malloc(sizeof(node));
+        new_struct_1->frere = new_struct_2;
+    } else {
+        new_struct_1 = new_struct_2;
+        new_struct_2 = malloc(sizeof(node));
+        new_struct_1->frere = new_struct_2;
+    }
 
     if(**current_char == 0x20 || **current_char == 0x09) {
         // Call the function for the third child, supposed to be OWS
@@ -690,7 +695,7 @@ void ip_literal(unsigned char **current_char, node *struct_current){
     }else{
         ipvfuture(current_char, new_struct_2);
     }
-
+    *current_char+=1;
     // Allocate memory for the third child
     node *new_struct_3 = malloc(sizeof(node));
     new_struct_2->frere = new_struct_3;
@@ -800,7 +805,9 @@ void ipv6address(unsigned char **current_char, node *struct_current){
                 new_struct_2->frere = new_struct_1;
 
             // If we have a double ':', we pass it
-            } else if(**current_char != ']') {
+            } else if(**current_char == ']') {
+                count = 9;
+            } else {
                 printf("Error : ipv6address : invalid value, ] expected, %c found !\n", **current_char);
                 exit(1);
             }
@@ -841,7 +848,7 @@ void ipv6address(unsigned char **current_char, node *struct_current){
                     new_struct_2->frere = new_struct_1;
                 }
             // Else if if it's not the end, it's an error
-            } else {
+        } else {
             printf("Error : ipv6address : invalid value, h16 expected, %c found !\n", **current_char);
             exit(1);
         }
@@ -853,6 +860,7 @@ void ipv6address(unsigned char **current_char, node *struct_current){
     }
 
     // The end of the struct is known when the son functions are done
+    *current_char-=1;
     struct_current->fin = *current_char;    
 }
 
