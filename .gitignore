@@ -2,12 +2,12 @@ parser/alltests/hardcorefiles
 parser/alltests/simplesfiles
 parser/alltests/testFile
 parser/alltests/simplefiles/
-parser/simplegrammar/testFile
+simplegrammarparser/testFile
 parser/premier-jeu-test
-parser/simplegrammar/simplegrammar.exe
-parser/simplegrammar/abnf.o
-parser/simplegrammar/validations.txt
-parser/simplegrammar/html/
+simplegrammarparser/simplegrammar.exe
+simplegrammarparser/abnf.o
+simplegrammarparser/validations.txt
+simplegrammarparser/html/
 parser/*.o
 parser/html/
 parser/main.o
