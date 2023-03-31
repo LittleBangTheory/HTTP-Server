@@ -43,7 +43,7 @@ void http_message(unsigned char **current_char, node *struct_current){
     *current_char += 1;
 
     // Allocate memory for the second child. Whatever the next field is, we know there will be a brother
-    node *new_struct_2;
+    node *new_struct_2 = NULL;
 
     // If the next char is not a crlf, we have a header-field
     if(**current_char != '\r' || *(*current_char+1) != '\n'){
@@ -68,11 +68,15 @@ void http_message(unsigned char **current_char, node *struct_current){
         }while(**current_char != '\r' || *(*current_char+1) != '\n');
     }
 
-    // Allocate memory for the fourth child, supposed to be crlf
-    new_struct_1 = new_struct_2;
-    new_struct_2 = malloc(sizeof(node));
-    new_struct_1->frere = new_struct_2;
-
+    if(new_struct_2 == NULL){
+        new_struct_2 = malloc(sizeof(node));
+        new_struct_1->frere = new_struct_2;
+    } else {
+        new_struct_1 = new_struct_2;
+        new_struct_2 = malloc(sizeof(node));
+        new_struct_1->frere = new_struct_2;
+    }
+    
     // Call the function for the fourth child, supposed to be crlf
     crlf(current_char, new_struct_2);
     *current_char += 1;
@@ -86,6 +90,9 @@ void http_message(unsigned char **current_char, node *struct_current){
         // Call the function for the fifth child, supposed to be message-body
         message_body(current_char, new_struct_2);
     }
+
+    // Set the end of the struct
+    struct_current->fin = *current_char;
 }
 
 /** \fn void message_body(unsigned char **current_char, node *struct_current)
