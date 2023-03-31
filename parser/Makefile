@@ -2,6 +2,9 @@ all: main.o api.o utility.o abnf.o
 	gcc $^ -o ourParser
 	rm *.o
 
+archive: 
+	tar cvzf group5_parser.tar.gz src/* headers/* Makefile alltests/*.zip README.MD hardtest.sh
+
 main.o: ./src/main.c
 	gcc -Wall -Wextra -g -c $< -o $@
 
