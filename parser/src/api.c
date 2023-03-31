@@ -2,6 +2,7 @@
 #include "../headers/abnf.h"
 #include <string.h>
 #include <stdlib.h>
+#include <stdio.h>
 // Fonction qui retourne un pointeur (type opaque) vers la racine de l'arbre construit. 
 void *getRootTree(){
     return *racine;
@@ -12,13 +13,19 @@ Fonction interne d'aide a searchTree
 */
 void locateFields(_Token* current,node* noeud,char* name){
     if (noeud==NULL)return;
-    _Token* next=current;
+    _Token* next;
     if (!strcmp(noeud->label,name)){
+        while(current->next!=NULL)current=current->next;
         current->node=noeud;
-        current->next=malloc(sizeof(_Token));
-        next=current->next;
-        printf("HIT\n");
+        next=malloc(sizeof(_Token));
+        current->next=next;
+        next->next=NULL;
     }
+    else
+    {
+        next=current;
+    }
+    
     locateFields(next,noeud->fils,name);
     locateFields(next,noeud->frere,name);
 }
