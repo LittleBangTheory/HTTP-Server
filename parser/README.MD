@@ -30,9 +30,9 @@ Scripts :
     ```
     ./compare.sh <filename>
     ```
-* `hardtest.sh` to tests the parser for every file of a specified folder
+* `test_requests.sh` to tests the parser for every file of a specified folder
     ```
-    ./hardtest.sh <foldername>
+    ./test_requests.sh <foldername>
     ```
 
 Docs :
