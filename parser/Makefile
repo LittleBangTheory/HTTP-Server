@@ -3,7 +3,7 @@ all: main.o api.o utility.o abnf.o
 	rm *.o
 
 archive: 
-	tar cvzf group5_parser.tar.gz src/* headers/* Makefile alltests/*.zip README.MD hardtest.sh
+	tar cvzf group5_parser.tar.gz src/* headers/* Makefile alltests/*.zip README.MD test_requests.sh
 
 main.o: ./src/main.c
 	gcc -Wall -Wextra -g -c $< -o $@

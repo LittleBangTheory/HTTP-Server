@@ -46,8 +46,12 @@ Docs :
 
 ```
 make
-./ourParser <testfile>
-```	
+./ourParser <testfile> [<field to locate>]
+```
+### Example
+```
+./ourParser alltests/request header-field
+```
 
 ## Understanding the code
 * src/abnf.c : Contains the functions to parse the grammar
