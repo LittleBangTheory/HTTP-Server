@@ -9,8 +9,8 @@ echo "Exemple : \"./alltests/simpletests/*\""
 read FILES
 for file in $FILES
 do
-RES=$(./ourParser $file | grep -a "TOKEN_EXITED" | wc -l)
-SOL=$(./httpparser_ $file | wc -l)
+RES=$(./httpparser $file | grep -a "TOKEN_EXITED" | wc -l)
+SOL=$(./giorgiparser $file | wc -l)
 if [ "$RES" -eq 1 -a "$SOL" -ne 0 ] #Requete OK par nous et httpparser
 then
 echo -e "$file : ${GREEN}OK${ENDCOLOR}"

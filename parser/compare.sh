@@ -3,8 +3,8 @@
 if [ "$#" -eq 1 ]
 then
 
-`./httpparser_ $1 > 1.tmp`
-`./ourParser $1 > 2.tmp`
+`./giorgiparser_ $1 > 1.tmp`
+`./httparser $1 > 2.tmp`
 diff -a -w 1.tmp 2.tmp --color
 `rm *.tmp`
 

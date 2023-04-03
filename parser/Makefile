@@ -1,9 +1,9 @@
 all: main.o api.o utility.o abnf.o
-	gcc $^ -o ourParser
+	gcc $^ -o httpparser
 	rm *.o
 
-archive: 
-	tar cvzf group5_parser.tar.gz src/*.c headers/* Makefile alltests/*.zip README.MD test_requests.sh
+tar: 
+	tar cvzf parser_chognot_dacosta_arnaud.tar.gz src/*.c headers/* Makefile alltests/*.zip README.md test_requests.sh
 
 main.o: ./src/main.c
 	gcc -Wall -Wextra -g -c $< -o $@
