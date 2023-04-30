@@ -5,6 +5,10 @@
  *  - POST
 */
 
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
 /* 
 Code de retour utiles :
 200 OK
@@ -50,13 +54,18 @@ Useless headers :
 
 #include "../headers/answer.h"
 
-int answer(int code, char* version, char* headers){
+int answer(int code, char* version, char* headers[header_number][2]){
     // TODO : Comment envoyer le string de retour à main.c ?
     // HTTP Version + code de retour
 
     // Tous les headers un par un. 
     // On remplit ici : Server, Content-langage, Content-Length, Date, Transfer-Encoding
-    // Pour i de 0 à taille-1, pour j de 0 à 1, si headers[i][j] != NULL, on l'envoie
+    // Pour i de 0 à taille-1, pour j de 0 à 1, si headers[i][j] != empty_header, on l'envoie
+    for (int i = 0; i < header_number; i++){
+        if (!strcmp(headers[i][0],empty_value)){
+            // TODO 
+        }
+    }
 
     // Body ou média
 }
