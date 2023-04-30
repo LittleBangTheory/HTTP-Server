@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 
 /* 
 Code de retour utiles :
@@ -54,12 +55,71 @@ Useless headers :
 
 #include "../headers/answer.h"
 
-int answer(int code, char* version, char* headers[header_number][2]){
+int answer(int code, char* version, char* headers[header_number][2], char* filename){
     // TODO : Comment envoyer le string de retour à main.c ?
+    // TODO : Est-ce que les headers contiennent le CRLF ? Ou ajouté à l'envoie ?
     // HTTP Version + code de retour
 
-    // Tous les headers un par un. 
     // On remplit ici : Server, Content-langage, Content-Length, Date, Transfer-Encoding
+    // Content-Type
+    char* extension;
+    if(strcmp(headers[Content_Type][0],empty_value)){
+        // On envoie le type de fichier en fonction de l'extension
+        extension = strrchr(filename, '.');
+    } else {
+        // On envoie le type de fichier en fonction de la valeur du header
+        strcpy(extension, headers[Content_Type][1]);
+    }
+    if (!strcmp(extension, ".html")){
+        strcpy(headers[Content_Type][1], "text/html; charset=utf-8");
+    } else if (!strcmp(extension, ".css")){
+        strcpy(headers[Content_Type][1], "text/css; charset=utf-8");
+    } else if (!strcmp(extension, ".js")){
+        strcpy(headers[Content_Type][1], "application/javascript; charset=utf-8");
+    } else if (!strcmp(extension, ".jpg")){
+        strcpy(headers[Content_Type][1], "image/jpeg");
+    } else if (!strcmp(extension, ".png")){
+        strcpy(headers[Content_Type][1], "image/png");
+    } else if (!strcmp(extension, ".gif")){
+        strcpy(headers[Content_Type][1], "image/gif");
+    } else if (!strcmp(extension, ".svg")){
+        strcpy(headers[Content_Type][1], "image/svg+xml");
+    } else if (!strcmp(extension, ".ico")){
+        strcpy(headers[Content_Type][1], "image/x-icon");
+    } else if (!strcmp(extension, ".pdf")){
+        strcpy(headers[Content_Type][1], "application/pdf");
+    } else if (!strcmp(extension, ".json")){
+        strcpy(headers[Content_Type][1], "application/json");
+    } else if (!strcmp(extension, ".xml")){
+        strcpy(headers[Content_Type][1], "application/xml");
+    } else if (!strcmp(extension, ".zip")){
+        strcpy(headers[Content_Type][1], "application/zip");
+    } else if (!strcmp(extension, ".mp3")){
+        strcpy(headers[Content_Type][1], "audio/mpeg");
+    } else if (!strcmp(extension, ".mp4")){
+        strcpy(headers[Content_Type][1], "video/mp4");
+    } else if (!strcmp(extension, ".mpeg")){
+        strcpy(headers[Content_Type][1], "video/mpeg");
+    } else if (!strcmp(extension, ".webm")){
+        strcpy(headers[Content_Type][1], "video/webm");
+    } else if (!strcmp(extension, ".txt")){
+        strcpy(headers[Content_Type][1], "text/plain; charset=utf-8");
+    } else {
+        strcpy(headers[Content_Type][1], "application/octet-stream");
+    }
+
+    // Content-Length
+    // TODO : séparer le cas content length et le cas chunked (est-ce qu'on doit gérer le streaming ?)
+    struct stat st;
+    stat(filename, &st);
+    int size = st.st_size;
+
+    // Server
+    strcpy(headers[Server][1], "Projet HTTP");
+
+    // Content-Language
+    strcpy(headers[Content_Language][1], "fr-FR");
+
     // Pour i de 0 à taille-1, pour j de 0 à 1, si headers[i][j] != empty_header, on l'envoie
     for (int i = 0; i < header_number; i++){
         if (!strcmp(headers[i][0],empty_value)){
