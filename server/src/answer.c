@@ -15,6 +15,11 @@ Code de retour utiles :
 500 Internal Server Error
 501 Not Implemented
 505 HTTP Version Not Supported
+
+Specification : 
+Tableau headers[][] contient les headers de la requête au format [nom][valeur]
+On #DEFINE les codes de retour dans un .h
+Si un header est inutilisé, on le met à NULL
 */
 
 /* Headers to send :
@@ -22,15 +27,15 @@ Code de retour utiles :
 * Content-Type : le format utilisé (exemple : text/html; charset=utf-8)
 * Content-Language : La langue utilisée. (exemple : fr-FR)
 * Content-Length : Taille de la représentation (en octet) 
-* Connection : close ou keep-alive
 * Date : Date et heure de la réponse
-* Last-Modified : Date et heure de la dernière modification du document
 * Transfer-Encoding : chunked, compress, deflate, gzip, identity
     chunked est utilisé pour les réponses de type "streaming", obligatoire en l'absence de Content-Length
 */
 
 /*
 Useless headers :
+* Last-Modified : Date et heure de la dernière modification du document
+* Connection : close ou keep-alive
 * Location : URL de redirection
 * Content-Encoding : gzip, deflate, compress, identity
 * Content-Disposition : inline ou attachment
@@ -45,9 +50,14 @@ Useless headers :
 
 #include "../headers/answer.h"
 
-int answer(){
+int answer(int code, char* version, char* headers){
+    // TODO : Comment envoyer le string de retour à main.c ?
     // HTTP Version + code de retour
-    // Tous les headers un par un 
+
+    // Tous les headers un par un. 
+    // On remplit ici : Server, Content-langage, Content-Length, Date, Transfer-Encoding
+    // Pour i de 0 à taille-1, pour j de 0 à 1, si headers[i][j] != NULL, on l'envoie
+
     // Body ou média
 }
 
