@@ -55,11 +55,16 @@ Useless headers :
 
 #include "../headers/answer.h"
 
-int answer(int code, char* version, char* headers[header_number][2], char* filename){
+int version(int code, char* version){
     // TODO : Comment envoyer le string de retour à main.c ?
     // TODO : Est-ce que les headers contiennent le CRLF ? Ou ajouté à l'envoie ?
     // HTTP Version + code de retour
 
+
+    // Body ou média
+}
+
+int headers(char* headers[header_number][2], char* filename){
     // On remplit ici : Server, Content-langage, Content-Length, Date, Transfer-Encoding
     // Content-Type
     char* extension;
@@ -126,7 +131,29 @@ int answer(int code, char* version, char* headers[header_number][2], char* filen
             // TODO 
         }
     }
+}
 
-    // Body ou média
+int body(char* filename){
+    // Envoyer le body
+    char * buffer = 0;
+    long length;
+    // TODO : ouvrir en mode binaire ?
+    FILE * file = fopen (filename, "r+");
+
+    if (file){
+        // Get size : en octet si fichier ouvert en binaire, sinon dépendant de l'encodage
+        fseek (file, 0, SEEK_END);
+        length = ftell (file);
+        fseek (file, 0, SEEK_SET);
+        buffer = malloc (length);
+        if (buffer){
+            fread (buffer, 1, length, file);
+        }
+        fclose (file);
+    }
+
+    if (buffer){
+    // start to process your data / extract strings here...
+    }
 }
 
