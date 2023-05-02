@@ -28,12 +28,12 @@ Si un header est inutilisé, on le met à NULL
 */
 
 /* Headers to send :
-* Server : nom du serveur 
-* Content-Type : le format utilisé (exemple : text/html; charset=utf-8)
-* Content-Language : La langue utilisée. (exemple : fr-FR)
-* Content-Length : Taille de la représentation (en octet) 
-* Date : Date et heure de la réponse
-* Transfer-Encoding : chunked, compress, deflate, gzip, identity
+[] Server : nom du serveur 
+[] Content-Type : le format utilisé (exemple : text/html; charset=utf-8)
+[] Content-Language : La langue utilisée. (exemple : fr-FR)
+[] Content-Length : Taille de la représentation (en octet) 
+[] Date : Date et heure de la réponse
+[] Transfer-Encoding : chunked, compress, deflate, gzip, identity
     chunked est utilisé pour les réponses de type "streaming", obligatoire en l'absence de Content-Length
 */
 
@@ -60,8 +60,10 @@ int version(int code, char* version){
     // TODO : Est-ce que les headers contiennent le CRLF ? Ou ajouté à l'envoie ?
     // HTTP Version + code de retour
 
+    // Renvoyer Server = "Projet HTTP"
 
-    // Body ou média
+    // Renvoyer Content-Language = "fr-FR"
+
 }
 
 int headers(char* headers[header_number][2], char* filename){
@@ -118,12 +120,6 @@ int headers(char* headers[header_number][2], char* filename){
     struct stat st;
     stat(filename, &st);
     int size = st.st_size;
-
-    // Server
-    strcpy(headers[Server][1], "Projet HTTP");
-
-    // Content-Language
-    strcpy(headers[Content_Language][1], "fr-FR");
 
     // Pour i de 0 à taille-1, pour j de 0 à 1, si headers[i][j] != empty_header, on l'envoie
     for (int i = 0; i < header_number; i++){
