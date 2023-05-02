@@ -17,3 +17,4 @@ simplegrammarparser/html/
 .vscode/
 .vscode/tasks.json
 .vscode/launch.json
+server/src/server.exe
