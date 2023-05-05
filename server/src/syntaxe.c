@@ -37,3 +37,16 @@ int call_parser(char* requete)
 	}
 	return(res); 
 }
+
+/*
+HTTP headers :
+
+Host : required but not used in HTTP/1.1
+Accept-Encoding : required but not used until sprint 4
+Connection : required but not used until sprint 4
+
+Accept : unused
+Accept-Language : unused
+User-Agent : unused
+*/
+
