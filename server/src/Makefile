@@ -1,5 +1,17 @@
 all: server.exe
 
-server.exe: main.c
-	gcc -Wall -g -o $@ $< -L. -lrequest
+server.exe: main.o syntaxe.o
+	gcc $^ -o $@ -L. -lrequest -lparser
 	echo "Pensez à faire : export LD_LIBRARY_PATH=. !"
+
+syntaxe.o: syntaxe.c
+	gcc -Wall -g -o $@ -c $<
+
+api.o: api.c
+	gcc -Wall -g -o $@ -c $<
+
+main.o: main.c
+	gcc -Wall -g -o $@ -c $<
+
+clean:
+	rm *.o

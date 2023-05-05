@@ -2,6 +2,7 @@
 #include <stdio.h> 
 #include <stdlib.h> 
 #include <string.h> 
+#include "../headers/syntaxe.h"
 
 //INCLUDE SECTION FOR LIBREQUEST
 #include <sys/socket.h>
@@ -34,6 +35,8 @@ int main(int argc, char const *argv[])
 		writeDirectClient(request->clientId,REPONSE,strlen(REPONSE));  // Exemple d'une réponse en plusieurs partie, il faut juste transmettre le clientId, le char* et sa taille
         writeDirectClient(request->clientId,REPONSE2,strlen(REPONSE2));
         writeDirectClient(request->clientId,REPONSE3,strlen(REPONSE3));
+
+        call_parser(request->buf);
 
 		endWriteDirectClient(request->clientId); 
 		requestShutdownSocket(request->clientId); 
