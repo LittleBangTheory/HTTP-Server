@@ -170,6 +170,7 @@ int send_type_length(char* filename, int clientID){
     // Free the memory
     free(string);
 
+    /*TODO : THIS FUNCTION CAN'T CALL BODY(), IF REQUEST OF TYPE HEAD, WE SHOULD ONLY SEND THE HEADERS*/
     // Call body()
     body(filename, clientID, size);
 
