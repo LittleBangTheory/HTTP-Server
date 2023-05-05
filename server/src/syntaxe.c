@@ -9,6 +9,7 @@
 #include <errno.h>
 
 #include "../libparser/api.h" 
+#include "../headers/request.h"
 
 #define false 0 
 
@@ -62,5 +63,11 @@ Code de retour utiles :
 505 HTTP Version Not Supported
 
 Voir le wiki pour les détails
+*/
+
+/*
+if(host header is missing){
+	send_version_code("400 Bad Request", version, clientID);
+} 
 */
 

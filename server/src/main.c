@@ -31,14 +31,14 @@ int main(int argc, char const *argv[])
 		printf("Client [%d] [%s:%d]\n",request->clientId,inet_ntoa(request->clientAddress->sin_addr),htons(request->clientAddress->sin_port));
 		printf("Contenu de la demande :\n%.*s\n\n",request->len,request->buf);
         // Passage au parser
-        /* parser(char* request,int len,int id_client);
-        Les sections devront répondre au fur et à mesure*/
+        parser(char* request,int len,int id_client);
+        call_parser(request->buf);
+        
+        /*Les sections devront répondre au fur et à mesure*/
         /*
 		writeDirectClient(request->clientId,REPONSE,strlen(REPONSE));  // Exemple d'une réponse en plusieurs partie, il faut juste transmettre le clientId, le char* et sa taille
         writeDirectClient(request->clientId,REPONSE2,strlen(REPONSE2));
         writeDirectClient(request->clientId,REPONSE3,strlen(REPONSE3));
-
-        call_parser(request->buf);
         */
 
         send_version_code("200 OK", "HTTP/1.1", request->clientId);
