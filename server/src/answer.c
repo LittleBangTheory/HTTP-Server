@@ -54,16 +54,54 @@ Useless headers :
 */
 
 #include "../headers/answer.h"
+/**
+ * @brief Send the version of the HTTP protocol, the code of the return, and the date and server headers
+ * @param code Return code of the request. Char* to allow to send "200" or "200 OK" for example
+ * @param version Version of the HTTP protocol, format "HTTP/1.1"
+ * @return int 
+ */
+int send_version(char* code, char* version, int clientID){
+    /* SEND VERSION + CODE */
+    // Define the string. +4 to account for one space, one \r, one \n and one \0
+    char* string = malloc(sizeof(char)*(strlen(version)+strlen(code)+4));
+    if (string == NULL){
+        perror("malloc");
+        return -1;
+    }
 
-int version(int code, char* version){
-    // TODO : Comment envoyer le string de retour à main.c ?
-    // TODO : Est-ce que les headers contiennent le CRLF ? Ou ajouté à l'envoie ?
-    // HTTP Version + code de retour
+    // Concatenate the string
+    sprintf(string, "%s %s %s", version, code,"\r\n\0");
 
-    // Renvoyer Server = "Projet HTTP"
+    // Send the string
+    writeDirectClient(clientID,string,strlen(string));
 
-    // Renvoyer Content-Language = "fr-FR"
 
+    /* SEND SERVER + DATE + LANGUAGE */
+    // Define the string
+    char* part1 = "Server: Projet HTTP\r\nDate: ";
+    char* part2 = "\r\nContent-Language: fr-FR\r\n";
+    
+    // Get the date
+    time_t t = time(NULL);
+    struct tm *tm = localtime(&t);
+    char s[64];
+    size_t ret = strftime(s, sizeof(s), "%c", tm);
+    assert(ret);
+    
+    // Allocate the memory
+    string = malloc(sizeof(char)*(strlen(part1)+strlen(part2)+strlen(s)));
+    if (string == NULL){
+        perror("malloc");
+        return -1;
+    }
+
+    // Concatenate the string
+    sprintf(string, "%s%s%s", part1, s, part2);
+
+    // Send the string
+    writeDirectClient(clientID,string,strlen(string));
+
+    return EXIT_SUCCESS;
 }
 
 int headers(char* headers[header_number][2], char* filename){
