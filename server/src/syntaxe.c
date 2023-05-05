@@ -50,3 +50,17 @@ Accept-Language : unused
 User-Agent : unused
 */
 
+/*
+Code de retour utiles :
+200 OK
+400 Bad Request
+403 Forbidden (interdit, par exemple accès ../..)
+404 Not Found (Si le fichier n'existe pas) 
+405 Method Not Allowed (si par exemple méthode CONNECT alors qu'on fait que GET, HEAD, et POST
+500 Internal Server Error
+501 Not Implemented
+505 HTTP Version Not Supported
+
+Voir le wiki pour les détails
+*/
+
