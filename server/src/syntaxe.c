@@ -41,9 +41,9 @@ int call_parser(char* requete)
 /*
 HTTP headers :
 
-Host : required but not used in HTTP/1.1
+Host : required, used for multisite (for sprint 3 part 2)
 Accept-Encoding : required but not used until sprint 4
-Connection : required but not used until sprint 4
+Connection : required (for sprint 3 part 1)
 
 Accept : unused
 Accept-Language : unused
