@@ -13,23 +13,6 @@
 #include <time.h>
 #include "../headers/request.h"
 
-/* 
-Code de retour utiles :
-200 OK
-400 Bad Request
-403 Forbidden
-404 Not Found
-405 Method Not Allowed
-500 Internal Server Error
-501 Not Implemented
-505 HTTP Version Not Supported
-
-Specification : 
-Tableau headers[][] contient les headers de la requête au format [nom][valeur]
-On #DEFINE les codes de retour dans un .h
-Si un header est inutilisé, on le met à NULL
-*/
-
 /* Headers to send :
 [] Server : nom du serveur 
 [] Content-Language : La langue utilisée. (exemple : fr-FR)
