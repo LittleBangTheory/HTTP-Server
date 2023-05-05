@@ -3,6 +3,7 @@
 #include <stdlib.h> 
 #include <string.h> 
 #include "../headers/syntaxe.h"
+#include "../headers/answer.h"
 
 //INCLUDE SECTION FOR LIBREQUEST
 #include <sys/socket.h>
@@ -24,7 +25,7 @@ int main(int argc, char const *argv[])
     while (1)
     {
 
-        if ((request=getRequest(8080)) == NULL ) return -1;
+        if ((request=getRequest(7777)) == NULL ) return -1;
 		// Affichage de debug 
 		printf("#########################################\nDemande recue depuis le client %d\n",request->clientId); 
 		printf("Client [%d] [%s:%d]\n",request->clientId,inet_ntoa(request->clientAddress->sin_addr),htons(request->clientAddress->sin_port));
@@ -32,11 +33,16 @@ int main(int argc, char const *argv[])
         // Passage au parser
         /* parser(char* request,int len,int id_client);
         Les sections devront répondre au fur et à mesure*/
+        /*
 		writeDirectClient(request->clientId,REPONSE,strlen(REPONSE));  // Exemple d'une réponse en plusieurs partie, il faut juste transmettre le clientId, le char* et sa taille
         writeDirectClient(request->clientId,REPONSE2,strlen(REPONSE2));
         writeDirectClient(request->clientId,REPONSE3,strlen(REPONSE3));
 
         call_parser(request->buf);
+        */
+
+        send_version_code("200 OK", "HTTP/1.1", request->clientId);
+        send_type_length("../website/home.html", request->clientId);
 
 		endWriteDirectClient(request->clientId); 
 		requestShutdownSocket(request->clientId); 

@@ -9,6 +9,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <assert.h>
+#include <time.h>
+#include "../headers/request.h"
 
 /* 
 Code de retour utiles :
@@ -64,7 +67,7 @@ Useless headers :
  */
 int send_version_code(char* code, char* version, int clientID){
     /* SEND VERSION + CODE */
-    // Define the string. +4 to account for one space, one \r, one \n and one \0
+    // Define the string. +4 to account for one space, one \r, one \n
     char* string = malloc(sizeof(char)*(strlen(version)+strlen(code)+4));
     if (string == NULL){
         perror("malloc");
@@ -72,7 +75,7 @@ int send_version_code(char* code, char* version, int clientID){
     }
 
     // Concatenate the string
-    sprintf(string, "%s %s %s", version, code,"\r\n\0");
+    sprintf(string, "%s %s %s", version, code,"\r\n");
 
     // Send the string
     writeDirectClient(clientID,string,strlen(string));
@@ -96,7 +99,7 @@ int send_version_code(char* code, char* version, int clientID){
     }
 
     // Concatenate the string
-    sprintf(string, "Server: Projet HTTP\r\nDate: %s\r\nContent-Language: fr-FR\r\n\0", s);
+    sprintf(string, "Server: Projet HTTP\r\nDate: %s\r\nContent-Language: fr-FR\r\n", s);
 
     // Send the string
     writeDirectClient(clientID,string,strlen(string));
@@ -165,10 +168,10 @@ int send_type_length(char* filename, int clientID){
     int size = st.st_size;
 
     // Allocate the memory
-    char* string = malloc(sizeof(char)*(strlen("Content-Type: ")+strlen(type)+strlen("\r\nContent-Length: ")+strlen(size)+strlen("\r\n\0")));
+    char* string = malloc(sizeof(char)*(strlen("Content-Type: ")+strlen(type)+strlen("\r\nContent-Length: ")+size+strlen("\r\n\0")));
 
     // Concatenate the string
-    sprintf(string, "Content-Type: %s\r\nContent-Length: %d\r\n\0", type, size);
+    sprintf(string, "Content-Type: %s\r\nContent-Length: %d\r\n", type, size);
 
     // Send the string
     writeDirectClient(clientID,string,strlen(string));
@@ -210,14 +213,14 @@ int body(char* filename, int clientID, int size){
 
     if (buffer){
         // Allocate the memory
-        string = malloc(sizeof(char)*(strlen("\r\n")+strlen(buffer)+strlen("\r\n\0")));
+        string = malloc(sizeof(char)*(strlen("\r\n")+strlen(buffer)+strlen("\r\n\r\n\0")));
         if (string == NULL){
             perror("malloc");
             return -1;
         }
 
         // Concatenate the string
-        sprintf(string, "\r\n%s\r\n\0", buffer);
+        sprintf(string, "\r\n%s\r\n\r\n", buffer);
 
         // Send the string
         writeDirectClient(clientID,buffer,size);
