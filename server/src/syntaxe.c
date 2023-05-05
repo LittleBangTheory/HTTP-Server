@@ -15,9 +15,10 @@
 
 int call_parser(char* requete)
 {
-	int res,i;
-	char *p=NULL;
+	int res;
+	char *p="Host";
 	// call parser and get results. 
+	printf("%s\n",requete);
 	if (res=parseur(requete,strlen(requete))) {
 		_Token *r,*tok; 
 		void *root=NULL;
