@@ -176,30 +176,57 @@ int send_type_length(char* filename, int clientID){
     // Free the memory
     free(string);
 
+    // Call body()
+    body(filename, clientID, size);
+
     return EXIT_SUCCESS;
 }
 
-int body(char* filename){
+/**
+ * @brief Send the body of the request. This function is called directly by send_type_length() because it needs the size of the file
+ * @param filename relative path of the file
+ * @param clientID ID of the client
+ * @param size Size of the file
+ * @return int 
+ */
+int body(char* filename, int clientID, int size){
     // Envoyer le body
-    char * buffer = 0;
-    long length;
+    char* buffer;
+    char* string;
+    
     // TODO : ouvrir en mode binaire ?
     FILE * file = fopen (filename, "r+");
 
     if (file){
-        // Get size : en octet si fichier ouvert en binaire, sinon dépendant de l'encodage
-        fseek (file, 0, SEEK_END);
-        length = ftell (file);
-        fseek (file, 0, SEEK_SET);
-        buffer = malloc (length);
+        buffer = malloc (size);
         if (buffer){
-            fread (buffer, 1, length, file);
+            fread (buffer, 1, size, file);
+        } else {
+            perror("malloc");
+            return -1;
         }
         fclose (file);
     }
 
     if (buffer){
-    // start to process your data / extract strings here...
+        // Allocate the memory
+        string = malloc(sizeof(char)*(strlen("\r\n")+strlen(buffer)+strlen("\r\n\0")));
+        if (string == NULL){
+            perror("malloc");
+            return -1;
+        }
+
+        // Concatenate the string
+        sprintf(string, "\r\n%s\r\n\0", buffer);
+
+        // Send the string
+        writeDirectClient(clientID,buffer,size);
+
+        // Free the memory
+        free(buffer);
+        free(string);
     }
+
+    return EXIT_SUCCESS;
 }
 
