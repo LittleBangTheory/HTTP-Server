@@ -18,3 +18,4 @@ simplegrammarparser/html/
 .vscode/tasks.json
 .vscode/launch.json
 server/src/server.exe
+server/src/*.o

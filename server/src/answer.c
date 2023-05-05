@@ -68,14 +68,16 @@ Useless headers :
 int send_version_code(char* code, char* version, int clientID){
     /* SEND VERSION + CODE */
     // Define the string. +4 to account for one space, one \r, one \n
-    char* string = malloc(sizeof(char)*(strlen(version)+strlen(code)+4));
+    char* string = calloc(strlen(version)+strlen(code)+strlen("\r\n")+5,sizeof(char));
     if (string == NULL){
         perror("malloc");
         return -1;
     }
 
     // Concatenate the string
-    sprintf(string, "%s %s %s", version, code,"\r\n");
+    sprintf(string, "%s %s\r\n", version, code);
+
+    printf("%s", string);
 
     // Send the string
     writeDirectClient(clientID,string,strlen(string));
@@ -90,9 +92,11 @@ int send_version_code(char* code, char* version, int clientID){
     char s[64];
     size_t ret = strftime(s, sizeof(s), "%c", tm);
     assert(ret);
+
+    free(string);
     
     // Allocate the memory
-    string = malloc(sizeof(char)*(strlen("Server: Projet HTTP\r\nDate: ")+strlen("\r\nContent-Language: fr-FR\r\n\0")+strlen(s)));
+    string = malloc(sizeof(char)*(strlen("Server: Projet HTTP\r\nDate: ")+strlen("\r\nContent-Language: fr-FR\r\n\0")+strlen(s)+1));
     if (string == NULL){
         perror("malloc");
         return -1;
@@ -100,6 +104,8 @@ int send_version_code(char* code, char* version, int clientID){
 
     // Concatenate the string
     sprintf(string, "Server: Projet HTTP\r\nDate: %s\r\nContent-Language: fr-FR\r\n", s);
+
+    printf("%s", string);
 
     // Send the string
     writeDirectClient(clientID,string,strlen(string));
@@ -173,6 +179,8 @@ int send_type_length(char* filename, int clientID){
     // Concatenate the string
     sprintf(string, "Content-Type: %s\r\nContent-Length: %d\r\n", type, size);
 
+    printf("%s", string);
+
     // Send the string
     writeDirectClient(clientID,string,strlen(string));
 
@@ -194,26 +202,24 @@ int send_type_length(char* filename, int clientID){
  */
 int body(char* filename, int clientID, int size){
     // Envoyer le body
-    char* buffer;
-    char* string;
+    char* buffer = NULL;
+    char* string = NULL;
     
     // TODO : ouvrir en mode binaire ?
     FILE * file = fopen (filename, "r+");
 
     if (file){
-        buffer = malloc (size);
-        if (buffer){
-            fread (buffer, 1, size, file);
-        } else {
+        buffer = calloc(size+1,sizeof(char));
+        if (buffer == NULL){
             perror("malloc");
             return -1;
         }
+        // Read the file
+        fread (buffer, 1, size, file);
         fclose (file);
-    }
 
-    if (buffer){
         // Allocate the memory
-        string = malloc(sizeof(char)*(strlen("\r\n")+strlen(buffer)+strlen("\r\n\r\n\0")));
+        string = malloc(sizeof(char)*(strlen("\r\n")+size+strlen("\r\n\r\n\0")+2));
         if (string == NULL){
             perror("malloc");
             return -1;
@@ -222,12 +228,14 @@ int body(char* filename, int clientID, int size){
         // Concatenate the string
         sprintf(string, "\r\n%s\r\n\r\n", buffer);
 
+        printf("%s", string);
+
         // Send the string
-        writeDirectClient(clientID,buffer,size);
+        writeDirectClient(clientID,string,size);
 
         // Free the memory
-        free(buffer);
         free(string);
+        free(buffer);
     }
 
     return EXIT_SUCCESS;
