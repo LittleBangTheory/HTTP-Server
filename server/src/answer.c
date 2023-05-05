@@ -29,10 +29,11 @@ Si un header est inutilisé, on le met à NULL
 
 /* Headers to send :
 [] Server : nom du serveur 
-[] Content-Type : le format utilisé (exemple : text/html; charset=utf-8)
 [] Content-Language : La langue utilisée. (exemple : fr-FR)
-[] Content-Length : Taille de la représentation (en octet) 
 [] Date : Date et heure de la réponse
+[] Content-Type : le format utilisé (exemple : text/html; charset=utf-8)
+[] Content-Length : Taille de la représentation (en octet) 
+
 [] Transfer-Encoding : chunked, compress, deflate, gzip, identity
     chunked est utilisé pour les réponses de type "streaming", obligatoire en l'absence de Content-Length
 */
@@ -55,101 +56,177 @@ Useless headers :
 
 #include "../headers/answer.h"
 
-int version(int code, char* version){
-    // TODO : Comment envoyer le string de retour à main.c ?
-    // TODO : Est-ce que les headers contiennent le CRLF ? Ou ajouté à l'envoie ?
-    // HTTP Version + code de retour
+/**
+ * @brief Send the version of the HTTP protocol, the code of the return, and the date and server headers
+ * @param code Return code of the request. Char* to allow to send "200" or "200 OK" for example
+ * @param version Version of the HTTP protocol, format "HTTP/1.1"
+ * @return int 
+ */
+int send_version_code(char* code, char* version, int clientID){
+    /* SEND VERSION + CODE */
+    // Define the string. +4 to account for one space, one \r, one \n and one \0
+    char* string = malloc(sizeof(char)*(strlen(version)+strlen(code)+4));
+    if (string == NULL){
+        perror("malloc");
+        return -1;
+    }
 
-    // Renvoyer Server = "Projet HTTP"
+    // Concatenate the string
+    sprintf(string, "%s %s %s", version, code,"\r\n\0");
 
-    // Renvoyer Content-Language = "fr-FR"
+    // Send the string
+    writeDirectClient(clientID,string,strlen(string));
 
+
+    /* SEND SERVER + DATE + LANGUAGE */
+    // Define the string
+
+    // Get the date
+    time_t t = time(NULL);
+    struct tm *tm = localtime(&t);
+    char s[64];
+    size_t ret = strftime(s, sizeof(s), "%c", tm);
+    assert(ret);
+    
+    // Allocate the memory
+    string = malloc(sizeof(char)*(strlen("Server: Projet HTTP\r\nDate: ")+strlen("\r\nContent-Language: fr-FR\r\n\0")+strlen(s)));
+    if (string == NULL){
+        perror("malloc");
+        return -1;
+    }
+
+    // Concatenate the string
+    sprintf(string, "Server: Projet HTTP\r\nDate: %s\r\nContent-Language: fr-FR\r\n\0", s);
+
+    // Send the string
+    writeDirectClient(clientID,string,strlen(string));
+
+    // Free the memory
+    free(string);
+
+    return EXIT_SUCCESS;
 }
 
-int headers(char* headers[header_number][2], char* filename){
+/**
+ * @brief Send the headers content-type and content-length
+ * @param filename relative path of the file
+ * @param clientID ID of the client
+ * @return int 
+ */
+int send_type_length(char* filename, int clientID){
     // On remplit ici : Server, Content-langage, Content-Length, Date, Transfer-Encoding
     // Content-Type
-    char* extension;
-    if(strcmp(headers[Content_Type][0],empty_value)){
-        // On envoie le type de fichier en fonction de l'extension
-        extension = strrchr(filename, '.');
-    } else {
-        // On envoie le type de fichier en fonction de la valeur du header
-        strcpy(extension, headers[Content_Type][1]);
-    }
+    char* extension = strrchr(filename, '.');
+    char* type;
+
     if (!strcmp(extension, ".html")){
-        strcpy(headers[Content_Type][1], "text/html; charset=utf-8");
+        type = "text/html; charset=utf-8";
     } else if (!strcmp(extension, ".css")){
-        strcpy(headers[Content_Type][1], "text/css; charset=utf-8");
+        type = "text/css; charset=utf-8";
     } else if (!strcmp(extension, ".js")){
-        strcpy(headers[Content_Type][1], "application/javascript; charset=utf-8");
+        type = "application/javascript; charset=utf-8";
     } else if (!strcmp(extension, ".jpg")){
-        strcpy(headers[Content_Type][1], "image/jpeg");
+        type = "image/jpeg";
     } else if (!strcmp(extension, ".png")){
-        strcpy(headers[Content_Type][1], "image/png");
+        type = "image/png";
     } else if (!strcmp(extension, ".gif")){
-        strcpy(headers[Content_Type][1], "image/gif");
+        type = "image/gif";
     } else if (!strcmp(extension, ".svg")){
-        strcpy(headers[Content_Type][1], "image/svg+xml");
+        type = "image/svg+xml";
     } else if (!strcmp(extension, ".ico")){
-        strcpy(headers[Content_Type][1], "image/x-icon");
+        type = "image/x-icon";
     } else if (!strcmp(extension, ".pdf")){
-        strcpy(headers[Content_Type][1], "application/pdf");
+        type = "application/pdf";
     } else if (!strcmp(extension, ".json")){
-        strcpy(headers[Content_Type][1], "application/json");
+        type = "application/json";
     } else if (!strcmp(extension, ".xml")){
-        strcpy(headers[Content_Type][1], "application/xml");
+        type = "application/xml";
     } else if (!strcmp(extension, ".zip")){
-        strcpy(headers[Content_Type][1], "application/zip");
+        type = "application/zip";
     } else if (!strcmp(extension, ".mp3")){
-        strcpy(headers[Content_Type][1], "audio/mpeg");
+        type = "audio/mpeg";
     } else if (!strcmp(extension, ".mp4")){
-        strcpy(headers[Content_Type][1], "video/mp4");
+        type = "video/mp4";
     } else if (!strcmp(extension, ".mpeg")){
-        strcpy(headers[Content_Type][1], "video/mpeg");
+        type = "video/mpeg";
     } else if (!strcmp(extension, ".webm")){
-        strcpy(headers[Content_Type][1], "video/webm");
+        type = "video/webm";
     } else if (!strcmp(extension, ".txt")){
-        strcpy(headers[Content_Type][1], "text/plain; charset=utf-8");
+        type = "text/plain; charset=utf-8";
     } else {
-        strcpy(headers[Content_Type][1], "application/octet-stream");
+        type = "application/octet-stream";
     }
 
-    // Content-Length
+
     // TODO : séparer le cas content length et le cas chunked (est-ce qu'on doit gérer le streaming ?)
+    // Content-Length
     struct stat st;
     stat(filename, &st);
     int size = st.st_size;
 
-    // Pour i de 0 à taille-1, pour j de 0 à 1, si headers[i][j] != empty_header, on l'envoie
-    for (int i = 0; i < header_number; i++){
-        if (!strcmp(headers[i][0],empty_value)){
-            // TODO 
-        }
-    }
+    // Allocate the memory
+    char* string = malloc(sizeof(char)*(strlen("Content-Type: ")+strlen(type)+strlen("\r\nContent-Length: ")+strlen(size)+strlen("\r\n\0")));
+
+    // Concatenate the string
+    sprintf(string, "Content-Type: %s\r\nContent-Length: %d\r\n\0", type, size);
+
+    // Send the string
+    writeDirectClient(clientID,string,strlen(string));
+
+    // Free the memory
+    free(string);
+
+    // Call body()
+    body(filename, clientID, size);
+
+    return EXIT_SUCCESS;
 }
 
-int body(char* filename){
+/**
+ * @brief Send the body of the request. This function is called directly by send_type_length() because it needs the size of the file
+ * @param filename relative path of the file
+ * @param clientID ID of the client
+ * @param size Size of the file
+ * @return int 
+ */
+int body(char* filename, int clientID, int size){
     // Envoyer le body
-    char * buffer = 0;
-    long length;
+    char* buffer;
+    char* string;
+    
     // TODO : ouvrir en mode binaire ?
     FILE * file = fopen (filename, "r+");
 
     if (file){
-        // Get size : en octet si fichier ouvert en binaire, sinon dépendant de l'encodage
-        fseek (file, 0, SEEK_END);
-        length = ftell (file);
-        fseek (file, 0, SEEK_SET);
-        buffer = malloc (length);
+        buffer = malloc (size);
         if (buffer){
-            fread (buffer, 1, length, file);
+            fread (buffer, 1, size, file);
+        } else {
+            perror("malloc");
+            return -1;
         }
         fclose (file);
     }
 
     if (buffer){
-    // start to process your data / extract strings here...
+        // Allocate the memory
+        string = malloc(sizeof(char)*(strlen("\r\n")+strlen(buffer)+strlen("\r\n\0")));
+        if (string == NULL){
+            perror("malloc");
+            return -1;
+        }
+
+        // Concatenate the string
+        sprintf(string, "\r\n%s\r\n\0", buffer);
+
+        // Send the string
+        writeDirectClient(clientID,buffer,size);
+
+        // Free the memory
+        free(buffer);
+        free(string);
     }
+
+    return EXIT_SUCCESS;
 }
 
