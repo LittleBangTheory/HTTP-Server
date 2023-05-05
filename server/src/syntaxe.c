@@ -68,6 +68,18 @@ Voir le wiki pour les détails
 /*
 if(host header is missing){
 	send_version_code("400 Bad Request", version, clientID);
-} 
+} else if(le client veut accéder à ../..);
+	send_version_code("403 Forbidden", version, clientID);
+} else if(le fichier n'existe pas){
+	send_version_code("404 Not Found", version, clientID);
+} else if(le client veut utiliser une méthode non autorisée){
+	send_version_code("405 Method Not Allowed", version, clientID);
+} else if(version != "HTTP/1.0" && version != "HTTP/1.1"){
+	send_version_code("505 HTTP Version Not Supported", version, clientID);
+} else {
+	send_version_code("200 OK", version, clientID);
+	send_type_length(file, clientID);
+}
+*/
 */
 
