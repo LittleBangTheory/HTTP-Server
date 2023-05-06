@@ -1,1 +1,1 @@
-int call_parser(char* requete);
+int call_parser(char* requete,char *p);

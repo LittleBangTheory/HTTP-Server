@@ -31,8 +31,9 @@ int main(int argc, char const *argv[])
 		printf("Client [%d] [%s:%d]\n",request->clientId,inet_ntoa(request->clientAddress->sin_addr),htons(request->clientAddress->sin_port));
 		printf("Contenu de la demande :\n%.*s\n\n",request->len,request->buf);
         // Passage au parser
-        parser(char* request,int len,int id_client);
-        call_parser(request->buf);
+        //parser(char* request,int len,int id_client);
+        
+        call_parser(request->buf,"Host"); // Host est un exemple ! Attention, c'est case-sensitive
         
         /*Les sections devront répondre au fur et à mesure*/
         /*

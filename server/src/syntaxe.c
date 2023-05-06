@@ -13,25 +13,44 @@
 
 #define false 0 
 
-
-int call_parser(char* requete)
+/**
+* \fn int call_parser(char* requete)
+* \brief Permet de faire un appel au parseur.
+* headersFound compte le nombre d'occurences positives à la recherche.
+* \param requete Requete a traiter avec le parseur
+* \param p Champ à rechercher
+* \return 1 si requete valide syntaxiquement, 0 sinon
+*/
+int call_parser(char* requete,char *p)
 {
 	int res;
-	char *p="Host";
+	int headersFound=0;
 	// call parser and get results. 
 	printf("%s\n",requete);
-	if (res=parseur(requete,strlen(requete))) {
+	if ((res=parseur(requete,strlen(requete)))) {
 		_Token *r,*tok; 
 		void *root=NULL;
 		root=getRootTree(); 
 		r=searchTree(root,p); 
 		tok=r; 
 		while (tok) {
+			headersFound++;
 			int l;
 			char *s; 
 			s=getElementValue(tok->node,&l); 
+			// Possibilité de faire des appels ici sur s (c'est la valeur du champ) !
+			/* Par exemple un switch ici
+			switch (p)
+			{
+			case constant-expression :
+				code 
+				break;
+			
+			default:
+				break;
+			}*/
 			printf("FOUND [%.*s]\n",l,s);
-			tok=tok->next; 
+			tok=tok->next;
 		}
 		purgeElement(&r);
 		purgeTree(root);
@@ -81,5 +100,3 @@ if(host header is missing){
 	send_type_length(file, clientID);
 }
 */
-*/
-
