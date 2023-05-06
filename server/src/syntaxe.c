@@ -17,45 +17,38 @@
 * \fn int call_parser(char* requete)
 * \brief Permet de faire un appel au parseur.
 * headersFound compte le nombre d'occurences positives à la recherche.
+* PENSER A PURGE !
 * \param requete Requete a traiter avec le parseur
 * \param p Champ à rechercher
-* \return 1 si requete valide syntaxiquement, 0 sinon
+* \param headersFound Pointeur vers un entier modifié par la fonction et qui renvoie le nombre de nodes portant le label *p
+* \param isValid Indique si la requête est valide syntaxiquement
+* \return Liste chainée contenant toutes les occurences.
 */
-int call_parser(char* requete,char *p)
+_Token* call_parser(char* requete,char *p,int* headersFound,int* isValid)
 {
 	int res;
-	int headersFound=0;
+	*headersFound=0;
 	// call parser and get results. 
-	printf("%s\n",requete);
-	if ((res=parseur(requete,strlen(requete)))) {
-		_Token *r,*tok; 
+	_Token *r,*tok;
+	r=NULL;
+	if ((res=parseur(requete,strlen(requete)))) { 
 		void *root=NULL;
 		root=getRootTree(); 
 		r=searchTree(root,p); 
 		tok=r; 
 		while (tok) {
-			headersFound++;
-			int l;
+			*headersFound=(*headersFound)+1;
+			/*int l;
 			char *s; 
 			s=getElementValue(tok->node,&l); 
-			// Possibilité de faire des appels ici sur s (c'est la valeur du champ) !
-			/* Par exemple un switch ici
-			switch (p)
-			{
-			case constant-expression :
-				code 
-				break;
-			
-			default:
-				break;
-			}*/
-			printf("FOUND [%.*s]\n",l,s);
+			printf("FOUND [%.*s]\n",l,s);*/
 			tok=tok->next;
 		}
-		purgeElement(&r);
+		//purgeElement(&r);
 		purgeTree(root);
 	}
-	return(res); 
+	*isValid=res;
+	return r;
 }
 
 /*

@@ -12,6 +12,10 @@
 #include "../headers/request.h"
 
 //INCLUDE SECTION FOR LIBPARSER
+#ifndef _API_
+#define _API_
+#include "../libparser/api.h"
+#endif
 
 //DEFINITIONS
 #define REPONSE "HTTP/1.0 200 OK\r\n"//reponse
@@ -33,7 +37,21 @@ int main(int argc, char const *argv[])
         // Passage au parser
         //parser(char* request,int len,int id_client);
         
-        call_parser(request->buf,"Host"); // Host est un exemple ! Attention, c'est case-sensitive
+        //BEGIN
+        int count,syntax,size;
+        char* valueOfHeaders;
+        _Token* chained_results = call_parser(request->buf,"Connection",&count,&syntax);
+        _Token* tmp=chained_results;
+        while (tmp)
+        {
+            valueOfHeaders=getElementValue(tmp->node,&size);
+            // Interpretation here !
+            printf("Trouvé : %s\n",valueOfHeaders);
+            tmp=tmp->next;
+        }
+        purgeElement(&chained_results);
+        //END
+        
         
         /*Les sections devront répondre au fur et à mesure*/
         /*
