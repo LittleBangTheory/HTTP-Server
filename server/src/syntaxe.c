@@ -51,6 +51,13 @@ _Token* call_parser(char* requete,char *p,int* headersFound,int* isValid)
 	return r;
 }
 
+/**
+* \fn char *getHeaderValue(_Token* headers, char* headerName)
+* \brief Permet de renvoyer les valeurs des headers
+* \param headers Liste chainée contenant TOUS les headers
+* \param headerName Header à rechercher
+* \return header recherché, NULL sinon
+*/
 char *getHeaderValue(_Token* headers, char* headerName){
     _Token* tmp=headers;
 	int a;
@@ -71,7 +78,13 @@ char *getHeaderValue(_Token* headers, char* headerName){
 	}
 	return res;
 }
-
+/**
+* \fn int existing(char* s,int longueur)
+* \brief Permet de tester l'existence d'un fichier
+* \param s Le fichier en question dans le répertoire website /!\ ne pas ajouter ../website !
+* \param longueur longueur du champ
+* \return 0 si fichier inexistant, 1 sinon
+*/
 int existing(char* s,int longueur){
 	char* path="../website"; //len=10
 	int totalLen=10+longueur+1;
@@ -83,6 +96,13 @@ int existing(char* s,int longueur){
 	return (access(complete,F_OK)+1);
 }
 
+/**
+* \fn int analyze(char* request,int clientID)
+* \brief Permet de tester la validité d'une requete
+* \param request Requete entière
+* \param clientID ID client
+* \return -1 si requete invalide. 0 ou 1 sinon
+*/
 int analyze(char* request,int clientID){
 	int valeurRetour=0;
 	int occurences,validSyntax;
