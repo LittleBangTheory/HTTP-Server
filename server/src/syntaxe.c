@@ -10,6 +10,7 @@
 
 #include "../libparser/api.h" 
 #include "../headers/request.h"
+#include "../headers/answer.h"
 
 #define false 0 
 
@@ -28,7 +29,6 @@ _Token* call_parser(char* requete,char *p,int* headersFound,int* isValid)
 {
 	int res;
 	*headersFound=0;
-	// call parser and get results. 
 	_Token *r,*tok;
 	r=NULL;
 	if ((res=parseur(requete,strlen(requete)))) { 
@@ -37,62 +37,113 @@ _Token* call_parser(char* requete,char *p,int* headersFound,int* isValid)
 		r=searchTree(root,p); 
 		tok=r; 
 		while (tok) {
-			*headersFound=(*headersFound)+1;
-			/*int l;
+			*headersFound=(*headersFound)+1;/*
+			int l;
 			char *s; 
 			s=getElementValue(tok->node,&l); 
 			printf("FOUND [%.*s]\n",l,s);*/
 			tok=tok->next;
 		}
 		//purgeElement(&r);
-		purgeTree(root);
+		//purgeTree(root);
 	}
 	*isValid=res;
 	return r;
 }
 
-char *getHeaderValue(message* request, char* headerName){
-	int count,syntax,size;
-    char* valueOfHeaders = NULL;
-   	_Token* chained_results = call_parser(request->buf,headerName,&count,&syntax);
-    _Token* tmp=chained_results;
-	while (tmp)
-	{
-		valueOfHeaders=getElementValue(tmp->node,&size);
-		// Interpretation here !
-		printf("Trouvé : %s\n",valueOfHeaders);
+char *getHeaderValue(_Token* headers, char* headerName){
+    _Token* tmp=headers;
+	int a;
+	int found = 1;
+	int len = strlen(headerName);
+	char* res = NULL;
+	while (tmp && found){
+		found = strncmp(getElementValue(tmp->node,&a),headerName,len);
+		//printf("Comparing %.*s and %.*s\n",len,headerName,len,getElementValue(tmp->node,&a));
+		if (found==0){
+			printf("a=%d\n",a);
+			res=malloc(sizeof(char)*a+sizeof(char));
+			strncpy(res,getElementValue(tmp->node,&a),a);
+			res[a]=0;
+			//printf("REEEEEEEEES=%s\n",res);
+		}
 		tmp=tmp->next;
 	}
-	purgeElement(&chained_results);
-
-	return valueOfHeaders;
+	return res;
 }
 
-int analyze(message* request, char* filename, int clientID){
-	char* version = getHeaderValue(request, "HTTP-Version");
-	char* method = getHeaderValue(request, "Method");
-	char* host = getHeaderValue(request, "Host");
-	char* connection = getHeaderValue(request, "Connection");
-	char* accept_encoding = getHeaderValue(request, "Accept-Encoding");
+int existing(char* s,int longueur){
+	char* path="../website"; //len=10
+	int totalLen=10+longueur+1;
+	char complete[totalLen];
+	strcpy(complete,path);
+	strncpy(&complete[10],s,longueur);
+	complete[totalLen-1]=0;
+	printf("\nEst-ce que %s existe ?\n",complete);
+	return (access(complete,F_OK)+1);
+}
+
+int analyze(char* request,int clientID){
+	int valeurRetour=0;
+	int occurences,validSyntax;
+	_Token* Tversion = call_parser(request,"HTTP_version",&occurences,&validSyntax);
+
+	if (validSyntax==0){return 0;}
+
+	_Token* Tmethod = call_parser(request,"method",&occurences,&validSyntax);
+	_Token* allHeaders = call_parser(request,"header_field",&occurences,&validSyntax);
+	_Token* Ttarget = call_parser(request,"request_target",&occurences,&validSyntax);
+
+	int Lversion;
+	char* version = getElementValue(Tversion->node,&Lversion); // PAS UN HEADER !
+
+	int Lmethod;
+	char* method = getElementValue(Tmethod->node,&Lmethod); // PAS UN HEADER !
+
+	int Ltarget;
+	char* request_target = getElementValue(Ttarget->node,&Ltarget); // PAS UN HEADER !
+
+	char* host = getHeaderValue(allHeaders, "Host");
+	char* connection = getHeaderValue(allHeaders, "Connection");
+	char* accept_encoding = getHeaderValue(allHeaders, "Accept-Encoding");
+
+	//DEBUG
+	printf("# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #DEBUG\n");
+	printf("version=%.*s\n",Lversion,version);
+	printf("method=%.*s\n",Lmethod,method);
+	printf("host=%s\n",host);
+	printf("connection=%s\n",connection);
+	printf("request-target=%.*s\n",Ltarget,request_target);
+	printf("accept-encoding=%s\n",accept_encoding);
+	printf("# # # # # # # # # ## # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #DEBUG END\n");
 
 	if(host == NULL){
 	send_version_code("400 Bad Request", version, clientID);
-	} else if(/*le client veut accéder à ../..*/);
+	} else if(/*le client veut accéder à ../..*/0){
 		send_version_code("403 Forbidden", version, clientID);
-	} else if(/*le fichier n'existe pas*/){
+	} else if(request_target!=NULL && !existing(request_target,Ltarget)){/*le fichier n'existe pas*/
 		send_version_code("404 Not Found", version, clientID);
-	} else if(version != "HTTP/1.0" && version != "HTTP/1.1"){
+		valeurRetour=-1;
+	} else if(strncmp(version,"HTTP/1.0",8) && strncmp(version,"HTTP/1.1",8)){
 		send_version_code("505 HTTP Version Not Supported", version, clientID);
-	} else if(!strcpy(method,"GET") && !strcpy(method,"HEAD") && !strcpy(method,"POST")){
+	} else if(strncmp(method,"GET",3) && strncmp(method,"HEAD",4) && strncmp(method,"POST",4)){
 		send_version_code("501 Not Implemented", version, clientID);
-	} else if(/*le client veut accéder à un dossier*/){
+	} else if(/*le client veut accéder à un dossier*/0){
 		/*TODO : à utiliser pour le sprint 4 (CGI), mais à implémenter maintenant pour nous avancer
 		Aka : appeler la fonction qui va bien, mais ne pas la coder pour le moment
 		*/
 	} else {
-		send_version_code("200 OK", version, clientID);
-		send_type_length(file, clientID);
+		char version2[9];
+		strncpy(version2,version,8);
+		version2[8]=0;
+		send_version_code("200 OK", version2, clientID);
+		send_type_length("../website/home.html", clientID);
 	}
+
+	purgeElement(&allHeaders);
+	purgeElement(&Tmethod);
+	purgeElement(&Ttarget);
+	return valeurRetour;
 }
 
 /*

@@ -47,6 +47,7 @@ int main(int argc, char const *argv[])
 
         send_version_code("200 OK", "HTTP/1.1", request->clientId);
         int content_length = send_type_length("../website/home.html", request->clientId);
+        analyze(request->buf,request->clientId);
 
         // Call body()
         body("../website/home.html", request->clientId, content_length);
