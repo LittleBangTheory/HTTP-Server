@@ -81,19 +81,24 @@ int analyze(message* request, char* filename, int clientID){
 		send_version_code("403 Forbidden", version, clientID);
 	} else if(/*le fichier n'existe pas*/){
 		send_version_code("404 Not Found", version, clientID);
-	} else if(/*le client veut utiliser une méthode non autorisée*/){
-		send_version_code("405 Method Not Allowed", version, clientID);
 	} else if(version != "HTTP/1.0" && version != "HTTP/1.1"){
 		send_version_code("505 HTTP Version Not Supported", version, clientID);
 	} else if(!strcpy(method,"GET") && !strcpy(method,"HEAD") && !strcpy(method,"POST")){
 		send_version_code("501 Not Implemented", version, clientID);
 	} else if(/*le client veut accéder à un dossier*/){
-		/*TODO*/
+		/*TODO : à utiliser pour le sprint 4 (CGI), mais à implémenter maintenant pour nous avancer
+		Aka : appeler la fonction qui va bien, mais ne pas la coder pour le moment
+		*/
 	} else {
 		send_version_code("200 OK", version, clientID);
 		send_type_length(file, clientID);
 	}
 }
+
+/*
+Cas non traités :
+- le client veut utiliser une méthode non autorisée : redondant avec 501
+*/
 
 /*
 HTTP request headers :
