@@ -51,6 +51,50 @@ _Token* call_parser(char* requete,char *p,int* headersFound,int* isValid)
 	return r;
 }
 
+char *getHeaderValue(message* request, char* headerName){
+	int count,syntax,size;
+    char* valueOfHeaders = NULL;
+   	_Token* chained_results = call_parser(request->buf,headerName,&count,&syntax);
+    _Token* tmp=chained_results;
+	while (tmp)
+	{
+		valueOfHeaders=getElementValue(tmp->node,&size);
+		// Interpretation here !
+		printf("Trouvé : %s\n",valueOfHeaders);
+		tmp=tmp->next;
+	}
+	purgeElement(&chained_results);
+
+	return valueOfHeaders;
+}
+
+int analyze(message* request, char* filename, int clientID){
+	char* version = getHeaderValue(request, "HTTP-Version");
+	char* method = getHeaderValue(request, "Method");
+	char* host = getHeaderValue(request, "Host");
+	char* connection = getHeaderValue(request, "Connection");
+	char* accept_encoding = getHeaderValue(request, "Accept-Encoding");
+
+	if(host == NULL){
+	send_version_code("400 Bad Request", version, clientID);
+	} else if(/*le client veut accéder à ../..*/);
+		send_version_code("403 Forbidden", version, clientID);
+	} else if(/*le fichier n'existe pas*/){
+		send_version_code("404 Not Found", version, clientID);
+	} else if(/*le client veut utiliser une méthode non autorisée*/){
+		send_version_code("405 Method Not Allowed", version, clientID);
+	} else if(version != "HTTP/1.0" && version != "HTTP/1.1"){
+		send_version_code("505 HTTP Version Not Supported", version, clientID);
+	} else if(!strcpy(method,"GET") && !strcpy(method,"HEAD") && !strcpy(method,"POST")){
+		send_version_code("501 Not Implemented", version, clientID);
+	} else if(/*le client veut accéder à un dossier*/){
+		/*TODO*/
+	} else {
+		send_version_code("200 OK", version, clientID);
+		send_type_length(file, clientID);
+	}
+}
+
 /*
 HTTP request headers :
 
@@ -77,19 +121,4 @@ Code de retour utiles :
 Voir le wiki pour les détails
 */
 
-/*
-if(host header is missing){
-	send_version_code("400 Bad Request", version, clientID);
-} else if(le client veut accéder à ../..);
-	send_version_code("403 Forbidden", version, clientID);
-} else if(le fichier n'existe pas){
-	send_version_code("404 Not Found", version, clientID);
-} else if(le client veut utiliser une méthode non autorisée){
-	send_version_code("405 Method Not Allowed", version, clientID);
-} else if(version != "HTTP/1.0" && version != "HTTP/1.1"){
-	send_version_code("505 HTTP Version Not Supported", version, clientID);
-} else {
-	send_version_code("200 OK", version, clientID);
-	send_type_length(file, clientID);
-}
-*/
+

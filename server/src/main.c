@@ -37,21 +37,6 @@ int main(int argc, char const *argv[])
         // Passage au parser
         //parser(char* request,int len,int id_client);
         
-        //BEGIN
-        int count,syntax,size;
-        char* valueOfHeaders;
-        _Token* chained_results = call_parser(request->buf,"Connection",&count,&syntax);
-        _Token* tmp=chained_results;
-        while (tmp)
-        {
-            valueOfHeaders=getElementValue(tmp->node,&size);
-            // Interpretation here !
-            printf("Trouvé : %s\n",valueOfHeaders);
-            tmp=tmp->next;
-        }
-        purgeElement(&chained_results);
-        //END
-        
         
         /*Les sections devront répondre au fur et à mesure*/
         /*
@@ -61,7 +46,10 @@ int main(int argc, char const *argv[])
         */
 
         send_version_code("200 OK", "HTTP/1.1", request->clientId);
-        send_type_length("../website/home.html", request->clientId);
+        int content_length = send_type_length("../website/home.html", request->clientId);
+
+        // Call body()
+        body("../website/home.html", request->clientId, content_length);
 
 		endWriteDirectClient(request->clientId); 
 		requestShutdownSocket(request->clientId); 
