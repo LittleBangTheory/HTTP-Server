@@ -61,7 +61,7 @@ char *getHeaderValue(_Token* headers, char* headerName){
 		found = strncmp(getElementValue(tmp->node,&a),headerName,len);
 		//printf("Comparing %.*s and %.*s\n",len,headerName,len,getElementValue(tmp->node,&a));
 		if (found==0){
-			printf("a=%d\n",a);
+			//printf("a=%d\n",a);
 			res=malloc(sizeof(char)*a+sizeof(char));
 			strncpy(res,getElementValue(tmp->node,&a),a);
 			res[a]=0;
@@ -117,27 +117,40 @@ int analyze(char* request,int clientID){
 	printf("accept-encoding=%s\n",accept_encoding);
 	printf("# # # # # # # # # ## # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #DEBUG END\n");
 
+	char version2[9];
+	strncpy(version2,version,8);
+	version2[8]=0;
+
 	if(host == NULL){
-	send_version_code("400 Bad Request", version, clientID);
+	send_version_code("400 Bad Request", version2, clientID);
+	valeurRetour=-1;
 	} else if(/*le client veut accéder à ../..*/0){
-		send_version_code("403 Forbidden", version, clientID);
+		send_version_code("403 Forbidden", version2, clientID);
+		valeurRetour=-1;
 	} else if(request_target!=NULL && !existing(request_target,Ltarget)){/*le fichier n'existe pas*/
-		send_version_code("404 Not Found", version, clientID);
+		send_version_code("404 Not Found", version2, clientID);
 		valeurRetour=-1;
 	} else if(strncmp(version,"HTTP/1.0",8) && strncmp(version,"HTTP/1.1",8)){
-		send_version_code("505 HTTP Version Not Supported", version, clientID);
+		send_version_code("505 HTTP Version Not Supported", version2, clientID);
+		valeurRetour=-1;
 	} else if(strncmp(method,"GET",3) && strncmp(method,"HEAD",4) && strncmp(method,"POST",4)){
-		send_version_code("501 Not Implemented", version, clientID);
+		send_version_code("501 Not Implemented", version2, clientID);
 	} else if(/*le client veut accéder à un dossier*/0){
 		/*TODO : à utiliser pour le sprint 4 (CGI), mais à implémenter maintenant pour nous avancer
 		Aka : appeler la fonction qui va bien, mais ne pas la coder pour le moment
 		*/
 	} else {
-		char version2[9];
-		strncpy(version2,version,8);
-		version2[8]=0;
+		char* path="../website"; //len=10
+		int totalLen=10+Ltarget+1;
+		char complete[totalLen];
+		strcpy(complete,path);
+		strncpy(&complete[10],request_target,Ltarget);
+		complete[totalLen-1]=0;
 		send_version_code("200 OK", version2, clientID);
-		send_type_length("../website/home.html", clientID);
+		send_type_length(complete, clientID);
+		int content_length = send_type_length(complete,clientID);
+		body(complete,clientID, content_length);
+		valeurRetour=1;
 	}
 
 	purgeElement(&allHeaders);

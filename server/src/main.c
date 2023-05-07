@@ -45,12 +45,17 @@ int main(int argc, char const *argv[])
         writeDirectClient(request->clientId,REPONSE3,strlen(REPONSE3));
         */
 
-        send_version_code("200 OK", "HTTP/1.1", request->clientId);
-        int content_length = send_type_length("../website/home.html", request->clientId);
-        analyze(request->buf,request->clientId);
+        //send_version_code("200 OK", "HTTP/1.1", request->clientId);
+        int result_analyze = analyze(request->buf,request->clientId);
+        //int content_length = send_type_length("../website/home.html", request->clientId);
+        if (result_analyze!=1)
+        {
+            writeDirectClient(request->clientId,"\r\n",2);
+        }
+        
 
         // Call body()
-        body("../website/home.html", request->clientId, content_length);
+        //body("../website/home.html", request->clientId, content_length);
 
 		endWriteDirectClient(request->clientId); 
 		requestShutdownSocket(request->clientId); 
