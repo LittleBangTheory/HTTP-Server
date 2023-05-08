@@ -155,7 +155,7 @@ int analyze(char* request,int clientID){
 	int content_length;
 
 	// If the Host header is missing in a HTTP/1.1 request, send a 400 Bad Request
-	if(host == NULL && strncmp(version,"HTTP/1.0",8)!=0){
+	if((host == NULL && strncmp(version,"HTTP/1.0",8)!=0) || (strncmp(host, "Host: hidden-site", 17)!=0 && strncmp(host, "Host: master-site", 17)!=0 )){
 		send_version_code("400 Bad Request", version2, clientID);
 		content_length = send_type_length("../html/errors/400.html",clientID);
 		body("../html/errors/400.html",clientID, content_length);
@@ -174,7 +174,7 @@ int analyze(char* request,int clientID){
 			//path = malloc(sizeof(char)*pathLen); 
 			//strcpy(path,"../html/master_site");
 			path = "../html/master_site";
-		}
+		} 
 		// Declare the relative path to fetch the pages
 		if(strstr(request_target,"..") != NULL){
 			printf("request_target contient ..\n");

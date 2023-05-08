@@ -13,3 +13,13 @@
 * Ou est utilisé par le Makefile pour compiler `httpparser`
 
 `httpparser` : parser compilé, dont on peut modifier le ``main.c`` et l'API, qui utilise `libparser.so`
+
+# Configuration
+
+Use Burpsuite to intercept the request and modify the Host header to match "hidden-site" ou "master-site". "Localhost" is not supported anymore.
+
+A more suitable solution would be to modifie `/etc/hosts` to add the following lines :
+```
+127.0.0.1   hidden-site
+127.0.0.1   master-site
+```
