@@ -131,6 +131,7 @@ int analyze(char* request,int clientID){
 	char* connection = getHeaderValue(allHeaders, "Connection");
 	char* accept_encoding = getHeaderValue(allHeaders, "Accept-Encoding");
 
+	/*
 	//DEBUG
 	printf("# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #DEBUG\n");
 	printf("version=%.*s\n",version_length,version);
@@ -140,6 +141,7 @@ int analyze(char* request,int clientID){
 	printf("request-target=%.*s\n",target_length,request_target);
 	printf("accept-encoding=%s\n",accept_encoding);
 	printf("# # # # # # # # # ## # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #DEBUG END\n");
+	*/
 
 	// Append the \0 to the version string
 	char version2[9];

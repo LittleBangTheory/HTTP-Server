@@ -161,7 +161,7 @@ int send_type_length(char* filename, int clientID){
     // Content-Length
     struct stat st;
     stat(filename, &st);
-    int size = st.st_size;
+    int size = st.st_size + 3;
 
     // Allocate the memory
     char* string = malloc(sizeof(char)*(strlen("Content-Type: ")+strlen(type)+strlen("\r\nContent-Length: ")+size+strlen("\r\n\0")));
@@ -196,7 +196,7 @@ int body(char* filename, int clientID, int size){
     FILE * file = fopen (filename, "r+");
 
     if (file){
-        buffer = calloc(size+1,sizeof(char));
+        buffer = calloc(size,sizeof(char));
         if (buffer == NULL){
             perror("malloc");
             return -1;
@@ -206,7 +206,7 @@ int body(char* filename, int clientID, int size){
         fclose (file);
 
         // Allocate the memory
-        string = malloc(sizeof(char)*(strlen("\r\n")+size+strlen("\r\n\r\n\0")+2));
+        string = malloc(sizeof(char)*(strlen("\r\n")+size+strlen("\r\n\r\n\0")));
         if (string == NULL){
             perror("malloc");
             return -1;
