@@ -70,23 +70,30 @@ int send_version_code(char* code, char* version, int clientID){
     // Define the string
 
     // Get the date
+    /*
     time_t t = time(NULL);
     struct tm *tm = localtime(&t);
     char s[64];
     size_t ret = strftime(s, sizeof(s), "%c", tm);
     assert(ret);
+    */
+
+    char buf[1000];
+    time_t now = time(0);
+    struct tm tm = *gmtime(&now);
+    strftime(buf, sizeof buf, "%a, %d %b %Y %H:%M:%S %Z", &tm);
 
     free(string);
     
     // Allocate the memory
-    string = malloc(sizeof(char)*(strlen("Server: Projet HTTP\r\nDate: ")+strlen("\r\nContent-Language: fr-FR\r\n\0")+strlen(s)+1));
+    string = malloc(sizeof(char)*(strlen("Server: Projet HTTP\r\nDate: ")+strlen("\r\nContent-Language: fr-FR\r\n\0")+strlen(buf)+1));
     if (string == NULL){
         perror("malloc");
         return -1;
     }
 
     // Concatenate the string
-    sprintf(string, "Server: Projet HTTP\r\nDate: %s\r\nContent-Language: fr-FR\r\n", s);
+    sprintf(string, "Server: Projet HTTP\r\nDate: %s\r\nContent-Language: fr-FR\r\n", buf);
 
     printf("%s", string);
 
