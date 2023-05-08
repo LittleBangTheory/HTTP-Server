@@ -25,14 +25,13 @@
 * \param isValid Indique si la requête est valide syntaxiquement
 * \return Liste chainée contenant toutes les occurences.
 */
-_Token* call_parser(char* requete,char *p,int* headersFound,int* isValid)
+_Token* call_parser(char* requete,char *p,int* headersFound,int* isValid,void* root)
 {
 	int res;
 	*headersFound=0;
 	_Token *r,*tok;
 	r=NULL;
-	if ((res=parseur(requete,strlen(requete)))) { 
-		void *root=NULL;
+	if ((res=parseur(requete,strlen(requete)))) {
 		root=getRootTree(); 
 		r=searchTree(root,p); 
 		tok=r; 
@@ -58,22 +57,28 @@ _Token* call_parser(char* requete,char *p,int* headersFound,int* isValid)
 * \param headerName Header à rechercher
 * \return header recherché, NULL sinon
 */
-char *getHeaderValue(_Token* headers, char* headerName){
+char *getHeaderValue(_Token* headers, char* headerName,int* counter){
     _Token* tmp=headers;
 	int a;
 	int found = 1;
 	int len = strlen(headerName);
 	char* res = NULL;
-	while (tmp && found){
+	*counter=0;
+	while (tmp){
 		found = strncmp(getElementValue(tmp->node,&a),headerName,len);
 		//printf("Comparing %.*s and %.*s\n",len,headerName,len,getElementValue(tmp->node,&a));
-		if (found==0){
+		if (found==0 && res==NULL){
 			//printf("a=%d\n",a);
 			res=malloc(sizeof(char)*a+sizeof(char));
 			strncpy(res,getElementValue(tmp->node,&a),a);
 			res[a]=0;
 			//printf("REEEEEEEEES=%s\n",res);
 		}
+		if (found==0)
+		{
+			*counter=(*counter)+1;
+		}
+		
 		tmp=tmp->next;
 	}
 	return res;
@@ -92,6 +97,9 @@ int existing(char* s,int longueur, char* path, int pathLen){
 	strncat(complete,s,longueur);
 	printf("\nEst-ce que %s existe ?\n",complete);
 	int res = access(complete,F_OK)+1;
+	if (res) printf("Oui\n");
+	else printf("Oui\n");
+	
 	free(complete);
 	return res;
 }
@@ -106,13 +114,14 @@ int existing(char* s,int longueur, char* path, int pathLen){
 int analyze(char* request,int clientID){
 	int valeurRetour=0;
 	int occurences,validSyntax;
-	_Token* Tversion = call_parser(request,"HTTP_version",&occurences,&validSyntax);
+	void* trees[4]={NULL,NULL,NULL,NULL};
+	_Token* Tversion = call_parser(request,"HTTP_version",&occurences,&validSyntax,trees[0]);
 
 	if (validSyntax==0){return 0;}
 
-	_Token* Tmethod = call_parser(request,"method",&occurences,&validSyntax);
-	_Token* allHeaders = call_parser(request,"header_field",&occurences,&validSyntax);
-	_Token* Ttarget = call_parser(request,"request_target",&occurences,&validSyntax);
+	_Token* Tmethod = call_parser(request,"method",&occurences,&validSyntax,trees[1]);
+	_Token* allHeaders = call_parser(request,"header_field",&occurences,&validSyntax,trees[2]);
+	_Token* Ttarget = call_parser(request,"request_target",&occurences,&validSyntax,trees[3]);
 
 	// Get the version and its length
 	int version_length;
@@ -125,11 +134,18 @@ int analyze(char* request,int clientID){
 	// Get the target and its length
 	int target_length;
 	char* request_target = getElementValue(Ttarget->node,&target_length); // PAS UN HEADER !
+	if (strncmp(request_target,"/",target_length)==0)
+	{
+		request_target="/index.html";
+		target_length=11;
+	}
+	
 
 	// Get the headers
-	char* host = getHeaderValue(allHeaders, "Host");
-	char* connection = getHeaderValue(allHeaders, "Connection");
-	char* accept_encoding = getHeaderValue(allHeaders, "Accept-Encoding");
+	int nbreHosts;
+	char* connection = getHeaderValue(allHeaders, "Connection",&nbreHosts);
+	char* accept_encoding = getHeaderValue(allHeaders, "Accept-Encoding",&nbreHosts);
+	char* host = getHeaderValue(allHeaders, "Host",&nbreHosts);
 
 	/*
 	//DEBUG
@@ -142,7 +158,12 @@ int analyze(char* request,int clientID){
 	printf("accept-encoding=%s\n",accept_encoding);
 	printf("# # # # # # # # # ## # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #DEBUG END\n");
 	*/
-
+	// We only want the values
+	int offset=5;
+	if (host!=NULL){
+		while(host[offset]==' ' ||host[offset]==':') offset++;
+		host=&host[offset];
+	}
 	// Append the \0 to the version string
 	char version2[9];
 	strncpy(version2,version,8);
@@ -155,16 +176,16 @@ int analyze(char* request,int clientID){
 	int content_length;
 
 	// If the Host header is missing in a HTTP/1.1 request, send a 400 Bad Request
-	if((host == NULL && strncmp(version,"HTTP/1.0",8)!=0) || (strncmp(host, "Host: hidden-site", 17)!=0 && strncmp(host, "Host: master-site", 17)!=0 )){
+	if((host == NULL && strncmp(version,"HTTP/1.0",8)!=0) || (strncmp(host, "hidden-site", 11)!=0 && strncmp(host, "master-site", 11)!=0 ) || (nbreHosts!=1)){
 		send_version_code("400 Bad Request", version2, clientID);
 		content_length = send_type_length("../html/errors/400.html",clientID);
 		body("../html/errors/400.html",clientID, content_length);
 		valeurRetour=-1;
+
 	// If the request target tries to reach a parent directory, send a 403 Forbidden
 	} else {
 		// If the client request for the Host "hidden-site", send it as host. Otherwise, use default host "master-site".
-		printf("host=%s\n",host);
-		if(strncmp(host, "Host: hidden-site", 17) == 0){
+		if(strncmp(host, "hidden-site", 11) == 0){
 			pathLen = 20;
 			//path = malloc(sizeof(char)*pathLen);
 			//strcpy(path,"../html/hidden_site");
@@ -182,23 +203,27 @@ int analyze(char* request,int clientID){
 			content_length = send_type_length("../html/errors/404.html",clientID);
 			body("../html/errors/403.html",clientID, content_length);
 			valeurRetour=-1;
+
 		// If the requested file does not exist, send a 404 Not Found
 		} else if(request_target!=NULL && !existing(request_target,target_length, path, pathLen)){/*le fichier n'existe pas*/
 			send_version_code("404 Not Found", version2, clientID);
 			content_length = send_type_length("../html/errors/404.html",clientID);
 			body("../html/errors/404.html",clientID, content_length);
 			valeurRetour=-1;
+
 		// If the HTTP version is not supported, send a 505 HTTP Version Not Supported
 		} else if(strncmp(version,"HTTP/1.0",8) && strncmp(version,"HTTP/1.1",8)){
 			send_version_code("505 HTTP Version Not Supported", "HTTP/1.0", clientID);
 			content_length = send_type_length("../html/errors/505.html",clientID);
 			body("../html/errors/505.html",clientID, content_length);
 			valeurRetour=-1;
+
 		// If the method is not supported, send a 501 Not Implemented
 		} else if(strncmp(method,"GET",3) && strncmp(method,"HEAD",4) && strncmp(method,"POST",4)){
 			send_version_code("501 Not Implemented", version2, clientID);
 			content_length = send_type_length("../html/errors/501.html",clientID);
 			body("../html/errors/501.html",clientID, content_length);
+
 		// Else, the request is valid
 		} else {
 			// Count for the path length (\0 included in pathLen)
@@ -227,6 +252,11 @@ int analyze(char* request,int clientID){
 	purgeElement(&allHeaders);
 	purgeElement(&Tmethod);
 	purgeElement(&Ttarget);
+	for (size_t i = 0; i < 4; i++)
+	{
+		purgeTree(trees[i]);
+	}
+	
 	return valeurRetour;
 }
 
