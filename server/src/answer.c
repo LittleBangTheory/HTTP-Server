@@ -190,7 +190,6 @@ int send_type_length(char* filename, int clientID){
 int body(char* filename, int clientID, int size){
     // Envoyer le body
     char* buffer = NULL;
-    char* string = NULL;
     
     // TODO : ouvrir en mode binaire ?
     FILE * file = fopen (filename, "r+");
@@ -205,23 +204,17 @@ int body(char* filename, int clientID, int size){
         fread (buffer, 1, size, file);
         fclose (file);
 
-        // Allocate the memory
-        string = calloc(strlen("\r\n")+size+strlen("\r\n\r\n\0")+2,sizeof(char));
-        if (string == NULL){
-            perror("malloc");
-            return -1;
-        }
-
         // Concatenate the string
-        sprintf(string, "\r\n%s\r\n\r\n", buffer);
+        //sprintf(string, "\r\n%s\r\n\r\n", buffer);
 
-        printf("%s", string);
+        printf("\r\n%.*s\r\n\r\n",size,buffer);
 
-        // Send the string
-        writeDirectClient(clientID,string,size+2);
+        // Send the strings
+        writeDirectClient(clientID,"\r\n",2);
+        writeDirectClient(clientID,buffer,size);
+        writeDirectClient(clientID,"\r\n\r\n",4);
 
         // Free the memory
-        free(string);
         free(buffer);
     }
 
