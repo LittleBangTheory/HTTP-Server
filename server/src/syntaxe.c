@@ -141,34 +141,44 @@ int analyze(char* request,int clientID){
 	strncpy(version2,version,8);
 	version2[8]=0;
 
-	if(host == NULL){
-	send_version_code("400 Bad Request", version2, clientID);
-	valeurRetour=-1;
-	} else if(/*le client veut accéder à ../..*/0){
+	char* path="../website"; //len=10
+
+	int content_length;
+	
+
+	if(host == NULL && strncmp(version,"HTTP/1.0",8)!=0){
+		send_version_code("400 Bad Request", version2, clientID);
+		content_length = send_type_length("../website/errors/400.html",clientID);
+		body("../website/errors/400.html",clientID, content_length);
+		valeurRetour=-1;
+	} else if(strstr(request_target,"..") != NULL){
+		printf("request_target contient ..\n");
 		send_version_code("403 Forbidden", version2, clientID);
+		content_length = send_type_length("../website/errors/404.html",clientID);
+		body("../website/errors/403.html",clientID, content_length);
 		valeurRetour=-1;
 	} else if(request_target!=NULL && !existing(request_target,Ltarget)){/*le fichier n'existe pas*/
 		send_version_code("404 Not Found", version2, clientID);
+		content_length = send_type_length("../website/errors/404.html",clientID);
+		body("../website/errors/404.html",clientID, content_length);
 		valeurRetour=-1;
 	} else if(strncmp(version,"HTTP/1.0",8) && strncmp(version,"HTTP/1.1",8)){
-		send_version_code("505 HTTP Version Not Supported", version2, clientID);
+		send_version_code("505 HTTP Version Not Supported", "HTTP/1.0", clientID);
+		content_length = send_type_length("../website/errors/505.html",clientID);
+		body("../website/errors/505.html",clientID, content_length);
 		valeurRetour=-1;
 	} else if(strncmp(method,"GET",3) && strncmp(method,"HEAD",4) && strncmp(method,"POST",4)){
 		send_version_code("501 Not Implemented", version2, clientID);
-	} else if(/*le client veut accéder à un dossier*/0){
-		/*TODO : à utiliser pour le sprint 4 (CGI), mais à implémenter maintenant pour nous avancer
-		Aka : appeler la fonction qui va bien, mais ne pas la coder pour le moment
-		*/
+		content_length = send_type_length("../website/errors/501.html",clientID);
+		body("../website/errors/501.html",clientID, content_length);
 	} else {
-		char* path="../website"; //len=10
 		int totalLen=10+Ltarget+1;
 		char complete[totalLen];
 		strcpy(complete,path);
 		strncpy(&complete[10],request_target,Ltarget);
 		complete[totalLen-1]=0;
 		send_version_code("200 OK", version2, clientID);
-		send_type_length(complete, clientID);
-		int content_length = send_type_length(complete,clientID);
+		content_length = send_type_length(complete,clientID);
 		body(complete,clientID, content_length);
 		valeurRetour=1;
 	}
@@ -182,6 +192,7 @@ int analyze(char* request,int clientID){
 /*
 Cas non traités :
 - le client veut utiliser une méthode non autorisée : redondant avec 501
+- le client veut accéder à un dossier : à utiliser pour le sprint 4 (CGI), mais à implémenter maintenant pour nous avancer. Aka : appeler la fonction qui va bien, mais ne pas la coder pour le moment
 */
 
 /*
