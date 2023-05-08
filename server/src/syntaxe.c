@@ -114,72 +114,95 @@ int analyze(char* request,int clientID){
 	_Token* allHeaders = call_parser(request,"header_field",&occurences,&validSyntax);
 	_Token* Ttarget = call_parser(request,"request_target",&occurences,&validSyntax);
 
-	int Lversion;
-	char* version = getElementValue(Tversion->node,&Lversion); // PAS UN HEADER !
+	// Get the version and its length
+	int version_length;
+	char* version = getElementValue(Tversion->node,&version_length); // PAS UN HEADER !
 
-	int Lmethod;
-	char* method = getElementValue(Tmethod->node,&Lmethod); // PAS UN HEADER !
+	// Get the method and its length
+	int method_length;
+	char* method = getElementValue(Tmethod->node,&method_length); // PAS UN HEADER !
 
-	int Ltarget;
-	char* request_target = getElementValue(Ttarget->node,&Ltarget); // PAS UN HEADER !
+	// Get the target and its length
+	int target_length;
+	char* request_target = getElementValue(Ttarget->node,&target_length); // PAS UN HEADER !
 
+	// Get the headers
 	char* host = getHeaderValue(allHeaders, "Host");
 	char* connection = getHeaderValue(allHeaders, "Connection");
 	char* accept_encoding = getHeaderValue(allHeaders, "Accept-Encoding");
 
 	//DEBUG
 	printf("# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #DEBUG\n");
-	printf("version=%.*s\n",Lversion,version);
-	printf("method=%.*s\n",Lmethod,method);
+	printf("version=%.*s\n",version_length,version);
+	printf("method=%.*s\n",method_length,method);
 	printf("host=%s\n",host);
 	printf("connection=%s\n",connection);
-	printf("request-target=%.*s\n",Ltarget,request_target);
+	printf("request-target=%.*s\n",target_length,request_target);
 	printf("accept-encoding=%s\n",accept_encoding);
 	printf("# # # # # # # # # ## # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #DEBUG END\n");
 
+	// Append the \0 to the version string
 	char version2[9];
 	strncpy(version2,version,8);
 	version2[8]=0;
 
+	// Declare the relative path to fetch the pages
 	char* path="../website"; //len=10
 
+	// Declare the content length variable
 	int content_length;
-	
 
+	// If the Host header is missing in a HTTP/1.1 request, send a 400 Bad Request
 	if(host == NULL && strncmp(version,"HTTP/1.0",8)!=0){
 		send_version_code("400 Bad Request", version2, clientID);
 		content_length = send_type_length("../website/errors/400.html",clientID);
 		body("../website/errors/400.html",clientID, content_length);
 		valeurRetour=-1;
+	// If the request target tries to reach a parent directory, send a 403 Forbidden
 	} else if(strstr(request_target,"..") != NULL){
 		printf("request_target contient ..\n");
 		send_version_code("403 Forbidden", version2, clientID);
 		content_length = send_type_length("../website/errors/404.html",clientID);
 		body("../website/errors/403.html",clientID, content_length);
 		valeurRetour=-1;
-	} else if(request_target!=NULL && !existing(request_target,Ltarget)){/*le fichier n'existe pas*/
+	// If the requested file does not exist, send a 404 Not Found
+	} else if(request_target!=NULL && !existing(request_target,target_length)){/*le fichier n'existe pas*/
 		send_version_code("404 Not Found", version2, clientID);
 		content_length = send_type_length("../website/errors/404.html",clientID);
 		body("../website/errors/404.html",clientID, content_length);
 		valeurRetour=-1;
+	// If the HTTP version is not supported, send a 505 HTTP Version Not Supported
 	} else if(strncmp(version,"HTTP/1.0",8) && strncmp(version,"HTTP/1.1",8)){
 		send_version_code("505 HTTP Version Not Supported", "HTTP/1.0", clientID);
 		content_length = send_type_length("../website/errors/505.html",clientID);
 		body("../website/errors/505.html",clientID, content_length);
 		valeurRetour=-1;
+	// If the method is not supported, send a 501 Not Implemented
 	} else if(strncmp(method,"GET",3) && strncmp(method,"HEAD",4) && strncmp(method,"POST",4)){
 		send_version_code("501 Not Implemented", version2, clientID);
 		content_length = send_type_length("../website/errors/501.html",clientID);
 		body("../website/errors/501.html",clientID, content_length);
+	// Else, the request is valid
 	} else {
-		int totalLen=10+Ltarget+1;
+		// Count for the "../website" length and the '\0' character in the total length
+		int totalLen=10+target_length+1;
+		// Declare the complete path
 		char complete[totalLen];
+		// Copy the "../website" part at the beginning of the complete path
 		strcpy(complete,path);
-		strncpy(&complete[10],request_target,Ltarget);
+		// Add the request_target part at the end of the complete path
+		strncpy(&complete[10],request_target,target_length);
+		// Add the '\0' character at the end of the complete path
 		complete[totalLen-1]=0;
+		// Send the headers
 		send_version_code("200 OK", version2, clientID);
 		content_length = send_type_length(complete,clientID);
-		body(complete,clientID, content_length);
+
+		// If the requested method is GET, send the body. Otherwise, juste the headers.
+		if(strncmp(method,"GET",3)==0){
+			body(complete,clientID, content_length);
+		}
+
 		valeurRetour=1;
 	}
 
