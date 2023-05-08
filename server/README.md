@@ -23,3 +23,6 @@ A more suitable solution would be to modifie `/etc/hosts` to add the following l
 127.0.0.1   hidden-site
 127.0.0.1   master-site
 ```
+
+Conception : 
+If no host specified in HTTP/1.0, the default host (master-site) is used.
