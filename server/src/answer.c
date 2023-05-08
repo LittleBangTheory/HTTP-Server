@@ -124,7 +124,7 @@ int send_type_length(char* filename, int clientID){
         type = "text/css; charset=utf-8";
     } else if (!strcmp(extension, ".js")){
         type = "application/javascript; charset=utf-8";
-    } else if (!strcmp(extension, ".jpg")){
+    } else if (!strcmp(extension, ".jpg") || !strcmp(extension, ".jpeg")){
         type = "image/jpeg";
     } else if (!strcmp(extension, ".png")){
         type = "image/png";
@@ -161,7 +161,7 @@ int send_type_length(char* filename, int clientID){
     // Content-Length
     struct stat st;
     stat(filename, &st);
-    int size = st.st_size + 3;
+    int size = st.st_size;
 
     // Allocate the memory
     char* string = malloc(sizeof(char)*(strlen("Content-Type: ")+strlen(type)+strlen("\r\nContent-Length: ")+size+strlen("\r\n\0")));
@@ -206,7 +206,7 @@ int body(char* filename, int clientID, int size){
         fclose (file);
 
         // Allocate the memory
-        string = malloc(sizeof(char)*(strlen("\r\n")+size+strlen("\r\n\r\n\0")));
+        string = calloc(strlen("\r\n")+size+strlen("\r\n\r\n\0")+2,sizeof(char));
         if (string == NULL){
             perror("malloc");
             return -1;
@@ -218,7 +218,7 @@ int body(char* filename, int clientID, int size){
         printf("%s", string);
 
         // Send the string
-        writeDirectClient(clientID,string,size);
+        writeDirectClient(clientID,string,size+2);
 
         // Free the memory
         free(string);
