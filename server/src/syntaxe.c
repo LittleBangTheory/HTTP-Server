@@ -36,11 +36,7 @@ _Token* call_parser(char* requete,char *p,int* headersFound,int* isValid,void* r
 		r=searchTree(root,p); 
 		tok=r; 
 		while (tok) {
-			*headersFound=(*headersFound)+1;/*
-			int l;
-			char *s; 
-			s=getElementValue(tok->node,&l); 
-			printf("FOUND [%.*s]\n",l,s);*/
+			*headersFound=(*headersFound)+1;
 			tok=tok->next;
 		}
 		//purgeElement(&r);
@@ -66,13 +62,10 @@ char *getHeaderValue(_Token* headers, char* headerName,int* counter){
 	*counter=0;
 	while (tmp){
 		found = strncmp(getElementValue(tmp->node,&a),headerName,len);
-		//printf("Comparing %.*s and %.*s\n",len,headerName,len,getElementValue(tmp->node,&a));
 		if (found==0 && res==NULL){
-			//printf("a=%d\n",a);
 			res=malloc(sizeof(char)*a+sizeof(char));
 			strncpy(res,getElementValue(tmp->node,&a),a);
 			res[a]=0;
-			//printf("REEEEEEEEES=%s\n",res);
 		}
 		if (found==0)
 		{
@@ -96,10 +89,7 @@ int existing(char* s,int longueur, char* path, int pathLen){
 	char* complete = malloc(sizeof(char)*totalLen); 
 	strcpy(complete,path);
 	strncat(complete,s,longueur);
-	printf("\nEst-ce que %s existe ?\n",complete);
 	int res = access(complete,F_OK)+1;
-	if (res) printf("Oui\n");
-	else printf("Oui\n");
 	
 	free(complete);
 	return res;
@@ -148,17 +138,6 @@ int analyze(char* request,int clientID){
 	char* accept_encoding = getHeaderValue(allHeaders, "Accept-Encoding",&nbreHosts);
 	char* host = getHeaderValue(allHeaders, "Host",&nbreHosts);
 
-	/*
-	//DEBUG
-	printf("# # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #DEBUG\n");
-	printf("version=%.*s\n",version_length,version);
-	printf("method=%.*s\n",method_length,method);
-	printf("host=%s\n",host);
-	printf("connection=%s\n",connection);
-	printf("request-target=%.*s\n",target_length,request_target);
-	printf("accept-encoding=%s\n",accept_encoding);
-	printf("# # # # # # # # # ## # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #DEBUG END\n");
-	*/
 	// We only want the values
 	int offset=5;
 	if (host!=NULL){
@@ -175,9 +154,6 @@ int analyze(char* request,int clientID){
 	int pathLen;
 	// Declare the content length variable
 	int content_length;
-
-	printf("Host=%s\n",host);
-	printf("Version=%s\n",version2);
 
 	// If the Host header is missing in a HTTP/1.1 request, send a 400 Bad Request
 	if((host == NULL && strncmp(version,"HTTP/1.0",8)!=0) || (host != NULL && strncmp(host, "hidden-site", 11)!=0 && strncmp(host, "master-site", 11)!=0 ) || (host != NULL && (nbreHosts!=1))){
@@ -262,6 +238,8 @@ int analyze(char* request,int clientID){
 	{
 		purgeTree(trees[i]);
 	}
+
+	printf("---------------------------------------------\n\n");
 	
 	return valeurRetour;
 }

@@ -1,3 +1,24 @@
+# README HTTP Server
+
+## Authors
+* Gabin Chognot
+* Julien Da Costa
+* Amelie Arnaud
+
+## Table of contents
+
+- [README HTTP Server](#readme-http-server)
+  - [Authors](#authors)
+  - [Table of contents](#table-of-contents)
+- [Libparser](#libparser)
+- [How to use](#how-to-use)
+  - [Configuration](#configuration)
+  - [Compilation](#compilation)
+  - [Execution](#execution)
+- [Conception](#conception)
+  - [Architecture](#architecture)
+  - [Limitations](#limitations)
+- [Tests](#tests)
 
 # Libparser
 
@@ -9,9 +30,11 @@
 
 `httpparser` : parser compilé, dont on peut modifier le ``main.c`` et l'API, qui utilise `libparser.so`
 
-# Configuration
+# How to use 
 
-If you are a h@ck3r, use Burpsuite to intercept the request and modify the Host header to match "hidden-site" ou "master-site". "Localhost" is not supported in HTTP/1.1.
+## Configuration
+
+If you are a *h@ck3r*, use Burpsuite to intercept the request and modify the Host header to match "hidden-site" ou "master-site". "Localhost" is not supported in HTTP/1.1.
 
 A more suitable solution would be to modifie `/etc/hosts` to add the following lines :
 ```
@@ -25,22 +48,38 @@ To do this, you can execute the following command in `server/src` (being in the 
 make hosts
 ```
 
+## Compilation
+
+To compile the server, you can execute the following command(s) in `server/src` :
+```Makefile
+make clean #If needed
+make
+```
+
+## Execution
+
+To execute the server, you can execute the following command(s) in `server/src` :
+```
+./server.exe
+```
+
 # Conception
- 
-If no host specified in HTTP/1.0, the default host (master-site) is used.
 
-If the "/" target is asked, the target is changed to "/index.html". 
+## Architecture
 
-The server can't send a 501 (Unauthorized method) error, because there are no unauthorized methods, only unimplemented ones.
+* If no host specified in HTTP/1.0, the default host (master-site) is used.
+* If the "/" target is asked, the target is changed to "/index.html". 
+
+## Limitations
+
+* The server can't send a 501 (Unauthorized method) error, because there are no unauthorized methods, only unimplemented ones.
+* The server can't handle chunked transfer encoding for now. It can't send a stream, and is limited to sending large files as a whole.
 
 # Tests
 
-You can find some Javascript in [hidden-site:7777/index.html](hidden-site:7777/index.html)
-
-You can find some CSS in every page.
-
-You can find images and icons in [master-site:7777/index.html](master-site:7777/index.html) and [hidden-site:7777/index.html](hidden-site:7777/index.html)
-
-You can find a pdf in [master-site:7777/about.html](master-site:7777/about.html)
-
-You can find a video in [hidden-site:7777/aboutme.html](hidden-site:7777/aboutme.html)
+You can find :
+* Some CSS in every page.
+* A JS script in [hidden-site:7777/index.html](hidden-site:7777/index.html). It changes randomly the background color of the page and the color of the text.
+* Images and icons in [master-site:7777/index.html](master-site:7777/index.html) and [hidden-site:7777/index.html](hidden-site:7777/index.html)
+* A pdf in [master-site:7777/about.html](master-site:7777/about.html)
+* A video in [hidden-site:7777/aboutme.html](hidden-site:7777/aboutme.html)
