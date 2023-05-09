@@ -82,16 +82,23 @@ char *getHeaderValue(_Token* headers, char* headerName,int* counter){
 * \brief Permet de tester l'existence d'un fichier
 * \param s Le fichier en question dans le répertoire website /!\ ne pas ajouter ../website !
 * \param longueur longueur du champ
+* \param path ../http/hidden-site or ../http/master-site -> to be completed with the relative file path
 * \return 0 si fichier inexistant, 1 sinon
 */
 int existing(char* s,int longueur, char* path, int pathLen){
+	// Get the total length of the path (path + file)
 	int totalLen=pathLen+longueur;
-	char* complete = malloc(sizeof(char)*totalLen); 
-	strcpy(complete,path);
-	strncat(complete,s,longueur);
-	int res = access(complete,F_OK)+1;
-	
-	free(complete);
+	// Allocate the memory for the path
+	char* complete_path = malloc(sizeof(char)*totalLen); 
+	// Copy the path into the complete path
+	strcpy(complete_path,path);
+	// Concatenate the file name
+	strncat(complete_path,s,longueur);
+	// Check if the file exists
+	int res = access(complete_path,F_OK)+1;
+	// Free the memory
+	free(complete_path);
+	// Return the status of existence of the file
 	return res;
 }
 
@@ -103,8 +110,11 @@ int existing(char* s,int longueur, char* path, int pathLen){
 * \return -1 si requete invalide. 0 ou 1 sinon
 */
 int analyze(char* request,int clientID){
-	int valeurRetour=0;
+	// Return value of 0 by default, 1 if the request is valid, -1 if the request is invalid
+	int returnValue=0;
+	// Declaration of the variables
 	int occurences,validSyntax;
+	// TODO : comment
 	void* trees[4]={NULL,NULL,NULL,NULL};
 	_Token* Tversion = call_parser(request,"HTTP_version",&occurences,&validSyntax,trees[0]);
 
@@ -125,6 +135,8 @@ int analyze(char* request,int clientID){
 	// Get the target and its length
 	int target_length;
 	char* request_target = getElementValue(Ttarget->node,&target_length); // PAS UN HEADER !
+
+	// If the request target is the server root, send the index.html file
 	if (strncmp(request_target,"/",target_length)==0)
 	{
 		request_target="/index.html";
@@ -160,7 +172,7 @@ int analyze(char* request,int clientID){
 		send_version_code("400 Bad Request", version2, clientID);
 		content_length = send_type_length("../html/errors/400.html",clientID);
 		body("../html/errors/400.html",clientID, content_length);
-		valeurRetour=-1;
+		returnValue=-1;
 
 	// If the request target tries to reach a parent directory, send a 403 Forbidden
 	} else {
@@ -182,21 +194,21 @@ int analyze(char* request,int clientID){
 			send_version_code("403 Forbidden", version2, clientID);
 			content_length = send_type_length("../html/errors/404.html",clientID);
 			body("../html/errors/403.html",clientID, content_length);
-			valeurRetour=-1;
+			returnValue=-1;
 
 		// If the requested file does not exist, send a 404 Not Found
 		} else if(request_target!=NULL && !existing(request_target,target_length, path, pathLen)){/*le fichier n'existe pas*/
 			send_version_code("404 Not Found", version2, clientID);
 			content_length = send_type_length("../html/errors/404.html",clientID);
 			body("../html/errors/404.html",clientID, content_length);
-			valeurRetour=-1;
+			returnValue=-1;
 
 		// If the HTTP version is not supported, send a 505 HTTP Version Not Supported
 		} else if(strncmp(version,"HTTP/1.0",8) && strncmp(version,"HTTP/1.1",8)){
 			send_version_code("505 HTTP Version Not Supported", "HTTP/1.0", clientID);
 			content_length = send_type_length("../html/errors/505.html",clientID);
 			body("../html/errors/505.html",clientID, content_length);
-			valeurRetour=-1;
+			returnValue=-1;
 
 		// If the method is not supported, send a 501 Not Implemented
 		} else if(strncmp(method,"GET",3) && strncmp(method,"HEAD",4) && strncmp(method,"POST",4)){
@@ -223,9 +235,11 @@ int analyze(char* request,int clientID){
 			// If the requested method is GET, send the body. Otherwise, juste the headers.
 			if(strncmp(method,"GET",3)==0){
 				body(complete,clientID, content_length);
+			} else {
+				send(clientID,"\r\n",2,0);
 			}
 
-			valeurRetour=1;
+			returnValue=1;
 
 			free(complete);
 		}
@@ -241,39 +255,8 @@ int analyze(char* request,int clientID){
 
 	printf("---------------------------------------------\n\n");
 	
-	return valeurRetour;
+	return returnValue;
 }
 
-/*
-Cas non traités :
-- le client veut utiliser une méthode non autorisée : redondant avec 501
-- le client veut accéder à un dossier : à utiliser pour le sprint 4 (CGI), mais à implémenter maintenant pour nous avancer. Aka : appeler la fonction qui va bien, mais ne pas la coder pour le moment
-*/
-
-/*
-HTTP request headers :
-
-Host : required, used for multisite (for sprint 3 part 2)
-Accept-Encoding : required but not used until sprint 4
-Connection : required (for sprint 3 part 1)
-
-Accept : unused
-Accept-Language : unused
-User-Agent : unused
-*/
-
-/*
-Code de retour utiles :
-200 OK
-400 Bad Request
-403 Forbidden (interdit, par exemple accès ../..)
-404 Not Found (Si le fichier n'existe pas) 
-405 Method Not Allowed (si par exemple méthode CONNECT alors qu'on fait que GET, HEAD, et POST
-500 Internal Server Error
-501 Not Implemented
-505 HTTP Version Not Supported
-
-Voir le wiki pour les détails
-*/
 
 
