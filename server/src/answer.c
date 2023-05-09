@@ -156,18 +156,22 @@ int send_type_length(char* filename, int clientID){
         type = "application/octet-stream";
     }
 
+    char* string = malloc(sizeof(char)*(strlen("Content-Type: ")+strlen(type)+3));
+    sprintf(string, "Content-Type: %s\r\n", type);
 
-    // TODO : séparer le cas content length et le cas chunked (est-ce qu'on doit gérer le streaming ?)
-    // Content-Length
+    writeDirectClient(clientID,string,strlen(string));
+    printf("%s", string);
+    free(string);
+
     struct stat st;
     stat(filename, &st);
     int size = st.st_size;
 
     // Allocate the memory
-    char* string = malloc(sizeof(char)*(strlen("Content-Type: ")+strlen(type)+strlen("\r\nContent-Length: ")+size+strlen("\r\n\0")));
+    string = calloc(strlen("Content-Length: ")+size+3,sizeof(char));
 
     // Concatenate the string
-    sprintf(string, "Content-Type: %s\r\nContent-Length: %d\r\n", type, size);
+    sprintf(string, "Content-Length: %d\r\n", size);
 
     printf("%s", string);
 

@@ -19,3 +19,7 @@ main.o: main.c
 clean:
 	@rm *.o
 	@echo "Done"
+
+hosts:
+	@sudo echo "127.0.0.2	hidden-site" >> /etc/hosts
+	@sudo echo "127.0.0.3	master-site" >> /etc/hosts

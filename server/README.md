@@ -1,8 +1,3 @@
-# TODO
-* Inclure l'API dans le projet
-* Analyse sémantique d'une requête -> Détailler les règles pour les headers
-* Génération réponse + gestion connexion (doit savoir se servir de l'API)
-* Création d'un site web de test
 
 # Libparser
 
@@ -16,13 +11,36 @@
 
 # Configuration
 
-Use Burpsuite to intercept the request and modify the Host header to match "hidden-site" ou "master-site". "Localhost" is not supported anymore.
+If you are a h@ck3r, use Burpsuite to intercept the request and modify the Host header to match "hidden-site" ou "master-site". "Localhost" is not supported in HTTP/1.1.
 
 A more suitable solution would be to modifie `/etc/hosts` to add the following lines :
 ```
-127.0.0.1   hidden-site
-127.0.0.1   master-site
+<ip>   hidden-site
+<ip>   master-site
+```
+We recommand to use a local IP address, such as 127.0.0.2. The server is, however, listen to the 7777 port regardless of the IP address.
+
+To do this, you can execute the following command in `server/src` (being in the sudousers is required) :
+```
+make hosts
 ```
 
-Conception : 
+# Conception
+ 
 If no host specified in HTTP/1.0, the default host (master-site) is used.
+
+If the "/" target is asked, the target is changed to "/index.html". 
+
+The server can't send a 501 (Unauthorized method) error, because there are no unauthorized methods, only unimplemented ones.
+
+# Tests
+
+You can find some Javascript in [hidden-site:7777/index.html](hidden-site:7777/index.html)
+
+You can find some CSS in every page.
+
+You can find images and icons in [master-site:7777/index.html](master-site:7777/index.html) and [hidden-site:7777/index.html](hidden-site:7777/index.html)
+
+You can find a pdf in [master-site:7777/about.html](master-site:7777/about.html)
+
+You can find a video in [hidden-site:7777/aboutme.html](hidden-site:7777/aboutme.html)

@@ -83,6 +83,7 @@ char *getHeaderValue(_Token* headers, char* headerName,int* counter){
 	}
 	return res;
 }
+
 /**
 * \fn int existing(char* s,int longueur)
 * \brief Permet de tester l'existence d'un fichier
@@ -239,6 +240,8 @@ int analyze(char* request,int clientID){
 			strncat(complete,request_target,target_length);
 			// Send the headers
 			send_version_code("200 OK", version2, clientID);
+
+			//if the transfer encoding needs to be chunked, it will be treated here during sprint 4
 			content_length = send_type_length(complete,clientID);
 
 			// If the requested method is GET, send the body. Otherwise, juste the headers.
