@@ -11,6 +11,7 @@
 #include "../libparser/api.h" 
 #include "../headers/request.h"
 #include "../headers/answer.h"
+#include "../headers/syntaxe.h"
 
 #define false 0 
 
@@ -172,7 +173,7 @@ int analyze(char* request,int clientID){
 		send_version_code("400 Bad Request", version2, clientID);
 		content_length = send_type_length("../html/errors/400.html",clientID);
 		body("../html/errors/400.html",clientID, content_length);
-		returnValue=-1;
+		returnValue=ERROR;
 
 	// If the request target tries to reach a parent directory, send a 403 Forbidden
 	} else {
@@ -194,21 +195,21 @@ int analyze(char* request,int clientID){
 			send_version_code("403 Forbidden", version2, clientID);
 			content_length = send_type_length("../html/errors/404.html",clientID);
 			body("../html/errors/403.html",clientID, content_length);
-			returnValue=-1;
+			returnValue=ERROR;
 
 		// If the requested file does not exist, send a 404 Not Found
 		} else if(request_target!=NULL && !existing(request_target,target_length, path, pathLen)){/*le fichier n'existe pas*/
 			send_version_code("404 Not Found", version2, clientID);
 			content_length = send_type_length("../html/errors/404.html",clientID);
 			body("../html/errors/404.html",clientID, content_length);
-			returnValue=-1;
+			returnValue=ERROR;
 
 		// If the HTTP version is not supported, send a 505 HTTP Version Not Supported
 		} else if(strncmp(version,"HTTP/1.0",8) && strncmp(version,"HTTP/1.1",8)){
 			send_version_code("505 HTTP Version Not Supported", "HTTP/1.0", clientID);
 			content_length = send_type_length("../html/errors/505.html",clientID);
 			body("../html/errors/505.html",clientID, content_length);
-			returnValue=-1;
+			returnValue=ERROR;
 
 		// If the method is not supported, send a 501 Not Implemented
 		} else if(strncmp(method,"GET",3) && strncmp(method,"HEAD",4) && strncmp(method,"POST",4)){
@@ -236,10 +237,10 @@ int analyze(char* request,int clientID){
 			if(strncmp(method,"GET",3)==0){
 				body(complete,clientID, content_length);
 			} else {
-				send(clientID,"\r\n",2,0);
+				returnValue=ERROR;
 			}
 
-			returnValue=1;
+			returnValue=OK;
 
 			free(complete);
 		}
