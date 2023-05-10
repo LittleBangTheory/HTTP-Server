@@ -278,8 +278,10 @@ int analyze(char* request,int clientID){
 	// If the request target is the server root, send the index.html file
 	if (strncmp(clean_target,"/",target_length)==0)
 	{
-		clean_target="/index.html";
-		target_length=11;
+		free(clean_target);
+		clean_target = calloc(12,sizeof(char));
+		strncpy(clean_target,"/index.html",12);
+		target_length = 11;
 		printf("Definitive request target : %s\n",clean_target);
 	}
 
@@ -365,6 +367,7 @@ int analyze(char* request,int clientID){
 			}
 
 			returnValue=OK;
+			printf("Connection : %s\n",connection);
 			if (connection != NULL && strstr(connection,"keep-alive")!=NULL)
 			{
 				returnValue=KEEP_ALIVE;
@@ -376,6 +379,7 @@ int analyze(char* request,int clientID){
 		}
 	}
 	// Free the memory of the clean target
+	printf("clean_target : %s\n",clean_target);
 	free(clean_target);
 
 	purgeElement(&allHeaders);
