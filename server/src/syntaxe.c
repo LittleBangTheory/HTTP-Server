@@ -1,3 +1,8 @@
+/**
+ * @file syntaxe.c
+ * @brief Contains the functions to analyze the request, and call answer.c
+ */
+
 #include <stdio.h> 
 #include <stdlib.h> 
 #include <string.h> 

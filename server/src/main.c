@@ -1,3 +1,8 @@
+/**
+ * @file main.c
+ * @brief Main file of the server, responsible for the connection with the client and the call of the functions that analyze the request and send the answer
+ */
+
 //GLOBAL INCLUDE SECTION
 #include <stdio.h> 
 #include <stdlib.h> 
@@ -21,7 +26,12 @@
 #include "../headers/syntaxe.h"
 #endif
 
-//CODE SECTION
+/**
+ * @brief main function of the program
+ * @param argc 
+ * @param argv 
+ * @return int 
+ */
 int main(int argc, char const *argv[])
 {
     // Declaration of the structure destinated to store the requests

@@ -1,8 +1,19 @@
-/** \file answer.c
- * This file will execute 2 or 3 types of request :
- *  - GET
- *  - HEAD
- *  - POST
+/** @file answer.c
+ * @brief Responsible for building and sending the answer to the client.
+ * 
+ * Sends :
+ * 
+ *  Server : nom du serveur Content-Language : La langue utilisée. (exemple : fr-FR)
+ * 
+ *  Date : Date et heure de la réponse
+ * 
+ *  Content-Type : le format utilisé (exemple : text/html; charset=utf-8)
+ * 
+ *  Content-Length : Taille de la représentation (en octet) 
+ * 
+ * Doesn't still send :  
+ * 
+ *  Transfer-Encoding : chunked, compress, deflate, gzip, identity. Chunked est utilisé pour les réponses de type "streaming", obligatoire en l'absence de Content-Length
 */
 
 #include <stdio.h>
@@ -12,34 +23,6 @@
 #include <assert.h>
 #include <time.h>
 #include "../headers/request.h"
-
-/* Headers to send :
-[] Server : nom du serveur 
-[] Content-Language : La langue utilisée. (exemple : fr-FR)
-[] Date : Date et heure de la réponse
-[] Content-Type : le format utilisé (exemple : text/html; charset=utf-8)
-[] Content-Length : Taille de la représentation (en octet) 
-
-[] Transfer-Encoding : chunked, compress, deflate, gzip, identity
-    chunked est utilisé pour les réponses de type "streaming", obligatoire en l'absence de Content-Length
-*/
-
-/*
-Useless headers :
-* Last-Modified : Date et heure de la dernière modification du document
-* Connection : close ou keep-alive
-* Location : URL de redirection
-* Content-Encoding : gzip, deflate, compress, identity
-* Content-Disposition : inline ou attachment
-* Content-Range : bytes 0-499/1234
-* Accept-Ranges : bytes
-* ETag : "1234"
-* Expires : Date et heure d'expiration
-* Cache-Control : no-cache, no-store, must-revalidate, private
-* Pragma : no-cache
-* Set-Cookie : nom=valeur; expires=Date; path=chemin; domain=domaine; secure
-*/
-
 #include "../headers/answer.h"
 
 /**
@@ -185,7 +168,7 @@ int send_type_length(char* filename, int clientID){
 }
 
 /**
- * @brief Send the body of the request. This function is called directly by send_type_length() because it needs the size of the file
+ * @brief Send the body of the request.
  * @param filename relative path of the file
  * @param clientID ID of the client
  * @param size Size of the file
