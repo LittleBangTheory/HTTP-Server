@@ -8,10 +8,16 @@
 #include <fcntl.h>
 #include <errno.h>
 
-#include "../libparser/api.h" 
+#ifndef _API_
+#define _API_
+#include "../libparser/api.h"
+#endif
 #include "../headers/request.h"
 #include "../headers/answer.h"
+#ifndef _SYNTAXE_
+#define _SYNTAXE_
 #include "../headers/syntaxe.h"
+#endif
 
 #define false 0 
 
@@ -103,6 +109,119 @@ int existing(char* s,int longueur, char* path, int pathLen){
 	return res;
 }
 
+/*Algorithm :
+   2.  While the input buffer is not empty, loop as follows:
+
+       A.  If the input buffer begins with a prefix of "../" or "./",
+           then remove that prefix from the input buffer; otherwise,
+
+       B.  if the input buffer begins with a prefix of "/./" or "/.",
+           where "." is a complete path segment, then replace that
+           prefix with "/" in the input buffer; otherwise,
+
+       C.  if the input buffer begins with a prefix of "/../" or "/..",
+           where ".." is a complete path segment, then replace that
+           prefix with "/" in the input buffer and remove the last
+           segment and its preceding "/" (if any) from the output
+           buffer; otherwise,
+
+       D.  if the input buffer consists only of "." or "..", then remove
+           that from the input buffer; otherwise,
+
+       E.  move the first path segment in the input buffer to the end of
+           the output buffer, including the initial "/" character (if
+           any) and any subsequent characters up to, but not including,
+           the next "/" character or the end of the input buffer.
+
+   3.  Finally, the output buffer is returned as the result of
+       remove_dot_segments.
+*/
+
+/**
+ * @brief remove the dot segments from the path
+ * 
+ * @param s initial path
+ * @param length length of the path
+ * @return int 
+ */
+int dot_removal(char* s, int length){
+	// Allocate the memory for the buffer
+	char* buffer = calloc(length,sizeof(char));
+	// Index of the buffer
+	int buffer_index = 0;
+	// Add a '/' at the beginning of the buffer
+	buffer[0]='/';
+	buffer_index++;
+
+	// Delimiter for the strtok function
+	const char delim = '/';
+	// Get the first token
+	char* token;
+	token = strtok(s,&delim);
+
+	// While there is a token
+	while(token != NULL){
+		// If the token is ".."
+		if(strcmp(token,"..")==0){
+			// If buffer isn't empty (excepted for the '/'), remove the last segment
+			if(buffer_index>1){
+				buffer_index-=2;
+			}
+		}
+		// If the token is "."
+		else if(strcmp(token,".")==0){
+			//remove the token
+		}
+		else{
+			// Append the token value at the end of the buffer
+			strcat(buffer,token);
+			// Move the buffer index by the length of the added token
+			buffer_index+=strlen(token);
+			// Add a '/' at the end of the buffer
+			buffer[buffer_index]='/';
+			// Move the buffer index by 1
+			buffer_index++;
+		}
+
+		// Get the next token
+		token = strtok(NULL,&delim);
+	}
+
+	// Remove the last '/' of the buffer
+	buffer[buffer_index-1]=0;
+
+	// Free the memory of the initial string
+	free(s);
+
+	// Allocate the memory for the initial string (same size as the buffer)
+	s = malloc(sizeof(char)*buffer_index);
+
+	// Copy the buffer into the initial string
+	strncpy(s,buffer,buffer_index);
+
+	// Free the memory of the buffer
+	free(buffer);
+
+	// Return the length of the initial string
+	return buffer_index;
+}
+
+/**
+* \fn char* percent_encoding(char* request)
+* \brief Permet de transformer les %
+* \param request target
+* \return ptr vers la nouvelle target
+*/
+char* percent_encoding(char* request){
+	char*res=malloc(sizeof(char)*(strlen(request)+1));
+	int i = 0;
+	while (request[i]!='%')
+	{
+		i++;
+	}
+	
+}
+
 /**
 * \fn int analyze(char* request,int clientID)
 * \brief Permet de tester la validité d'une requete
@@ -119,7 +238,7 @@ int analyze(char* request,int clientID){
 	void* trees[4]={NULL,NULL,NULL,NULL};
 	_Token* Tversion = call_parser(request,"HTTP_version",&occurences,&validSyntax,trees[0]);
 
-	if (validSyntax==0){return 0;}
+	if (validSyntax==0){return ERROR;}
 
 	_Token* Tmethod = call_parser(request,"method",&occurences,&validSyntax,trees[1]);
 	_Token* allHeaders = call_parser(request,"header_field",&occurences,&validSyntax,trees[2]);
@@ -237,10 +356,17 @@ int analyze(char* request,int clientID){
 			if(strncmp(method,"GET",3)==0){
 				body(complete,clientID, content_length);
 			} else {
-				returnValue=ERROR;
+				// Not necessarly an error, but indicate to add a CRLF after the headers
+				writeDirectClient(clientID,"\r\n",2);
 			}
 
 			returnValue=OK;
+			if (strstr(connection,"keep-alive")!=NULL)
+			{
+				returnValue=KEEP_ALIVE;
+				printf("KEEP ALIVE !\n");
+			}
+			
 
 			free(complete);
 		}

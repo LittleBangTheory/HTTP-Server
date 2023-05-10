@@ -1,8 +1,7 @@
 //GLOBAL INCLUDE SECTION
 #include <stdio.h> 
 #include <stdlib.h> 
-#include <string.h> 
-#include "../headers/syntaxe.h"
+#include <string.h>
 #include "../headers/answer.h"
 
 //INCLUDE SECTION FOR LIBREQUEST
@@ -15,6 +14,11 @@
 #ifndef _API_
 #define _API_
 #include "../libparser/api.h"
+#endif
+
+#ifndef _SYNTAXE_
+#define _SYNTAXE_
+#include "../headers/syntaxe.h"
 #endif
 
 //CODE SECTION
@@ -45,8 +49,11 @@ int main(int argc, char const *argv[])
         }
         
         // Close the connection
-		endWriteDirectClient(request->clientId); 
-		requestShutdownSocket(request->clientId); 
+		endWriteDirectClient(request->clientId);
+        if (result_analyze!=KEEP_ALIVE)
+        {
+		requestShutdownSocket(request->clientId);
+        }
 	    freeRequest(request); 
     }
     
