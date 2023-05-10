@@ -9,3 +9,4 @@
 _Token* call_parser(char* requete,char *p,int* headersFound,int* isValid,void* root);
 char *getHeaderValue(_Token* headers, char* headerName,int* counter);
 int analyze(char* request,int clientID);
+int dot_removal(char** s, int length);

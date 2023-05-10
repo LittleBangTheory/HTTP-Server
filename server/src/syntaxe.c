@@ -144,7 +144,7 @@ int existing(char* s,int longueur, char* path, int pathLen){
  * @param length length of the path
  * @return int 
  */
-int dot_removal(char* s, int length){
+int dot_removal(char** s, int length){
 	// Allocate the memory for the buffer
 	char* buffer = calloc(length,sizeof(char));
 	// Index of the buffer
@@ -154,18 +154,23 @@ int dot_removal(char* s, int length){
 	buffer_index++;
 
 	// Delimiter for the strtok function
-	const char delim = '/';
+	const char* delim = "/";
 	// Get the first token
 	char* token;
-	token = strtok(s,&delim);
+	token = strtok(*s,delim);
 
-	// While there is a token
+	// While there is a token and there is no space in this token
 	while(token != NULL){
 		// If the token is ".."
 		if(strcmp(token,"..")==0){
 			// If buffer isn't empty (excepted for the '/'), remove the last segment
 			if(buffer_index>1){
-				buffer_index-=2;
+				printf("old buffer : %.*s\n",buffer_index,buffer);
+				buffer_index--;
+				while(buffer[buffer_index-1]!='/'){
+					buffer_index--;
+				}
+				printf("new buffer : %.*s\n",buffer_index,buffer);
 			}
 		}
 		// If the token is "."
@@ -184,20 +189,19 @@ int dot_removal(char* s, int length){
 		}
 
 		// Get the next token
-		token = strtok(NULL,&delim);
+		token = strtok(NULL,delim);
 	}
 
-	// Remove the last '/' of the buffer
-	buffer[buffer_index-1]=0;
-
-	// Free the memory of the initial string
-	free(s);
-
+	// Remove the last '/' of the buffer if it isn't the only character
+	if(buffer_index>1){
+		buffer[buffer_index-1]=0;
+	}
+	
 	// Allocate the memory for the initial string (same size as the buffer)
-	s = malloc(sizeof(char)*buffer_index);
+	*s = malloc(sizeof(char)*buffer_index);
 
 	// Copy the buffer into the initial string
-	strncpy(s,buffer,buffer_index);
+	strncpy(*s,buffer,buffer_index);
 
 	// Free the memory of the buffer
 	free(buffer);
@@ -212,7 +216,7 @@ int dot_removal(char* s, int length){
 * \param request target
 * \return ptr vers la nouvelle target
 */
-char* percent_encoding(char* request){
+/*char* percent_encoding(char* request){
 	char*res=malloc(sizeof(char)*(strlen(request)+1));
 	int i = 0;
 	while (request[i]!='%')
@@ -220,7 +224,7 @@ char* percent_encoding(char* request){
 		i++;
 	}
 	
-}
+}*/
 
 /**
 * \fn int analyze(char* request,int clientID)
@@ -256,19 +260,28 @@ int analyze(char* request,int clientID){
 	int target_length;
 	char* request_target = getElementValue(Ttarget->node,&target_length); // PAS UN HEADER !
 
-	// If the request target is the server root, send the index.html file
-	if (strncmp(request_target,"/",target_length)==0)
-	{
-		request_target="/index.html";
-		target_length=11;
-	}
-	
-
 	// Get the headers
 	int nbreHosts;
 	char* connection = getHeaderValue(allHeaders, "Connection",&nbreHosts);
 	char* accept_encoding = getHeaderValue(allHeaders, "Accept-Encoding",&nbreHosts);
 	char* host = getHeaderValue(allHeaders, "Host",&nbreHosts);
+
+	// Remove the dot segments from the path
+	// Allocate a new string that only contains the target
+	char* clean_target = calloc(target_length,sizeof(char));
+	strncpy(clean_target,request_target,target_length);
+
+	// Remove the dots
+	target_length = dot_removal(&clean_target,target_length);
+	printf("New request target is : %s, of length %d\n",clean_target, target_length);
+
+	// If the request target is the server root, send the index.html file
+	if (strncmp(clean_target,"/",target_length)==0)
+	{
+		clean_target="/index.html";
+		target_length=11;
+		printf("Definitive request target : %s\n",clean_target);
+	}
 
 	// We only want the values
 	int offset=5;
@@ -309,20 +322,11 @@ int analyze(char* request,int clientID){
 			path = "../html/master_site";
 		} 
 		// Declare the relative path to fetch the pages
-		if(strstr(request_target,"..") != NULL){
-			printf("request_target contient ..\n");
-			send_version_code("403 Forbidden", version2, clientID);
-			content_length = send_type_length("../html/errors/404.html",clientID);
-			body("../html/errors/403.html",clientID, content_length);
-			returnValue=ERROR;
-
-		// If the requested file does not exist, send a 404 Not Found
-		} else if(request_target!=NULL && !existing(request_target,target_length, path, pathLen)){/*le fichier n'existe pas*/
+		if(clean_target!=NULL && !existing(clean_target,target_length, path, pathLen)){/*le fichier n'existe pas*/
 			send_version_code("404 Not Found", version2, clientID);
 			content_length = send_type_length("../html/errors/404.html",clientID);
 			body("../html/errors/404.html",clientID, content_length);
 			returnValue=ERROR;
-
 		// If the HTTP version is not supported, send a 505 HTTP Version Not Supported
 		} else if(strncmp(version,"HTTP/1.0",8) && strncmp(version,"HTTP/1.1",8)){
 			send_version_code("505 HTTP Version Not Supported", "HTTP/1.0", clientID);
@@ -344,8 +348,8 @@ int analyze(char* request,int clientID){
 			char* complete = malloc(sizeof(char)*totalLen); 
 			// Copy the path part at the beginning of the complete path
 			strcpy(complete,path);
-			// Add the request_target part at the end of the complete path
-			strncat(complete,request_target,target_length);
+			// Add the clean_target part at the end of the complete path
+			strncat(complete,clean_target,target_length);
 			// Send the headers
 			send_version_code("200 OK", version2, clientID);
 
@@ -361,7 +365,7 @@ int analyze(char* request,int clientID){
 			}
 
 			returnValue=OK;
-			if (strstr(connection,"keep-alive")!=NULL)
+			if (connection != NULL && strstr(connection,"keep-alive")!=NULL)
 			{
 				returnValue=KEEP_ALIVE;
 				printf("KEEP ALIVE !\n");
@@ -371,6 +375,8 @@ int analyze(char* request,int clientID){
 			free(complete);
 		}
 	}
+	// Free the memory of the clean target
+	free(clean_target);
 
 	purgeElement(&allHeaders);
 	purgeElement(&Tmethod);
