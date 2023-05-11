@@ -318,7 +318,6 @@ int analyze(char* request,int clientID){
 			send_version_code("501 Not Implemented", version2, clientID);
 			content_length = send_type_length("../html/errors/501.html",clientID);
 			body("../html/errors/501.html",clientID, content_length);
-
 		// Else, the request is valid
 		} else {
 			// Count for the path length (\0 included in pathLen)
@@ -338,8 +337,16 @@ int analyze(char* request,int clientID){
 			// If the requested method is GET, send the body. Otherwise, juste the headers.
 			if(strncmp(method,"GET",3)==0){
 				body(complete,clientID, content_length);
+			} else if (strncmp(method,"POST",)){
+				/* Specs : 
+				* I added a form in master-site/contact.html, with an action "/submit-form".
+				* The POST request is made to that target with a Referer header to http://master-site:7777/contact.html, and a body like "name=test&email=test%40gmail.com" (percent encoded).
+				* "/submit-form" isn't necessarly a file, it's just a target that will be handled by the server, if made with the good headers.
+				* Content-Type is "application/x-www-form-urlencoded", I don't know if we need to handle it. 				
+				*/
+			}
 			} else {
-				// Not necessarly an error, but indicate to add a CRLF after the headers
+				// It is a HEAD request, so we just complete the headers by the last CRLF 
 				writeDirectClient(clientID,"\r\n",2);
 			}
 
