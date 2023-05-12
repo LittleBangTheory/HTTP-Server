@@ -216,7 +216,7 @@ int analyze(char* request,int clientID){
 	// Declaration of the variables
 	int occurences,validSyntax;
 	// TODO : comment
-	void* trees[4]={NULL,NULL,NULL,NULL};
+	void* trees[5]={NULL,NULL,NULL,NULL,NULL};
 	_Token* Tversion = call_parser(request,"HTTP_version",&occurences,&validSyntax,trees[0]);
 
 	if (validSyntax==0){return ERROR;}
@@ -224,6 +224,7 @@ int analyze(char* request,int clientID){
 	_Token* Tmethod = call_parser(request,"method",&occurences,&validSyntax,trees[1]);
 	_Token* allHeaders = call_parser(request,"header_field",&occurences,&validSyntax,trees[2]);
 	_Token* Ttarget = call_parser(request,"request_target",&occurences,&validSyntax,trees[3]);
+	_Token* Tbody = call_parser(request,"message_body",&occurences,&validSyntax,trees[4]);
 
 	// Get the version and its length
 	int version_length;
@@ -236,6 +237,10 @@ int analyze(char* request,int clientID){
 	// Get the target and its length
 	int target_length;
 	char* request_target = getElementValue(Ttarget->node,&target_length); // PAS UN HEADER !
+
+	// Get the body and its length
+	int body_length;
+	char* body = getElementValue(Tbody->node,&body_length); // PAS UN HEADER !
 
 	// Get the headers
 	int nbreHosts;
@@ -283,7 +288,7 @@ int analyze(char* request,int clientID){
 	if((host == NULL && strncmp(version,"HTTP/1.0",8)!=0) || (host != NULL && strncmp(host, "hidden-site", 11)!=0 && strncmp(host, "master-site", 11)!=0 ) || (host != NULL && (nbreHosts!=1))){
 		send_version_code("400 Bad Request", version2, clientID);
 		content_length = send_type_length("../html/errors/400.html",clientID);
-		body("../html/errors/400.html",clientID, content_length);
+		send_body("../html/errors/400.html",clientID, content_length);
 		returnValue=ERROR;
 
 	// If the request target tries to reach a parent directory, send a 403 Forbidden
@@ -304,20 +309,20 @@ int analyze(char* request,int clientID){
 		if(clean_target!=NULL && !existing(clean_target,target_length, path, pathLen)){/*le fichier n'existe pas*/
 			send_version_code("404 Not Found", version2, clientID);
 			content_length = send_type_length("../html/errors/404.html",clientID);
-			body("../html/errors/404.html",clientID, content_length);
+			send_body("../html/errors/404.html",clientID, content_length);
 			returnValue=ERROR;
 		// If the HTTP version is not supported, send a 505 HTTP Version Not Supported
 		} else if(strncmp(version,"HTTP/1.0",8) && strncmp(version,"HTTP/1.1",8)){
 			send_version_code("505 HTTP Version Not Supported", "HTTP/1.0", clientID);
 			content_length = send_type_length("../html/errors/505.html",clientID);
-			body("../html/errors/505.html",clientID, content_length);
+			send_body("../html/errors/505.html",clientID, content_length);
 			returnValue=ERROR;
 
 		// If the method is not supported, send a 501 Not Implemented
 		} else if(strncmp(method,"GET",3) && strncmp(method,"HEAD",4) && strncmp(method,"POST",4)){
 			send_version_code("501 Not Implemented", version2, clientID);
 			content_length = send_type_length("../html/errors/501.html",clientID);
-			body("../html/errors/501.html",clientID, content_length);
+			send_body("../html/errors/501.html",clientID, content_length);
 		// Else, the request is valid
 		} else {
 			// Count for the path length (\0 included in pathLen)
@@ -336,14 +341,37 @@ int analyze(char* request,int clientID){
 
 			// If the requested method is GET, send the body. Otherwise, juste the headers.
 			if(strncmp(method,"GET",3)==0){
-				body(complete,clientID, content_length);
-			} else if (strncmp(method,"POST",)){
+				send_body(complete,clientID, content_length);
+			} else if (strncmp(method,"POST",4)){
 				/* Specs : 
 				* I added a form in master-site/contact.html, with an action "/submit-form".
 				* The POST request is made to that target with a Referer header to http://master-site:7777/contact.html, and a body like "name=test&email=test%40gmail.com" (percent encoded).
 				* "/submit-form" isn't necessarly a file, it's just a target that will be handled by the server, if made with the good headers.
 				* Content-Type is "application/x-www-form-urlencoded", I don't know if we need to handle it. 				
 				*/
+
+				if(strncmp(clean_target,"/submit-form",12)==0){
+					// Get name and email from the body
+					char* name = strtok(body,"&");
+					char* email = strtok(NULL,"&");
+
+					// Get the name and email values
+					char* nameValue = strtok(name,"=");
+					char* emailValue = strtok(email,"=");
+					// Decode the email value
+					percent_encoding(emailValue);
+
+					// Check origin of the request
+					char* referer = get_header_value("Referer",headers);
+
+					// Send the headers
+					send_version_code("201 Created", version2, clientID);
+					
+					// Send a new file that indicates the name and email of the sender (like a js ?), or print them in the terminal
+				} else {
+					// Send 304 Not Modified if the target is not /submit-form
+					send_version_code("304 Not Modified", version2, clientID);
+				}
 			}
 			} else {
 				// It is a HEAD request, so we just complete the headers by the last CRLF 
@@ -360,8 +388,8 @@ int analyze(char* request,int clientID){
 			
 
 			free(complete);
-		}
 	}
+
 	// Free the memory of the clean target
 	printf("clean_target : %s\n",clean_target);
 	free(clean_target);

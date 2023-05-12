@@ -174,7 +174,7 @@ int send_type_length(char* filename, int clientID){
  * @param size Size of the file
  * @return int 
  */
-int body(char* filename, int clientID, int size){
+int send_body(char* filename, int clientID, int size){
     // Envoyer le body
     char* buffer = NULL;
     
