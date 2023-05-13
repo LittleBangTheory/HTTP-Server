@@ -195,9 +195,15 @@ int dot_removal(char** s, int length){
 * \return ptr vers la nouvelle target
 */
 char* percent_encoding(char* request){
+	// Y'a t-il un % ?
+	int i = 0;
+	while (request[i]!=0 && request[i]!='%') i++;
+	if (request[i]==0) return request; //Si il n'y a pas de %, on renvoie la requete telle quelle
+	
+	
 	//b sera la chaine retourné
     char* b = malloc(sizeof(char)*strlen(request)+sizeof(char));
-    int i = 0;
+    i = 0;
     int j = 0;
     while(i<strlen(request)){
         while(request[i]!=0 && request[i]!='%'){
@@ -207,7 +213,7 @@ char* percent_encoding(char* request){
         }
         i++;
         //Si on a un %XX :
-        if(48<=request[i] && request[i]<=57 && 48<=request[i+1] && request[i+1]<=57 ){
+        if((((48<=request[i] && request[i]<=57) || (65<=request[i] && request[i]<=70)) && ((48<=request[i+1] && request[i+1]<=57) || (65<=request[i+1] && request[i+1]<=70)))){
             char tmp=request[i+2];
             request[i+2]=0;
             long number = strtol(request+i,NULL,16);
@@ -292,6 +298,13 @@ int analyze(char* request,int clientID){
 		target_length = 11;
 		printf("Definitive request target : %s\n",clean_target);
 	}
+	else
+	{
+		clean_target = percent_encoding(clean_target);
+		target_length=strlen(clean_target);
+		printf("Definitive request target : %s\n",clean_target);
+	}
+	
 
 	// We only want the values
 	int offset=5;
@@ -368,7 +381,8 @@ int analyze(char* request,int clientID){
 			// If the requested method is GET, send the body. Otherwise, juste the headers.
 			if(strncmp(method,"GET",3)==0){
 				send_body(complete,clientID, content_length);
-			} else if (strncmp(method,"POST",4)){
+			} 
+			else if (strncmp(method,"POST",4)){
 				/* Specs : 
 				* I added a form in master-site/contact.html, with an action "/submit-form".
 				* The POST request is made to that target with a Referer header to http://master-site:7777/contact.html, and a body like "name=test&email=test%40gmail.com" (percent encoded).
@@ -388,18 +402,20 @@ int analyze(char* request,int clientID){
 					percent_encoding(emailValue);
 
 					// Check origin of the request
-					char* referer = get_header_value("Referer",headers);
+					int nbre_referer;
+					char* referer = getHeaderValue(allHeaders,"Referer",&nbre_referer);
 
 					// Send the headers
 					send_version_code("201 Created", version2, clientID);
 					
 					// Send a new file that indicates the name and email of the sender (like a js ?), or print them in the terminal
-				} else {
+				} 
+				else {
 					// Send 304 Not Modified if the target is not /submit-form
 					send_version_code("304 Not Modified", version2, clientID);
 				}
 			}
-			} else {
+			else {
 				// It is a HEAD request, so we just complete the headers by the last CRLF 
 				writeDirectClient(clientID,"\r\n",2);
 			}
@@ -411,9 +427,7 @@ int analyze(char* request,int clientID){
 				returnValue=KEEP_ALIVE;
 				printf("KEEP ALIVE !\n");
 			}
-			
-
-			free(complete);
+		}
 	}
 
 	// Free the memory of the clean target
