@@ -275,10 +275,11 @@ int analyze(char* request,int clientID){
 	char* body = getElementValue(Tbody->node,&body_length); // PAS UN HEADER !
 
 	// Get the headers
-	int nbreHosts;
+	int nbreHosts, nbre_referer;
 	char* connection = getHeaderValue(allHeaders, "Connection",&nbreHosts);
 	char* accept_encoding = getHeaderValue(allHeaders, "Accept-Encoding",&nbreHosts);
 	char* host = getHeaderValue(allHeaders, "Host",&nbreHosts);
+	char* referer = getHeaderValue(allHeaders,"Referer",&nbre_referer);
 
 	// Remove the dot segments from the path
 	// Allocate a new string that only contains the target
@@ -287,7 +288,6 @@ int analyze(char* request,int clientID){
 
 	// Remove the dots
 	target_length = dot_removal(&clean_target,target_length);
-	printf("New request target is : %s, of length %d\n",clean_target, target_length);
 
 	// If the request target is the server root, send the index.html file
 	if (strncmp(clean_target,"/",target_length)==0)
@@ -296,13 +296,11 @@ int analyze(char* request,int clientID){
 		clean_target = calloc(12,sizeof(char));
 		strncpy(clean_target,"/index.html",12);
 		target_length = 11;
-		printf("Definitive request target : %s\n",clean_target);
 	}
 	else
 	{
 		clean_target = percent_encoding(clean_target);
 		target_length=strlen(clean_target);
-		printf("Definitive request target : %s\n",clean_target);
 	}
 	
 
@@ -345,7 +343,7 @@ int analyze(char* request,int clientID){
 			path = "../html/master_site";
 		} 
 		// Declare the relative path to fetch the pages
-		if(clean_target!=NULL && !existing(clean_target,target_length, path, pathLen)){/*le fichier n'existe pas*/
+		if(strncmp(method,"POST",4) && clean_target!=NULL && !existing(clean_target,target_length, path, pathLen)){/*le fichier n'existe pas*/
 			send_version_code("404 Not Found", version2, clientID);
 			content_length = send_type_length("../html/errors/404.html",clientID);
 			send_body("../html/errors/404.html",clientID, content_length);
@@ -382,7 +380,7 @@ int analyze(char* request,int clientID){
 			if(strncmp(method,"GET",3)==0){
 				send_body(complete,clientID, content_length);
 			} 
-			else if (strncmp(method,"POST",4)){
+			else if (strncmp(method,"POST",4) == 0){
 				/* Specs : 
 				* I added a form in master-site/contact.html, with an action "/submit-form".
 				* The POST request is made to that target with a Referer header to http://master-site:7777/contact.html, and a body like "name=test&email=test%40gmail.com" (percent encoded).
@@ -396,19 +394,19 @@ int analyze(char* request,int clientID){
 					char* email = strtok(NULL,"&");
 
 					// Get the name and email values
-					char* nameValue = strtok(name,"=");
-					char* emailValue = strtok(email,"=");
+					strtok(name,"=");
+					char* nameValue = strtok(NULL,"=");
+					strtok(email,"=");
+					char* emailValue = strtok(NULL,"=");
+					printf("Unsanitized name : %s and email : %s\n",nameValue,emailValue);
 					// Decode the email value
-					percent_encoding(emailValue);
-
-					// Check origin of the request
-					int nbre_referer;
-					char* referer = getHeaderValue(allHeaders,"Referer",&nbre_referer);
+					char* sanytizedEmailValue = percent_encoding(emailValue);
 
 					// Send the headers
 					send_version_code("201 Created", version2, clientID);
 					
 					// Send a new file that indicates the name and email of the sender (like a js ?), or print them in the terminal
+					printf("Name : %s, Email : %s\n",nameValue,sanytizedEmailValue);
 				} 
 				else {
 					// Send 304 Not Modified if the target is not /submit-form
