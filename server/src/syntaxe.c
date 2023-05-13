@@ -401,13 +401,12 @@ int analyze(char* request,int clientID){
 				// Free the clean_target to reallocate it
 				free(clean_target);
 				// Get the length of the page : The char after the last '/' is the beginning of the page (here, the page is contact.html)
-				target_length = strlen(page+1);
+				target_length = strlen(page);
 				// Allocate the clean_target again
 				clean_target = malloc(sizeof(char)*target_length);
 				// Copy the page part in the clean_target
-				strncpy(clean_target,page+1,target_length);
+				strncpy(clean_target,page,target_length);
 
-				printf("clean_target : %s\n",clean_target);
 			// Otherwise, it is a GET of HEAD request
 			} else {
 				// Send the 200 OK code (+ date and server header)
@@ -423,17 +422,15 @@ int analyze(char* request,int clientID){
 			// Add the clean_target part at the end of the complete path
 			strncat(complete,clean_target,target_length);
 
+			printf("Complete path : %s\n",complete);
+
 			//if the transfer encoding needs to be chunked, it will be treated here during sprint 4
 			content_length = send_type_length(complete,clientID);
 
-			// If the requested method is GET, send the body. Otherwise, juste the headers.
-			if(strncmp(method,"GET",3)==0){
+			// If the requested method is GET or POST, send the body. Otherwise, juste the headers.
+			if(strncmp(method,"GET",3)==0 || strncmp(method,"POST",4) == 0){
 				send_body(complete,clientID, content_length);
-			} else if (strncmp(method,"POST",4) == 0){
-				printf("Referer : %s\n",referer);
-				send_body("../html/master_site/contact.html",clientID, content_length);
-			}
-			else {
+			} else {
 				// It is a HEAD request, so we just complete the headers by the last CRLF 
 				writeDirectClient(clientID,"\r\n",2);
 			}
