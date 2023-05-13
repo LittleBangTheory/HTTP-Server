@@ -69,6 +69,9 @@ To execute the server, you can execute the following command(s) in `server/src` 
 
 * If no host specified in HTTP/1.0, the default host (master-site) is used.
 * If the "/" target is asked, the target is changed to "/index.html". 
+* The server supports GET, HEAD, and POST requests
+* The server supports percent encoding.
+* The server supports dot segment removal.
 
 ## Limitations
 
@@ -82,4 +85,5 @@ You can find :
 * A JS script in [hidden-site:7777/index.html](hidden-site:7777/index.html). It changes randomly the background color of the page and the color of the text.
 * Images and icons in [master-site:7777/index.html](master-site:7777/index.html) and [hidden-site:7777/index.html](hidden-site:7777/index.html)
 * A pdf in [master-site:7777/about.html](master-site:7777/about.html)
-* A video in [hidden-site:7777/aboutme.html](hidden-site:7777/aboutme.html)
+* A video in [hidden-site:7777/aboutme.html](hidden-site:7777/aboutme.html). 
+* A form in [master-site:7777/contact.html](master-site:7777/contact.html). It doesn't gives feedback, because there is no PHP server, but the results are printed in the terminal.
