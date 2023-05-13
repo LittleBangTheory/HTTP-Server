@@ -191,17 +191,43 @@ int dot_removal(char** s, int length){
 * \fn char* percent_encoding(char* request)
 * \brief Permet de transformer les %
 * \param request target
+* \example string = percent_encoding(string)
 * \return ptr vers la nouvelle target
 */
-/*char* percent_encoding(char* request){
-	char*res=malloc(sizeof(char)*(strlen(request)+1));
-	int i = 0;
-	while (request[i]!='%')
-	{
-		i++;
-	}
-	
-}*/
+char* percent_encoding(char* request){
+	//b sera la chaine retourné
+    char* b = malloc(sizeof(char)*strlen(request)+sizeof(char));
+    int i = 0;
+    int j = 0;
+    while(i<strlen(request)){
+        while(request[i]!=0 && request[i]!='%'){
+            b[j]=request[i];
+            i++;
+            j++;
+        }
+        i++;
+        //Si on a un %XX :
+        if(48<=request[i] && request[i]<=57 && 48<=request[i+1] && request[i+1]<=57 ){
+            char tmp=request[i+2];
+            request[i+2]=0;
+            long number = strtol(request+i,NULL,16);
+            request[i+2]=tmp;
+            b[j]=(char)number;
+            j++;
+            i+=2;
+        }
+        // Sinon
+        else{
+            b[j]=request[i-1];
+            b[j+1]=request[i];
+            b[j+2]=request[i+1];
+            j+=3;
+            i+=2;
+        }
+    }
+	free(request);
+	return b;
+}
 
 /**
 * \fn int analyze(char* request,int clientID)
