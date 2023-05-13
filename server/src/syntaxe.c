@@ -194,7 +194,7 @@ int dot_removal(char** s, int length){
 * \example string = percent_encoding(string)
 * \return ptr vers la nouvelle target
 */
-char* percent_encoding(char* request){
+char* percent_encoding(char* request, int freeRequest){
 	// Y'a t-il un % ?
 	int i = 0;
 	while (request[i]!=0 && request[i]!='%') i++;
@@ -231,7 +231,12 @@ char* percent_encoding(char* request){
             i+=2;
         }
     }
-	free(request);
+
+	// Free the memory of the initial string if needed
+	if (freeRequest){
+		free(request);
+	}
+
 	return b;
 }
 
@@ -299,7 +304,7 @@ int analyze(char* request,int clientID){
 	}
 	else
 	{
-		clean_target = percent_encoding(clean_target);
+		clean_target = percent_encoding(clean_target, 1);
 		target_length=strlen(clean_target);
 	}
 	
@@ -333,13 +338,9 @@ int analyze(char* request,int clientID){
 		// If the client request for the Host "hidden-site", send it as host. Otherwise, use default host "master-site".
 		if(host != NULL && strncmp(host, "hidden-site", 11) == 0){
 			pathLen = 20;
-			//path = malloc(sizeof(char)*pathLen);
-			//strcpy(path,"../html/hidden_site");
 			path = "../html/hidden_site";
 		} else {
 			pathLen = 20;
-			//path = malloc(sizeof(char)*pathLen); 
-			//strcpy(path,"../html/master_site");
 			path = "../html/master_site";
 		} 
 		// Declare the relative path to fetch the pages
@@ -362,25 +363,8 @@ int analyze(char* request,int clientID){
 			send_body("../html/errors/501.html",clientID, content_length);
 		// Else, the request is valid
 		} else {
-			// Count for the path length (\0 included in pathLen)
-			int totalLen=pathLen+target_length;
-			// Declare the complete path
-			char* complete = malloc(sizeof(char)*totalLen); 
-			// Copy the path part at the beginning of the complete path
-			strcpy(complete,path);
-			// Add the clean_target part at the end of the complete path
-			strncat(complete,clean_target,target_length);
-			// Send the headers
-			send_version_code("200 OK", version2, clientID);
-
-			//if the transfer encoding needs to be chunked, it will be treated here during sprint 4
-			content_length = send_type_length(complete,clientID);
-
-			// If the requested method is GET, send the body. Otherwise, juste the headers.
-			if(strncmp(method,"GET",3)==0){
-				send_body(complete,clientID, content_length);
-			} 
-			else if (strncmp(method,"POST",4) == 0){
+			// If it is a POST request, process the data before sending the page
+			if (strncmp(method,"POST",4) == 0){
 				/* Specs : 
 				* I added a form in master-site/contact.html, with an action "/submit-form".
 				* The POST request is made to that target with a Referer header to http://master-site:7777/contact.html, and a body like "name=test&email=test%40gmail.com" (percent encoded).
@@ -398,20 +382,56 @@ int analyze(char* request,int clientID){
 					char* nameValue = strtok(NULL,"=");
 					strtok(email,"=");
 					char* emailValue = strtok(NULL,"=");
-					printf("Unsanitized name : %s and email : %s\n",nameValue,emailValue);
 					// Decode the email value
-					char* sanytizedEmailValue = percent_encoding(emailValue);
+					char* sanytizedEmailValue = percent_encoding(emailValue, 0);
 
 					// Send the headers
 					send_version_code("201 Created", version2, clientID);
 					
-					// Send a new file that indicates the name and email of the sender (like a js ?), or print them in the terminal
+					// Print the values in the terminal
 					printf("Name : %s, Email : %s\n",nameValue,sanytizedEmailValue);
-				} 
-				else {
+				} else {
 					// Send 304 Not Modified if the target is not /submit-form
 					send_version_code("304 Not Modified", version2, clientID);
 				}
+
+				// Change the target to the referer
+				// Get the last position of the '/' in the referer
+				char* page = strrchr(referer,'/');
+				// Free the clean_target to reallocate it
+				free(clean_target);
+				// Get the length of the page : The char after the last '/' is the beginning of the page (here, the page is contact.html)
+				target_length = strlen(page+1);
+				// Allocate the clean_target again
+				clean_target = malloc(sizeof(char)*target_length);
+				// Copy the page part in the clean_target
+				strncpy(clean_target,page+1,target_length);
+
+				printf("clean_target : %s\n",clean_target);
+			// Otherwise, it is a GET of HEAD request
+			} else {
+				// Send the 200 OK code (+ date and server header)
+				send_version_code("200 OK", version2, clientID);
+			}
+
+			// Count for the path length (\0 included in pathLen)
+			int totalLen=pathLen+target_length;
+			// Declare the complete path
+			char* complete = malloc(sizeof(char)*totalLen); 
+			// Copy the path part at the beginning of the complete path
+			strcpy(complete,path);
+			// Add the clean_target part at the end of the complete path
+			strncat(complete,clean_target,target_length);
+
+			//if the transfer encoding needs to be chunked, it will be treated here during sprint 4
+			content_length = send_type_length(complete,clientID);
+
+			// If the requested method is GET, send the body. Otherwise, juste the headers.
+			if(strncmp(method,"GET",3)==0){
+				send_body(complete,clientID, content_length);
+			} else if (strncmp(method,"POST",4) == 0){
+				printf("Referer : %s\n",referer);
+				send_body("../html/master_site/contact.html",clientID, content_length);
 			}
 			else {
 				// It is a HEAD request, so we just complete the headers by the last CRLF 
