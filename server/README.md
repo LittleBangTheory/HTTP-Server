@@ -10,8 +10,8 @@
 - [README HTTP Server](#readme-http-server)
   - [Authors](#authors)
   - [Table of contents](#table-of-contents)
-- [Libparser](#libparser)
 - [How to use](#how-to-use)
+  - [Libparser](#libparser)
   - [Configuration](#configuration)
   - [Compilation](#compilation)
   - [Execution](#execution)
@@ -20,7 +20,8 @@
   - [Limitations](#limitations)
 - [Tests](#tests)
 
-# Libparser
+# How to use
+## Libparser
 
 `libparser.so` : parser précompilé
 * Peut être compilé avec :
@@ -29,8 +30,6 @@
 * Ou est utilisé par le Makefile pour compiler `httpparser`
 
 `httpparser` : parser compilé, dont on peut modifier le ``main.c`` et l'API, qui utilise `libparser.so`
-
-# How to use 
 
 ## Configuration
 
@@ -67,16 +66,19 @@ To execute the server, you can execute the following command(s) in `server/src` 
 
 ## Architecture
 
-* If no host specified in HTTP/1.0, the default host (master-site) is used.
+* The server hosts two sites : master-site and hidden-site.
+  * If no host specified in HTTP/1.0, the default host (master-site) is used.
 * If the "/" target is asked, the target is changed to "/index.html". 
 * The server supports GET, HEAD, and POST requests
 * The server supports percent encoding.
 * The server supports dot segment removal.
+* The sever supports any media type, plus TXT, HTML, CSS, and JS files. 
 
 ## Limitations
 
 * The server can't send a 501 (Unauthorized method) error, because there are no unauthorized methods, only unimplemented ones.
 * The server can't handle chunked transfer encoding for now. It can't send a stream, and is limited to sending large files as a whole.
+* The server doesn't use any PHP for now.
 
 # Tests
 
