@@ -354,9 +354,7 @@ int analyze(char* request,int clientID){
 	}
 	else
 	{
-		char* decoded_target = percent_encoding(clean_target, 1);
-		free(clean_target);
-		clean_target = decoded_target;
+		clean_target = percent_encoding(clean_target, 1);
 		target_length=strlen(clean_target);
 	}
 
@@ -519,7 +517,6 @@ int analyze(char* request,int clientID){
 	fclose(file);
 
 	// Free the memory of the clean target
-	printf("clean_target : %s\n",clean_target);
 	free(clean_target);
 	free(complete);
 
