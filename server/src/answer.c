@@ -95,49 +95,8 @@ int send_version_code(char* code, char* version, int clientID){
  * @param clientID ID of the client
  * @return int 
  */
-int send_type_length(char* filename, int clientID){
+int send_type_length(char* filename, int clientID, char* type){
     // On remplit ici : Server, Content-langage, Content-Length, Date, Transfer-Encoding
-    // Content-Type
-    char* extension = strrchr(filename, '.');
-    char* type;
-
-    if (!strcmp(extension, ".html")){
-        type = "text/html; charset=utf-8";
-    } else if (!strcmp(extension, ".css")){
-        type = "text/css; charset=utf-8";
-    } else if (!strcmp(extension, ".js")){
-        type = "application/javascript; charset=utf-8";
-    } else if (!strcmp(extension, ".jpg") || !strcmp(extension, ".jpeg")){
-        type = "image/jpeg";
-    } else if (!strcmp(extension, ".png")){
-        type = "image/png";
-    } else if (!strcmp(extension, ".gif")){
-        type = "image/gif";
-    } else if (!strcmp(extension, ".svg")){
-        type = "image/svg+xml";
-    } else if (!strcmp(extension, ".ico")){
-        type = "image/x-icon";
-    } else if (!strcmp(extension, ".pdf")){
-        type = "application/pdf";
-    } else if (!strcmp(extension, ".json")){
-        type = "application/json";
-    } else if (!strcmp(extension, ".xml")){
-        type = "application/xml";
-    } else if (!strcmp(extension, ".zip")){
-        type = "application/zip";
-    } else if (!strcmp(extension, ".mp3")){
-        type = "audio/mpeg";
-    } else if (!strcmp(extension, ".mp4")){
-        type = "video/mp4";
-    } else if (!strcmp(extension, ".mpeg")){
-        type = "video/mpeg";
-    } else if (!strcmp(extension, ".webm")){
-        type = "video/webm";
-    } else if (!strcmp(extension, ".txt")){
-        type = "text/plain; charset=utf-8";
-    } else {
-        type = "application/octet-stream";
-    }
 
     char* string = malloc(sizeof(char)*(strlen("Content-Type: ")+strlen(type)+3));
     sprintf(string, "Content-Type: %s\r\n", type);
@@ -174,36 +133,30 @@ int send_type_length(char* filename, int clientID){
  * @param size Size of the file
  * @return int 
  */
-int send_body(char* filename, int clientID, int size){
+int send_body(FILE* file, int clientID, int size){
     // Envoyer le body
     char* buffer = NULL;
-    
-    // TODO : ouvrir en mode binaire ?
-    FILE * file = fopen (filename, "r+");
-
-    if (file){
-        buffer = calloc(size,sizeof(char));
-        if (buffer == NULL){
-            perror("malloc");
-            return -1;
-        }
-        // Read the file
-        fread (buffer, 1, size, file);
-        fclose (file);
-
-        // Concatenate the string
-        //sprintf(string, "\r\n%s\r\n\r\n", buffer);
-
-        printf("\r\n%.*s\r\n\r\n",size,buffer);
-
-        // Send the strings
-        writeDirectClient(clientID,"\r\n",2);
-        writeDirectClient(clientID,buffer,size);
-        writeDirectClient(clientID,"\r\n\r\n",4);
-
-        // Free the memory
-        free(buffer);
+    buffer = calloc(size,sizeof(char));
+    if (buffer == NULL){
+        perror("malloc");
+        return -1;
     }
+    // Read the file
+    fread (buffer, 1, size, file);
+    fclose (file);
+
+    // Concatenate the string
+    //sprintf(string, "\r\n%s\r\n\r\n", buffer);
+
+    printf("\r\n%.*s\r\n\r\n",size,buffer);
+
+    // Send the strings
+    writeDirectClient(clientID,"\r\n",2);
+    writeDirectClient(clientID,buffer,size);
+    writeDirectClient(clientID,"\r\n\r\n",4);
+
+    // Free the memory
+    free(buffer);
 
     return EXIT_SUCCESS;
 }

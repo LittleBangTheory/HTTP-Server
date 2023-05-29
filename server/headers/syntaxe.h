@@ -10,3 +10,5 @@ _Token* call_parser(char* requete,char *p,int* headersFound,int* isValid,void* r
 char *getHeaderValue(_Token* headers, char* headerName,int* counter);
 int analyze(char* request,int clientID);
 int dot_removal(char** s, int length);
+char* get_extension(char *filename);
+char* percent_encoding(char* request, int freeRequest);

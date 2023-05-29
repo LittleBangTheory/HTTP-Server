@@ -32,7 +32,7 @@
  * @param argv 
  * @return int 
  */
-int main(int argc, char const *argv[])
+int main()
 {
     // Declaration of the structure destinated to store the requests
     message* request;

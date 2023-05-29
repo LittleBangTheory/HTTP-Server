@@ -12,6 +12,7 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <magic.h>
 
 #ifndef _API_
 #define _API_
@@ -142,12 +143,10 @@ int dot_removal(char** s, int length){
 		if(strcmp(token,"..")==0){
 			// If buffer isn't empty (excepted for the '/'), remove the last segment
 			if(buffer_index>1){
-				printf("old buffer : %.*s\n",buffer_index,buffer);
 				buffer_index--;
 				while(buffer[buffer_index-1]!='/'){
 					buffer_index--;
 				}
-				printf("new buffer : %.*s\n",buffer_index,buffer);
 			}
 		}
 		// If the token is "."
@@ -200,7 +199,6 @@ char* percent_encoding(char* request, int freeRequest){
 	while (request[i]!=0 && request[i]!='%') i++;
 	if (request[i]==0) return request; //Si il n'y a pas de %, on renvoie la requete telle quelle
 	
-	
 	//b sera la chaine retourné
     char* b = malloc(sizeof(char)*strlen(request)+sizeof(char));
     i = 0;
@@ -236,8 +234,60 @@ char* percent_encoding(char* request, int freeRequest){
 	if (freeRequest){
 		free(request);
 	}
-
+	printf("b : %s\n",b);
 	return b;
+}
+
+/**
+ * @brief Get the extension object
+ * 
+ * @param filename 
+ * @return char* 
+ */
+char* get_extension(char *filename){
+	magic_t magic_cookie;
+    const char *mime_type;
+	char* final_mime_type = NULL;
+
+    magic_cookie = magic_open(MAGIC_MIME_TYPE);
+    if (magic_cookie == NULL) {
+        printf("unable to initialize magic library\n");
+        return NULL;
+    }
+
+    if (magic_load(magic_cookie, NULL) != 0) {
+        printf("cannot load magic database - %s\n", magic_error(magic_cookie));
+        magic_close(magic_cookie);
+        return NULL;
+    }
+
+    mime_type = magic_file(magic_cookie, filename);
+    // If type is a plain/text, we need to check if it is a CSS or a XML file 
+    if(strcmp(mime_type,"text/plain") == 0){
+		char* extension = strrchr(filename, '.');
+        // If the file is a CSS file
+        if(strcmp(extension,".css") != 0){
+            mime_type = "text/css";
+        }
+        // If the file is a XML file
+        else if(strcmp(extension,".xml") != 0){
+            mime_type = "text/xml";
+        }
+
+        // Add the encoding
+        char* encoding = "; charset=utf-8";
+        // Allocate the memory
+        final_mime_type = malloc(sizeof(char)*(strlen(mime_type)+strlen(encoding)+1));
+        // Concatenate the string
+        sprintf(final_mime_type,"%s%s",mime_type,encoding);
+    } else {
+        final_mime_type = malloc(sizeof(char)*(strlen(mime_type)+1));
+        sprintf(final_mime_type,"%s",mime_type);
+    }
+    printf("Type : %s\n", final_mime_type);
+
+    magic_close(magic_cookie);
+    return final_mime_type;
 }
 
 /**
@@ -304,10 +354,10 @@ int analyze(char* request,int clientID){
 	}
 	else
 	{
+		free(clean_target);
 		clean_target = percent_encoding(clean_target, 1);
 		target_length=strlen(clean_target);
 	}
-	
 
 	// We only want the values
 	int offset=5;
@@ -326,42 +376,73 @@ int analyze(char* request,int clientID){
 	// Declare the content length variable
 	int content_length;
 
+	// If the client request for the Host "hidden-site", send it as host. Otherwise, use default host "master-site".
+	if(host != NULL && strncmp(host, "hidden-site", 11) == 0){
+		pathLen = 20;
+		path = "../html/hidden_site";
+	} else {
+		pathLen = 20;
+		path = "../html/master_site";
+	}
+
+	// Count for the path length (\0 included in pathLen)
+	int totalLen=pathLen+target_length;
+	// Declare the complete path
+	char* complete = malloc(sizeof(char)*totalLen); 
+	// Copy the path part at the beginning of the complete path
+	printf("Path : %s\n",path);
+	printf("Target : %s\n",clean_target);
+	strcpy(complete,path);
+	// Add the clean_target part at the end of the complete path
+	strncat(complete,clean_target,target_length);
+
+	printf("Complete path : %s\n",complete);
+
+	// Get the extension of the file and open it
+	char* file_type = get_extension(complete);
+
+	FILE* file = fopen (complete, "r+");
+
 	// If the Host header is missing in a HTTP/1.1 request, send a 400 Bad Request
 	if((host == NULL && strncmp(version,"HTTP/1.0",8)!=0) || (host != NULL && strncmp(host, "hidden-site", 11)!=0 && strncmp(host, "master-site", 11)!=0 ) || (host != NULL && (nbreHosts!=1))){
 		send_version_code("400 Bad Request", version2, clientID);
-		content_length = send_type_length("../html/errors/400.html",clientID);
-		send_body("../html/errors/400.html",clientID, content_length);
+		file = fopen("../html/errors/400.html", "r+");
+		content_length = send_type_length("../html/errors/400.html",clientID, "html");
+		send_body(file,clientID, content_length);
 		returnValue=ERROR;
-
 	// If the request target tries to reach a parent directory, send a 403 Forbidden
 	} else {
-		// If the client request for the Host "hidden-site", send it as host. Otherwise, use default host "master-site".
-		if(host != NULL && strncmp(host, "hidden-site", 11) == 0){
-			pathLen = 20;
-			path = "../html/hidden_site";
-		} else {
-			pathLen = 20;
-			path = "../html/master_site";
-		} 
 		// Declare the relative path to fetch the pages
 		if(strncmp(method,"POST",4) && clean_target!=NULL && !existing(clean_target,target_length, path, pathLen)){/*le fichier n'existe pas*/
 			send_version_code("404 Not Found", version2, clientID);
-			content_length = send_type_length("../html/errors/404.html",clientID);
-			send_body("../html/errors/404.html",clientID, content_length);
+			fclose(file);
+			file = fopen("../html/errors/404.html", "r+");
+			content_length = send_type_length("../html/errors/404.html",clientID, "html");
+			send_body(file,clientID, content_length);
 			returnValue=ERROR;
 		// If the HTTP version is not supported, send a 505 HTTP Version Not Supported
 		} else if(strncmp(version,"HTTP/1.0",8) && strncmp(version,"HTTP/1.1",8)){
 			send_version_code("505 HTTP Version Not Supported", "HTTP/1.0", clientID);
-			content_length = send_type_length("../html/errors/505.html",clientID);
-			send_body("../html/errors/505.html",clientID, content_length);
+			fclose(file);
+			file = fopen("../html/errors/505.html", "r+");
+			content_length = send_type_length("../html/errors/505.html",clientID, "html");
+			send_body(file,clientID, content_length);
 			returnValue=ERROR;
 
 		// If the method is not supported, send a 501 Not Implemented
 		} else if(strncmp(method,"GET",3) && strncmp(method,"HEAD",4) && strncmp(method,"POST",4)){
 			send_version_code("501 Not Implemented", version2, clientID);
-			content_length = send_type_length("../html/errors/501.html",clientID);
-			send_body("../html/errors/501.html",clientID, content_length);
+			fclose(file);
+			file = fopen("../html/errors/501.html", "r+");
+			content_length = send_type_length("../html/errors/501.html",clientID, "html");
+			send_body(file,clientID, content_length);
 		// Else, the request is valid
+		} else if(file_type == NULL || file == NULL){
+			send_version_code("500 Internal Server Error", version2, clientID);
+			fclose(file);
+			file = fopen("../html/errors/500.html", "r+");
+			content_length = send_type_length("../html/errors/500.html", clientID, "html");
+			send_body(file, clientID, content_length);
 		} else {
 			// If it is a POST request, process the data before sending the page
 			if (strncmp(method,"POST",4) == 0){
@@ -413,23 +494,12 @@ int analyze(char* request,int clientID){
 				send_version_code("200 OK", version2, clientID);
 			}
 
-			// Count for the path length (\0 included in pathLen)
-			int totalLen=pathLen+target_length;
-			// Declare the complete path
-			char* complete = malloc(sizeof(char)*totalLen); 
-			// Copy the path part at the beginning of the complete path
-			strcpy(complete,path);
-			// Add the clean_target part at the end of the complete path
-			strncat(complete,clean_target,target_length);
-
-			printf("Complete path : %s\n",complete);
-
 			//if the transfer encoding needs to be chunked, it will be treated here during sprint 4
-			content_length = send_type_length(complete,clientID);
+			content_length = send_type_length(complete,clientID, file_type);
 
 			// If the requested method is GET or POST, send the body. Otherwise, juste the headers.
 			if(strncmp(method,"GET",3)==0 || strncmp(method,"POST",4) == 0){
-				send_body(complete,clientID, content_length);
+				send_body(file,clientID, content_length);
 			} else {
 				// It is a HEAD request, so we just complete the headers by the last CRLF 
 				writeDirectClient(clientID,"\r\n",2);
@@ -443,11 +513,14 @@ int analyze(char* request,int clientID){
 				printf("KEEP ALIVE !\n");
 			}
 		}
+		free(file_type);
 	}
+	fclose(file);
 
 	// Free the memory of the clean target
 	printf("clean_target : %s\n",clean_target);
 	free(clean_target);
+	free(complete);
 
 	purgeElement(&allHeaders);
 	purgeElement(&Tmethod);
