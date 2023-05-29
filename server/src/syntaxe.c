@@ -354,8 +354,9 @@ int analyze(char* request,int clientID){
 	}
 	else
 	{
+		char* decoded_target = percent_encoding(clean_target, 1);
 		free(clean_target);
-		clean_target = percent_encoding(clean_target, 1);
+		clean_target = decoded_target;
 		target_length=strlen(clean_target);
 	}
 
