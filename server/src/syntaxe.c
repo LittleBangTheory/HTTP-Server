@@ -287,58 +287,6 @@ char* get_extension(char* filename){
 }
 
 /**
- * @brief Get the extension object
- * 
- * @param filename 
- * @return char* 
- */
-char* get_extension(char *filename){
-	magic_t magic_cookie;
-    const char *mime_type;
-	char* final_mime_type = NULL;
-
-    magic_cookie = magic_open(MAGIC_MIME_TYPE);
-    if (magic_cookie == NULL) {
-        printf("unable to initialize magic library\n");
-        return NULL;
-    }
-
-    if (magic_load(magic_cookie, NULL) != 0) {
-        printf("cannot load magic database - %s\n", magic_error(magic_cookie));
-        magic_close(magic_cookie);
-        return NULL;
-    }
-
-    mime_type = magic_file(magic_cookie, filename);
-    // If type is a plain/text, we need to check if it is a CSS or a XML file 
-    if(strcmp(mime_type,"text/plain") == 0){
-		char* extension = strrchr(filename, '.');
-        // If the file is a CSS file
-        if(strcmp(extension,".css") != 0){
-            mime_type = "text/css";
-        }
-        // If the file is a XML file
-        else if(strcmp(extension,".xml") != 0){
-            mime_type = "text/xml";
-        }
-
-        // Add the encoding
-        char* encoding = "; charset=utf-8";
-        // Allocate the memory
-        final_mime_type = malloc(sizeof(char)*(strlen(mime_type)+strlen(encoding)+1));
-        // Concatenate the string
-        sprintf(final_mime_type,"%s%s",mime_type,encoding);
-    } else {
-        final_mime_type = malloc(sizeof(char)*(strlen(mime_type)+1));
-        sprintf(final_mime_type,"%s",mime_type);
-    }
-    printf("Type : %s\n", final_mime_type);
-
-    magic_close(magic_cookie);
-    return final_mime_type;
-}
-
-/**
 * \fn int analyze(char* request,int clientID)
 * \brief Permet de tester la validité d'une requete
 * \param request Requete entière
@@ -472,12 +420,6 @@ int analyze(char* request,int clientID){
 			content_length = send_type_length("../html/errors/501.html",clientID, mime_type);
 			send_body("../html/errors/501.html",clientID, content_length);
 		// Else, the request is valid
-		} else if(file_type == NULL || file == NULL){
-			send_version_code("500 Internal Server Error", version2, clientID);
-			fclose(file);
-			file = fopen("../html/errors/500.html", "r+");
-			content_length = send_type_length("../html/errors/500.html", clientID, "html");
-			send_body(file, clientID, content_length);
 		} else {
 			// If it is a POST request, process the data before sending the page
 			if (strncmp(method,"POST",4) == 0){
@@ -534,7 +476,7 @@ int analyze(char* request,int clientID){
 
 			// If the requested method is GET or POST, send the body. Otherwise, juste the headers.
 			if(strncmp(method,"GET",3)==0 || strncmp(method,"POST",4) == 0){
-				send_body(file,clientID, content_length);
+				send_body(complete,clientID, content_length);
 			} else {
 				// It is a HEAD request, so we just complete the headers by the last CRLF 
 				writeDirectClient(clientID,"\r\n",2);
@@ -548,9 +490,7 @@ int analyze(char* request,int clientID){
 				printf("KEEP ALIVE !\n");
 			}
 		}
-		free(file_type);
 	}
-	fclose(file);
 
 	// Free the memory
 	free(clean_target);

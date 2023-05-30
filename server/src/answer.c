@@ -95,19 +95,11 @@ int send_version_code(char* code, char* version, int clientID){
  * @param clientID ID of the client
  * @return int 
  */
-<<<<<<< Updated upstream
-int send_type_length(char* filename, int clientID, char* type){
-    // On remplit ici : Server, Content-langage, Content-Length, Date, Transfer-Encoding
-
-    char* string = malloc(sizeof(char)*(strlen("Content-Type: ")+strlen(type)+3));
-    sprintf(string, "Content-Type: %s\r\n", type);
-=======
 int send_type_length(char* filename, int clientID, char* final_mime_type){
     // On remplit ici : Server, Content-langage, Content-Length, Date, Transfer-Encoding, Content-Type
 
     char* string = malloc(sizeof(char)*(strlen("Content-Type: ")+strlen(final_mime_type)+3));
     sprintf(string, "Content-Type: %s\r\n", final_mime_type);
->>>>>>> Stashed changes
 
     writeDirectClient(clientID,string,strlen(string));
     printf("%s", string);
@@ -141,31 +133,35 @@ int send_type_length(char* filename, int clientID, char* final_mime_type){
  * @param size Size of the file
  * @return int 
  */
-int send_body(FILE* file, int clientID, int size){
+int send_body(char* filename, int clientID, int size){
     // Envoyer le body
     char* buffer = NULL;
-    buffer = calloc(size,sizeof(char));
-    if (buffer == NULL){
-        perror("malloc");
-        return -1;
+    
+    // TODO : ouvrir en mode binaire ?
+    FILE * file = fopen (filename, "r+");
+
+    if (file){
+        buffer = calloc(size,sizeof(char));
+        if (buffer == NULL){
+            perror("malloc");
+            return -1;
+        }
+        // Read the file
+        fread (buffer, 1, size, file);
+        fclose (file);
+
+        // Concatenate the string
+        //sprintf(string, "\r\n%s\r\n\r\n", buffer);
+
+        printf("\r\n%.*s\r\n\r\n",size,buffer);
+
+        // Send the strings
+        writeDirectClient(clientID,"\r\n",2);
+        writeDirectClient(clientID,buffer,size);
+        writeDirectClient(clientID,"\r\n\r\n",4);
+
+        // Free the memory
+        free(buffer);
     }
-    // Read the file
-    fread (buffer, 1, size, file);
-    fclose (file);
-
-    // Concatenate the string
-    //sprintf(string, "\r\n%s\r\n\r\n", buffer);
-
-    printf("\r\n%.*s\r\n\r\n",size,buffer);
-
-    // Send the strings
-    writeDirectClient(clientID,"\r\n",2);
-    writeDirectClient(clientID,buffer,size);
-    writeDirectClient(clientID,"\r\n\r\n",4);
-
-    // Free the memory
-    free(buffer);
-
     return EXIT_SUCCESS;
 }
-
