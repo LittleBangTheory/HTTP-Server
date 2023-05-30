@@ -199,7 +199,7 @@ char* percent_encoding(char* request, int freeRequest){
 	while (request[i]!=0 && request[i]!='%') i++;
 	if (request[i]==0) return request; //Si il n'y a pas de %, on renvoie la requete telle quelle
 	
-	//b sera la chaine retourné
+	//b sera la chaine sans les %
     char* b = malloc(sizeof(char)*strlen(request)+sizeof(char));
     i = 0;
     int j = 0;
@@ -231,11 +231,15 @@ char* percent_encoding(char* request, int freeRequest){
     }
 
 	// Free the memory of the initial string if needed
+	/*
 	if (freeRequest){
 		free(request);
 	}
 	printf("b : %s\n",b);
-	return b;
+	*/
+	strcpy(request,b);
+	free(b);
+	return request;
 }
 
 char* get_extension(char* filename){
