@@ -306,7 +306,7 @@ int analyze(char* request,int clientID){
 	// Declaration of the variables
 	int occurences,validSyntax;
 	// TODO : comment
-	void* trees[5]={NULL,NULL,NULL,NULL,NULL};
+	void* trees[6]={NULL, NULL, NULL, NULL, NULL, NULL};
 	_Token* Tversion = call_parser(request,"HTTP_version",&occurences,&validSyntax,&trees[0]);
 
 	if (validSyntax==0){return ERROR;}
@@ -315,6 +315,8 @@ int analyze(char* request,int clientID){
 	_Token* allHeaders = call_parser(request,"header_field",&occurences,&validSyntax,&trees[2]);
 	_Token* Ttarget = call_parser(request,"request_target",&occurences,&validSyntax,&trees[3]);
 	_Token* Tbody = call_parser(request,"message_body",&occurences,&validSyntax,&trees[4]);
+	// TODO : search only in the request target field and not in the whole request
+	_Token* Tquery = call_parser(request,"query",&occurences,&validSyntax,&trees[5]);
 
 	// Get the version and its length
 	int version_length;
@@ -324,13 +326,17 @@ int analyze(char* request,int clientID){
 	int method_length;
 	char* method = getElementValue(Tmethod->node,&method_length); // PAS UN HEADER !
 
-	// Get the target and its length
-	int target_length;
-	char* request_target = getElementValue(Ttarget->node,&target_length); // PAS UN HEADER !
+	// Get the target and its length (query included)
+	int target_query_length;
+	char* request_target = getElementValue(Ttarget->node,&target_query_length); // PAS UN HEADER !
 
 	// Get the body and its length
 	int body_length;
 	char* body = getElementValue(Tbody->node,&body_length); // PAS UN HEADER !
+
+	// Get the query and its length
+	int query_length;
+	char* query = getElementValue(Tquery->node,&query_length); // PAS UN HEADER !
 
 	// Get the headers
 	int nbreHosts, nbre_referer;
@@ -340,10 +346,14 @@ int analyze(char* request,int clientID){
 	char* hostPTR = host;
 	char* referer = getHeaderValue(allHeaders,"Referer",&nbre_referer);
 
+	// Search for the '?' character in the request target
+	target_length = target_query_length - query_length - 1;
+
 	// Remove the dot segments from the path
 	// Allocate a new string that only contains the target
 	char* clean_target = calloc(target_length,sizeof(char));
 	strncpy(clean_target,request_target,target_length);
+	printf("clean_target : %s\n", clean_target);
 	// Remove the dots
 	target_length = dot_removal(&clean_target,target_length);
 
@@ -429,11 +439,12 @@ int analyze(char* request,int clientID){
 			send_version_code("501 Not Implemented", version2, clientID);
 			content_length = send_type_length("../html/errors/501.html",clientID, mime_type);
 			send_body("../html/errors/501.html",clientID, content_length);
-		// Else, the request is valid
+		// If we can't open the file or get the type, send a 500 Internal Server Error
 		} else if(file == NULL || mime_type == NULL){
 			send_version_code("500 Internal Server Error", version2, clientID);
 			content_length = send_type_length("../html/errors/500.html",clientID, mime_type);
 			send_body("../html/errors/500.html",clientID, content_length);
+		// Else, the request is valid
 		} else {
 			// If we got in here, we can close the file to reopen it in the body() function
 			fclose(file);
@@ -521,7 +532,7 @@ int analyze(char* request,int clientID){
 
 	// Allocated by the parser
 
-	for (size_t i = 0; i < 5; i++)
+	for (size_t i = 0; i < 6; i++)
 	{
 		purgeTree(trees[i]);
 	}
@@ -530,6 +541,9 @@ int analyze(char* request,int clientID){
 	purgeElement(&Ttarget);
 	purgeElement(&Tbody);
 	purgeElement(&Tversion);
+	purgeElement(&Tquery);
+	query = NULL;
+	query_length = 0;
 	printf("---------------------------------------------\n\n");
 	
 	return returnValue;

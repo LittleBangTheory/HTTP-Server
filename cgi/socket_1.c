@@ -121,8 +121,7 @@ FCGI_Header h;
 #define sendData(fd,id,data,len) sendWebData(fd,FCGI_DATA,id,data,len)
 //============================================================================================================ // 
 
-void sendWebData(int fd,unsigned char type,unsigned short requestId,char *data,unsigned int len) 
-{
+void sendWebData(int fd,unsigned char type,unsigned short requestId,char *data,unsigned int len) {
 FCGI_Header h; 
 
 	if (len > FASTCGILENGTH) return ; 
