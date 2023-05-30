@@ -29,6 +29,19 @@ void writeSocket(int fd,FCGI_Header *h,unsigned int len)
 	}
 } 
 
+void readSocket(int fd, FCGI_Header *h, unsigned int len){
+	int r;
+	while (len) {
+	// try to read 	
+		do {
+			r = read(fd, h->contentData, len);
+		} while (r == -1 && errno == EINTR);
+	len-=r; 
+	}
+	h->contentLength=ntohs(h->contentLength); 
+	h->paddingLength=ntohs(h->paddingLength); 
+}
+
 // =========================================================================================================== // 
 void writeLen(int len, char **p) {
 	if (len > 0x7F ) { 
@@ -121,6 +134,11 @@ FCGI_Header h;
 	h.paddingLength=0;
 	memcpy(h.contentData,data,len); 
 	writeSocket(fd,&h,FCGI_HEADER_SIZE+(h.contentLength)+(h.paddingLength));  
+}
+
+void getWebData(FCGI_Header* h, int fd){
+	readSocket(fd, h, FCGI_HEADER_SIZE);
+	readSocket(fd, h->contentData, h->contentLength);
 }
 
 //============================================================================================================ // 
