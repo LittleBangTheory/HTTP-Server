@@ -13,6 +13,7 @@
   - [PHP](#php)
   - [Configuration du serveur](#configuration-du-serveur)
   - [Test](#test)
+- [Specifications](#specifications)
 
 
 # Configuration
@@ -72,6 +73,6 @@ Créer le script `/var/www/html/info.php` et ajouter :
 Aller sur `http://127.0.0.1/info.php` et regarder avec Wireshark les échanges entre le serveur et le client. Filtrer en TCP sur le port 9000, et `Decode as` FCGI. 
 
 
+# Specifications
 
-
-
+See [FastCGI Specification](http://www.mit.edu/~yandros/doc/specs/fcgi-spec.html) by Mark R. Brown.

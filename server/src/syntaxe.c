@@ -12,6 +12,7 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <magic.h>
 
 #ifndef _API_
 #define _API_
@@ -37,15 +38,15 @@
 * \param isValid Indique si la requête est valide syntaxiquement
 * \return Liste chainée contenant toutes les occurences.
 */
-_Token* call_parser(char* requete,char *p,int* headersFound,int* isValid,void* root)
+_Token* call_parser(char* requete,char *p,int* headersFound,int* isValid,void** root)
 {
 	int res;
 	*headersFound=0;
 	_Token *r,*tok;
 	r=NULL;
 	if ((res=parseur(requete,strlen(requete)))) {
-		root=getRootTree(); 
-		r=searchTree(root,p); 
+		*root=getRootTree(); 
+		r=searchTree(*root,p); 
 		tok=r; 
 		while (tok) {
 			*headersFound=(*headersFound)+1;
@@ -142,12 +143,10 @@ int dot_removal(char** s, int length){
 		if(strcmp(token,"..")==0){
 			// If buffer isn't empty (excepted for the '/'), remove the last segment
 			if(buffer_index>1){
-				printf("old buffer : %.*s\n",buffer_index,buffer);
 				buffer_index--;
 				while(buffer[buffer_index-1]!='/'){
 					buffer_index--;
 				}
-				printf("new buffer : %.*s\n",buffer_index,buffer);
 			}
 		}
 		// If the token is "."
@@ -175,6 +174,7 @@ int dot_removal(char** s, int length){
 	}
 	
 	// Allocate the memory for the initial string (same size as the buffer)
+	free(*s);
 	*s = malloc(sizeof(char)*buffer_index);
 
 	// Copy the buffer into the initial string
@@ -200,8 +200,7 @@ char* percent_encoding(char* request, int freeRequest){
 	while (request[i]!=0 && request[i]!='%') i++;
 	if (request[i]==0) return request; //Si il n'y a pas de %, on renvoie la requete telle quelle
 	
-	
-	//b sera la chaine retourné
+	//b sera la chaine sans les %
     char* b = malloc(sizeof(char)*strlen(request)+sizeof(char));
     i = 0;
     int j = 0;
@@ -233,11 +232,65 @@ char* percent_encoding(char* request, int freeRequest){
     }
 
 	// Free the memory of the initial string if needed
+	/*
 	if (freeRequest){
 		free(request);
 	}
+	printf("b : %s\n",b);
+	*/
+	free(request);
+	request = malloc(sizeof(char)*strlen(b));
+	strcpy(request,b);
+	free(b);
+	return request;
+}
 
-	return b;
+char* get_extension(char* filename){
+	magic_t magic_cookie;
+    const char *mime_type;
+	char* final_mime_type;
+
+    magic_cookie = magic_open(MAGIC_MIME_TYPE);
+    if (magic_cookie == NULL) {
+        printf("unable to initialize magic library\n");
+        return NULL;
+    }
+
+    if (magic_load(magic_cookie, NULL) != 0) {
+        printf("cannot load magic database - %s\n", magic_error(magic_cookie));
+        magic_close(magic_cookie);
+        return NULL;
+    }
+
+    mime_type = magic_file(magic_cookie, filename);
+    // If type is a plain/text, we need to check if it is a CSS or a XML file 
+    if(strcmp(mime_type,"text/plain") == 0){
+		char* extension = strrchr(filename, '.');
+        // If the file is a CSS file
+        if(!strcmp(extension,".css")){
+            mime_type = "text/css";
+        }
+        // If the file is a XML file
+        else if(!strcmp(extension,".xml")){
+            mime_type = "text/xml";
+        }
+    } 
+    // If it is a text, add the encoding
+    if(strstr(mime_type,"text") != NULL){
+        // Add the encoding
+        char* encoding = "; charset=utf-8";
+        // Allocate the memory
+        final_mime_type = malloc(sizeof(char)*(strlen(mime_type)+strlen(encoding)+1));
+        // Concatenate the string
+        sprintf(final_mime_type,"%s%s",mime_type,encoding);
+    } else {
+        final_mime_type = malloc(sizeof(char)*(strlen(mime_type)+1));
+        sprintf(final_mime_type,"%s",mime_type);
+    }
+
+    magic_close(magic_cookie);
+
+	return final_mime_type;
 }
 
 /**
@@ -254,14 +307,14 @@ int analyze(char* request,int clientID){
 	int occurences,validSyntax;
 	// TODO : comment
 	void* trees[5]={NULL,NULL,NULL,NULL,NULL};
-	_Token* Tversion = call_parser(request,"HTTP_version",&occurences,&validSyntax,trees[0]);
+	_Token* Tversion = call_parser(request,"HTTP_version",&occurences,&validSyntax,&trees[0]);
 
 	if (validSyntax==0){return ERROR;}
 
-	_Token* Tmethod = call_parser(request,"method",&occurences,&validSyntax,trees[1]);
-	_Token* allHeaders = call_parser(request,"header_field",&occurences,&validSyntax,trees[2]);
-	_Token* Ttarget = call_parser(request,"request_target",&occurences,&validSyntax,trees[3]);
-	_Token* Tbody = call_parser(request,"message_body",&occurences,&validSyntax,trees[4]);
+	_Token* Tmethod = call_parser(request,"method",&occurences,&validSyntax,&trees[1]);
+	_Token* allHeaders = call_parser(request,"header_field",&occurences,&validSyntax,&trees[2]);
+	_Token* Ttarget = call_parser(request,"request_target",&occurences,&validSyntax,&trees[3]);
+	_Token* Tbody = call_parser(request,"message_body",&occurences,&validSyntax,&trees[4]);
 
 	// Get the version and its length
 	int version_length;
@@ -284,13 +337,13 @@ int analyze(char* request,int clientID){
 	char* connection = getHeaderValue(allHeaders, "Connection",&nbreHosts);
 	char* accept_encoding = getHeaderValue(allHeaders, "Accept-Encoding",&nbreHosts);
 	char* host = getHeaderValue(allHeaders, "Host",&nbreHosts);
+	char* hostPTR = host;
 	char* referer = getHeaderValue(allHeaders,"Referer",&nbre_referer);
 
 	// Remove the dot segments from the path
 	// Allocate a new string that only contains the target
 	char* clean_target = calloc(target_length,sizeof(char));
 	strncpy(clean_target,request_target,target_length);
-
 	// Remove the dots
 	target_length = dot_removal(&clean_target,target_length);
 
@@ -307,7 +360,6 @@ int analyze(char* request,int clientID){
 		clean_target = percent_encoding(clean_target, 1);
 		target_length=strlen(clean_target);
 	}
-	
 
 	// We only want the values
 	int offset=5;
@@ -326,40 +378,54 @@ int analyze(char* request,int clientID){
 	// Declare the content length variable
 	int content_length;
 
+	// If the client request for the Host "hidden-site", send it as host. Otherwise, use default host "master-site".
+	if(host != NULL && strncmp(host, "hidden-site", 11) == 0){
+		pathLen = 20;
+		path = "../html/hidden_site";
+	} else {
+		pathLen = 20;
+		path = "../html/master_site";
+	} 
+
+	// Count for the path length (\0 included in pathLen)
+	int totalLen=pathLen+target_length;
+	// Declare the complete path
+	char* complete = malloc(sizeof(char)*totalLen); 
+	// Copy the path part at the beginning of the complete path
+	strcpy(complete,path);
+	// Add the clean_target part at the end of the complete path
+	strncat(complete,clean_target,target_length);
+
+	printf("Complete path : %s\n",complete);
+
+	char* mime_type = get_extension(complete);
+	printf("Mime type : %s\n",mime_type);
+
 	// If the Host header is missing in a HTTP/1.1 request, send a 400 Bad Request
 	if((host == NULL && strncmp(version,"HTTP/1.0",8)!=0) || (host != NULL && strncmp(host, "hidden-site", 11)!=0 && strncmp(host, "master-site", 11)!=0 ) || (host != NULL && (nbreHosts!=1))){
 		send_version_code("400 Bad Request", version2, clientID);
-		content_length = send_type_length("../html/errors/400.html",clientID);
+		content_length = send_type_length("../html/errors/400.html",clientID, mime_type);
 		send_body("../html/errors/400.html",clientID, content_length);
 		returnValue=ERROR;
-
 	// If the request target tries to reach a parent directory, send a 403 Forbidden
 	} else {
-		// If the client request for the Host "hidden-site", send it as host. Otherwise, use default host "master-site".
-		if(host != NULL && strncmp(host, "hidden-site", 11) == 0){
-			pathLen = 20;
-			path = "../html/hidden_site";
-		} else {
-			pathLen = 20;
-			path = "../html/master_site";
-		} 
 		// Declare the relative path to fetch the pages
 		if(strncmp(method,"POST",4) && clean_target!=NULL && !existing(clean_target,target_length, path, pathLen)){/*le fichier n'existe pas*/
 			send_version_code("404 Not Found", version2, clientID);
-			content_length = send_type_length("../html/errors/404.html",clientID);
+			content_length = send_type_length("../html/errors/404.html",clientID, mime_type);
 			send_body("../html/errors/404.html",clientID, content_length);
 			returnValue=ERROR;
 		// If the HTTP version is not supported, send a 505 HTTP Version Not Supported
 		} else if(strncmp(version,"HTTP/1.0",8) && strncmp(version,"HTTP/1.1",8)){
 			send_version_code("505 HTTP Version Not Supported", "HTTP/1.0", clientID);
-			content_length = send_type_length("../html/errors/505.html",clientID);
+			content_length = send_type_length("../html/errors/505.html",clientID, mime_type);
 			send_body("../html/errors/505.html",clientID, content_length);
 			returnValue=ERROR;
 
 		// If the method is not supported, send a 501 Not Implemented
 		} else if(strncmp(method,"GET",3) && strncmp(method,"HEAD",4) && strncmp(method,"POST",4)){
 			send_version_code("501 Not Implemented", version2, clientID);
-			content_length = send_type_length("../html/errors/501.html",clientID);
+			content_length = send_type_length("../html/errors/501.html",clientID, mime_type);
 			send_body("../html/errors/501.html",clientID, content_length);
 		// Else, the request is valid
 		} else {
@@ -413,19 +479,8 @@ int analyze(char* request,int clientID){
 				send_version_code("200 OK", version2, clientID);
 			}
 
-			// Count for the path length (\0 included in pathLen)
-			int totalLen=pathLen+target_length;
-			// Declare the complete path
-			char* complete = malloc(sizeof(char)*totalLen); 
-			// Copy the path part at the beginning of the complete path
-			strcpy(complete,path);
-			// Add the clean_target part at the end of the complete path
-			strncat(complete,clean_target,target_length);
-
-			printf("Complete path : %s\n",complete);
-
 			//if the transfer encoding needs to be chunked, it will be treated here during sprint 4
-			content_length = send_type_length(complete,clientID);
+			content_length = send_type_length(complete,clientID, mime_type);
 
 			// If the requested method is GET or POST, send the body. Otherwise, juste the headers.
 			if(strncmp(method,"GET",3)==0 || strncmp(method,"POST",4) == 0){
@@ -445,18 +500,28 @@ int analyze(char* request,int clientID){
 		}
 	}
 
-	// Free the memory of the clean target
-	printf("clean_target : %s\n",clean_target);
+	// Free the memory
+	// Request
 	free(clean_target);
+	free(complete);
+	free(mime_type);
 
-	purgeElement(&allHeaders);
-	purgeElement(&Tmethod);
-	purgeElement(&Ttarget);
-	for (size_t i = 0; i < 4; i++)
+	free(connection);
+	free(accept_encoding);
+	free(hostPTR);
+	free(referer);
+
+	// Allocated by the parser
+
+	for (size_t i = 0; i < 5; i++)
 	{
 		purgeTree(trees[i]);
 	}
-
+	purgeElement(&allHeaders);
+	purgeElement(&Tmethod);
+	purgeElement(&Ttarget);
+	purgeElement(&Tbody);
+	purgeElement(&Tversion);
 	printf("---------------------------------------------\n\n");
 	
 	return returnValue;

@@ -22,7 +22,6 @@
 #include <sys/stat.h>
 #include <assert.h>
 #include <time.h>
-#include <magic.h>
 #include "../headers/request.h"
 #include "../headers/answer.h"
 
@@ -96,52 +95,8 @@ int send_version_code(char* code, char* version, int clientID){
  * @param clientID ID of the client
  * @return int 
  */
-int send_type_length(char* filename, int clientID){
+int send_type_length(char* filename, int clientID, char* final_mime_type){
     // On remplit ici : Server, Content-langage, Content-Length, Date, Transfer-Encoding, Content-Type
-
-    magic_t magic_cookie;
-    const char *mime_type;
-	char* final_mime_type = NULL;
-
-    magic_cookie = magic_open(MAGIC_MIME_TYPE);
-    if (magic_cookie == NULL) {
-        printf("unable to initialize magic library\n");
-        exit(1);
-    }
-
-    if (magic_load(magic_cookie, NULL) != 0) {
-        printf("cannot load magic database - %s\n", magic_error(magic_cookie));
-        magic_close(magic_cookie);
-        exit(1);
-    }
-
-    mime_type = magic_file(magic_cookie, filename);
-    // If type is a plain/text, we need to check if it is a CSS or a XML file 
-    if(strcmp(mime_type,"text/plain") == 0){
-		char* extension = strrchr(filename, '.');
-        // If the file is a CSS file
-        if(!strcmp(extension,".css")){
-            mime_type = "text/css";
-        }
-        // If the file is a XML file
-        else if(!strcmp(extension,".xml")){
-            mime_type = "text/xml";
-        }
-    } 
-    // If it is a text, add the encoding
-    if(strstr(mime_type,"text") != NULL){
-        // Add the encoding
-        char* encoding = "; charset=utf-8";
-        // Allocate the memory
-        final_mime_type = malloc(sizeof(char)*(strlen(mime_type)+strlen(encoding)+1));
-        // Concatenate the string
-        sprintf(final_mime_type,"%s%s",mime_type,encoding);
-    } else {
-        final_mime_type = malloc(sizeof(char)*(strlen(mime_type)+1));
-        sprintf(final_mime_type,"%s",mime_type);
-    }
-
-    magic_close(magic_cookie);
 
     char* string = malloc(sizeof(char)*(strlen("Content-Type: ")+strlen(final_mime_type)+3));
     sprintf(string, "Content-Type: %s\r\n", final_mime_type);
@@ -149,7 +104,6 @@ int send_type_length(char* filename, int clientID){
     writeDirectClient(clientID,string,strlen(string));
     printf("%s", string);
     free(string);
-    free(final_mime_type);
 
     struct stat st;
     stat(filename, &st);
@@ -209,7 +163,5 @@ int send_body(char* filename, int clientID, int size){
         // Free the memory
         free(buffer);
     }
-
     return EXIT_SUCCESS;
 }
-
