@@ -429,91 +429,48 @@ int analyze(char* request,int clientID){
 	} else {
 		pathLen = 20;
 		path = "../html/master_site";
-<<<<<<< Updated upstream
-	}
-=======
 	} 
->>>>>>> Stashed changes
 
 	// Count for the path length (\0 included in pathLen)
 	int totalLen=pathLen+target_length;
 	// Declare the complete path
 	char* complete = malloc(sizeof(char)*totalLen); 
 	// Copy the path part at the beginning of the complete path
-<<<<<<< Updated upstream
-	printf("Path : %s\n",path);
-	printf("Target : %s\n",clean_target);
-=======
->>>>>>> Stashed changes
 	strcpy(complete,path);
 	// Add the clean_target part at the end of the complete path
 	strncat(complete,clean_target,target_length);
 
 	printf("Complete path : %s\n",complete);
 
-<<<<<<< Updated upstream
-	// Get the extension of the file and open it
-	char* file_type = get_extension(complete);
-
-	FILE* file = fopen (complete, "r+");
-=======
 	char* mime_type = get_extension(complete);
 	printf("Mime type : %s\n",mime_type);
->>>>>>> Stashed changes
 
 	// If the Host header is missing in a HTTP/1.1 request, send a 400 Bad Request
 	if((host == NULL && strncmp(version,"HTTP/1.0",8)!=0) || (host != NULL && strncmp(host, "hidden-site", 11)!=0 && strncmp(host, "master-site", 11)!=0 ) || (host != NULL && (nbreHosts!=1))){
 		send_version_code("400 Bad Request", version2, clientID);
-<<<<<<< Updated upstream
-		file = fopen("../html/errors/400.html", "r+");
-		content_length = send_type_length("../html/errors/400.html",clientID, "html");
-		send_body(file,clientID, content_length);
-=======
 		content_length = send_type_length("../html/errors/400.html",clientID, mime_type);
 		send_body("../html/errors/400.html",clientID, content_length);
->>>>>>> Stashed changes
 		returnValue=ERROR;
 	// If the request target tries to reach a parent directory, send a 403 Forbidden
 	} else {
 		// Declare the relative path to fetch the pages
 		if(strncmp(method,"POST",4) && clean_target!=NULL && !existing(clean_target,target_length, path, pathLen)){/*le fichier n'existe pas*/
 			send_version_code("404 Not Found", version2, clientID);
-<<<<<<< Updated upstream
-			fclose(file);
-			file = fopen("../html/errors/404.html", "r+");
-			content_length = send_type_length("../html/errors/404.html",clientID, "html");
-			send_body(file,clientID, content_length);
-=======
 			content_length = send_type_length("../html/errors/404.html",clientID, mime_type);
 			send_body("../html/errors/404.html",clientID, content_length);
->>>>>>> Stashed changes
 			returnValue=ERROR;
 		// If the HTTP version is not supported, send a 505 HTTP Version Not Supported
 		} else if(strncmp(version,"HTTP/1.0",8) && strncmp(version,"HTTP/1.1",8)){
 			send_version_code("505 HTTP Version Not Supported", "HTTP/1.0", clientID);
-<<<<<<< Updated upstream
-			fclose(file);
-			file = fopen("../html/errors/505.html", "r+");
-			content_length = send_type_length("../html/errors/505.html",clientID, "html");
-			send_body(file,clientID, content_length);
-=======
 			content_length = send_type_length("../html/errors/505.html",clientID, mime_type);
 			send_body("../html/errors/505.html",clientID, content_length);
->>>>>>> Stashed changes
 			returnValue=ERROR;
 
 		// If the method is not supported, send a 501 Not Implemented
 		} else if(strncmp(method,"GET",3) && strncmp(method,"HEAD",4) && strncmp(method,"POST",4)){
 			send_version_code("501 Not Implemented", version2, clientID);
-<<<<<<< Updated upstream
-			fclose(file);
-			file = fopen("../html/errors/501.html", "r+");
-			content_length = send_type_length("../html/errors/501.html",clientID, "html");
-			send_body(file,clientID, content_length);
-=======
 			content_length = send_type_length("../html/errors/501.html",clientID, mime_type);
 			send_body("../html/errors/501.html",clientID, content_length);
->>>>>>> Stashed changes
 		// Else, the request is valid
 		} else if(file_type == NULL || file == NULL){
 			send_version_code("500 Internal Server Error", version2, clientID);
@@ -573,11 +530,7 @@ int analyze(char* request,int clientID){
 			}
 
 			//if the transfer encoding needs to be chunked, it will be treated here during sprint 4
-<<<<<<< Updated upstream
-			content_length = send_type_length(complete,clientID, file_type);
-=======
 			content_length = send_type_length(complete,clientID, mime_type);
->>>>>>> Stashed changes
 
 			// If the requested method is GET or POST, send the body. Otherwise, juste the headers.
 			if(strncmp(method,"GET",3)==0 || strncmp(method,"POST",4) == 0){
@@ -599,16 +552,10 @@ int analyze(char* request,int clientID){
 	}
 	fclose(file);
 
-<<<<<<< Updated upstream
-	// Free the memory of the clean target
-	free(clean_target);
-	free(complete);
-=======
 	// Free the memory
 	free(clean_target);
 	free(complete);
 	free(mime_type);
->>>>>>> Stashed changes
 
 	purgeElement(&allHeaders);
 	purgeElement(&Tmethod);
