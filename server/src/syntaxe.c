@@ -174,6 +174,7 @@ int dot_removal(char** s, int length){
 	}
 	
 	// Allocate the memory for the initial string (same size as the buffer)
+	free(*s);
 	*s = malloc(sizeof(char)*buffer_index);
 
 	// Copy the buffer into the initial string
@@ -237,6 +238,8 @@ char* percent_encoding(char* request, int freeRequest){
 	}
 	printf("b : %s\n",b);
 	*/
+	free(request);
+	request = malloc(sizeof(char)*strlen(b));
 	strcpy(request,b);
 	free(b);
 	return request;
@@ -504,7 +507,9 @@ int analyze(char* request,int clientID){
 	purgeElement(&allHeaders);
 	purgeElement(&Tmethod);
 	purgeElement(&Ttarget);
-	for (size_t i = 0; i < 4; i++)
+	purgeElement(&Tbody);
+	purgeElement(&Tversion);
+	for (size_t i = 0; i < 5; i++)
 	{
 		purgeTree(trees[i]);
 	}
