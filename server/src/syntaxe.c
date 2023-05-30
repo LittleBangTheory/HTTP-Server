@@ -38,15 +38,15 @@
 * \param isValid Indique si la requête est valide syntaxiquement
 * \return Liste chainée contenant toutes les occurences.
 */
-_Token* call_parser(char* requete,char *p,int* headersFound,int* isValid,void* root)
+_Token* call_parser(char* requete,char *p,int* headersFound,int* isValid,void** root)
 {
 	int res;
 	*headersFound=0;
 	_Token *r,*tok;
 	r=NULL;
 	if ((res=parseur(requete,strlen(requete)))) {
-		root=getRootTree(); 
-		r=searchTree(root,p); 
+		*root=getRootTree(); 
+		r=searchTree(*root,p); 
 		tok=r; 
 		while (tok) {
 			*headersFound=(*headersFound)+1;
@@ -307,14 +307,14 @@ int analyze(char* request,int clientID){
 	int occurences,validSyntax;
 	// TODO : comment
 	void* trees[5]={NULL,NULL,NULL,NULL,NULL};
-	_Token* Tversion = call_parser(request,"HTTP_version",&occurences,&validSyntax,trees[0]);
+	_Token* Tversion = call_parser(request,"HTTP_version",&occurences,&validSyntax,&trees[0]);
 
 	if (validSyntax==0){return ERROR;}
 
-	_Token* Tmethod = call_parser(request,"method",&occurences,&validSyntax,trees[1]);
-	_Token* allHeaders = call_parser(request,"header_field",&occurences,&validSyntax,trees[2]);
-	_Token* Ttarget = call_parser(request,"request_target",&occurences,&validSyntax,trees[3]);
-	_Token* Tbody = call_parser(request,"message_body",&occurences,&validSyntax,trees[4]);
+	_Token* Tmethod = call_parser(request,"method",&occurences,&validSyntax,&trees[1]);
+	_Token* allHeaders = call_parser(request,"header_field",&occurences,&validSyntax,&trees[2]);
+	_Token* Ttarget = call_parser(request,"request_target",&occurences,&validSyntax,&trees[3]);
+	_Token* Tbody = call_parser(request,"message_body",&occurences,&validSyntax,&trees[4]);
 
 	// Get the version and its length
 	int version_length;
@@ -337,6 +337,7 @@ int analyze(char* request,int clientID){
 	char* connection = getHeaderValue(allHeaders, "Connection",&nbreHosts);
 	char* accept_encoding = getHeaderValue(allHeaders, "Accept-Encoding",&nbreHosts);
 	char* host = getHeaderValue(allHeaders, "Host",&nbreHosts);
+	char* hostPTR = host;
 	char* referer = getHeaderValue(allHeaders,"Referer",&nbre_referer);
 
 	// Remove the dot segments from the path
@@ -500,20 +501,27 @@ int analyze(char* request,int clientID){
 	}
 
 	// Free the memory
+	// Request
 	free(clean_target);
 	free(complete);
 	free(mime_type);
 
+	free(connection);
+	free(accept_encoding);
+	free(hostPTR);
+	free(referer);
+
+	// Allocated by the parser
+
+	for (size_t i = 0; i < 5; i++)
+	{
+		purgeTree(trees[i]);
+	}
 	purgeElement(&allHeaders);
 	purgeElement(&Tmethod);
 	purgeElement(&Ttarget);
 	purgeElement(&Tbody);
 	purgeElement(&Tversion);
-	for (size_t i = 0; i < 5; i++)
-	{
-		purgeTree(trees[i]);
-	}
-
 	printf("---------------------------------------------\n\n");
 	
 	return returnValue;

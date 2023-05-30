@@ -23,3 +23,7 @@ clean:
 hosts:
 	@sudo echo "127.0.0.2	hidden-site" >> /etc/hosts
 	@sudo echo "127.0.0.3	master-site" >> /etc/hosts
+
+debug: main.o syntaxe.o answer.o
+	gcc $^ -L. -lrequest -lparser -lmagic -fsanitize=address -o $@
+	@echo "Pensez à faire : export LD_LIBRARY_PATH=. !"
