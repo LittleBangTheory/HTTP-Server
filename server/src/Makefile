@@ -5,7 +5,11 @@ server.exe: main.o syntaxe.o answer.o
 	@echo "Pensez à faire : export LD_LIBRARY_PATH=. !"
 
 syntaxe.o: syntaxe.c
+<<<<<<< Updated upstream
 	gcc -Wall -Wextra -g -c $< -lmagic -o $@
+=======
+	gcc -Wall -g -c $< -lmagic -o $@ 
+>>>>>>> Stashed changes
 
 answer.o: answer.c
 	gcc -Wall -Wextra -g -c $< -lmagic -o $@

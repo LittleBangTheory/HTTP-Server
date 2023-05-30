@@ -95,11 +95,19 @@ int send_version_code(char* code, char* version, int clientID){
  * @param clientID ID of the client
  * @return int 
  */
+<<<<<<< Updated upstream
 int send_type_length(char* filename, int clientID, char* type){
     // On remplit ici : Server, Content-langage, Content-Length, Date, Transfer-Encoding
 
     char* string = malloc(sizeof(char)*(strlen("Content-Type: ")+strlen(type)+3));
     sprintf(string, "Content-Type: %s\r\n", type);
+=======
+int send_type_length(char* filename, int clientID, char* final_mime_type){
+    // On remplit ici : Server, Content-langage, Content-Length, Date, Transfer-Encoding, Content-Type
+
+    char* string = malloc(sizeof(char)*(strlen("Content-Type: ")+strlen(final_mime_type)+3));
+    sprintf(string, "Content-Type: %s\r\n", final_mime_type);
+>>>>>>> Stashed changes
 
     writeDirectClient(clientID,string,strlen(string));
     printf("%s", string);
