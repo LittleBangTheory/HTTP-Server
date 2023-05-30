@@ -123,8 +123,24 @@ FCGI_Header h;
 	writeSocket(fd,&h,FCGI_HEADER_SIZE+(h.contentLength)+(h.paddingLength));  
 }
 
+//============================================================================================================ // 
+
+void sendWebData2(FCGI_Header* h,int fd,unsigned char type,unsigned short requestId,char *data,unsigned int len) 
+{
+
+	if (len > FASTCGILENGTH) return ; 
+	
+	h->version=FCGI_VERSION_1; 
+	h->type=type; 
+	h->requestId=htons(requestId); 
+	//h->contentLength=len; 
+	h->paddingLength=0;
+	//memcpy(h->contentData,data,len); 
+	writeSocket(fd,h,FCGI_HEADER_SIZE+(h->contentLength)+(h->paddingLength));  
+}
+
 // =========================================================================================================== // 
-static int createSocket(int port)
+static int createSocket(int port_dest, int* port_source)
 {
 	int fd;
 	struct sockaddr_in serv_addr;
@@ -139,23 +155,59 @@ static int createSocket(int port)
 
 	serv_addr.sin_family = AF_INET;
 	inet_aton("127.0.0.1",&serv_addr.sin_addr);
-	serv_addr.sin_port = htons(port);
+	serv_addr.sin_port = htons(port_dest);
 
 	if (connect(fd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) {
 		perror("connect failed\n");
 		return (-1);
 	}
 
+	struct sockaddr_in local_addr;
+	socklen_t addr_len = sizeof(local_addr);
+	if(getsockname(fd, (struct sockaddr *)&local_addr, &addr_len) < 0){
+		perror("getsockname failed\n");
+		return -1;
+	}
+	*port_source = ntohs(local_addr.sin_port);
+	printf("Local port : %d\n", *port_source);
+
 	return fd;
 }
 // =========================================================================================================== // 
 int main(int argc,char *argv[])
 {
-	int fd; 
-	fd=createSocket(9000); 
-	sendGetValue(fd); 
-	sendBeginRequest(fd,10,FCGI_RESPONDER,FCGI_KEEP_CONN); 
-	sendStdin(fd,10,argv[1],strlen(argv[1])); 
-	sendData(fd,10,argv[1],strlen(argv[1])); 
+	int fd;
+	int port_source;
+	char sport_source[5];
+	fd=createSocket(9000, &port_source); 
+	//sendGetValue(fd); 
+	sendBeginRequest(fd,10,FCGI_RESPONDER,0);
+	sprintf(sport_source,"%d",port_source);
+
+	FCGI_Header h,c;
+/*
+	h.type=FCGI_PARAMS;
+	h.
+	writeSocket(fd,&h,FCGI_HEADER_SIZE+(h.contentLength)+(h.paddingLength));
+*/
+	addNameValuePair(&h, "HTTP_HOST", "127.0.0.1");
+	addNameValuePair(&h, "DOCUMENT_ROOT", "/var/www/html");
+	addNameValuePair(&h, "REQUEST_URI", "/info.php");
+	addNameValuePair(&h, "REMOTE_ADDR", "127.0.0.1");
+	addNameValuePair(&h, "REQUEST_METHOD", "GET");
+	addNameValuePair(&h, "SCRIPT_NAME", "/info.php");
+	addNameValuePair(&h, "SERVER_PROTOCOL", "HTTP/1.1");
+	addNameValuePair(&h, "SERVER_ADDR", "127.0.0.1");
+	addNameValuePair(&h, "SERVER_NAME", "127.0.0.1");
+	addNameValuePair(&h, "REMOTE_PORT", sport_source);
+	addNameValuePair(&h, "SERVER_PORT", sport_source);
+	addNameValuePair(&h, "GATEWAY_INTERFACE", "CGI/1.1");
+	addNameValuePair(&h, "SCRIPT_FILENAME", "proxy:fcgi://127.0.0.1:9000//var/www/html/info.php");
+	sendWebData2(&h,fd,FCGI_PARAMS,10,NULL,0);
+	sendWebData(fd,FCGI_PARAMS,10,NULL,0); 
+	
+
+	sendStdin(fd,10,NULL,0);
+	//sendData(fd,10,argv[1],strlen(argv[1])); 
 }
 
