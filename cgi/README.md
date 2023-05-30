@@ -70,7 +70,7 @@ Créer le script `/var/www/html/info.php` et ajouter :
 
 ## Test
 
-Aller sur `http://127.0.0.1/info.php` et regarder avec Wireshark les échanges entre le serveur et le client. Filtrer en TCP sur le port 9000, et `Decode as` FCGI. 
+Aller sur `http://127.0.0.1/info.php` et regarder avec Wireshark les échanges entre le serveur et le client. Filtrer en TCP sur le port 9000 (`tcp.port == 9000` sur la loopback), et `Decode as` FCGI. 
 
 
 # Specifications

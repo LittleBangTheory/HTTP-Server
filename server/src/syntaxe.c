@@ -401,6 +401,8 @@ int analyze(char* request,int clientID){
 	char* mime_type = get_extension(complete);
 	printf("Mime type : %s\n",mime_type);
 
+	FILE* file = fopen(complete,"r");
+
 	// If the Host header is missing in a HTTP/1.1 request, send a 400 Bad Request
 	if((host == NULL && strncmp(version,"HTTP/1.0",8)!=0) || (host != NULL && strncmp(host, "hidden-site", 11)!=0 && strncmp(host, "master-site", 11)!=0 ) || (host != NULL && (nbreHosts!=1))){
 		send_version_code("400 Bad Request", version2, clientID);
@@ -428,7 +430,13 @@ int analyze(char* request,int clientID){
 			content_length = send_type_length("../html/errors/501.html",clientID, mime_type);
 			send_body("../html/errors/501.html",clientID, content_length);
 		// Else, the request is valid
+		} else if(file == NULL || mime_type == NULL){
+			send_version_code("500 Internal Server Error", version2, clientID);
+			content_length = send_type_length("../html/errors/500.html",clientID, mime_type);
+			send_body("../html/errors/500.html",clientID, content_length);
 		} else {
+			// If we got in here, we can close the file to reopen it in the body() function
+			fclose(file);
 			// If it is a POST request, process the data before sending the page
 			if (strncmp(method,"POST",4) == 0){
 				/* Specs : 
