@@ -334,9 +334,24 @@ int analyze(char* request,int clientID){
 	int body_length;
 	char* body = getElementValue(Tbody->node,&body_length); // PAS UN HEADER !
 
-	// Get the query and its length
-	int query_length;
-	char* query = getElementValue(Tquery->node,&query_length); // PAS UN HEADER !
+	// Get the query in the request target (or not) and its length
+	int query_length=0;
+	int isQueryPresent=0;
+	char* query = NULL;
+	int index_query=0;
+	while (index_query<target_query_length && !isQueryPresent)
+	{
+		if (request_target[index_query]=='?')
+		{
+			isQueryPresent=1;
+		}
+		index_query++;
+	}
+	if (isQueryPresent)
+	{
+	query = getElementValue(Tquery->node,&query_length); // PAS UN HEADER !
+	printf("QUERY DETECTED : %.*s\n",query_length,query);
+	}
 
 	// Get the headers
 	int nbreHosts, nbre_referer;
@@ -347,7 +362,8 @@ int analyze(char* request,int clientID){
 	char* referer = getHeaderValue(allHeaders,"Referer",&nbre_referer);
 
 	// Search for the '?' character in the request target
-	target_length = target_query_length - query_length - 1;
+	int target_length = target_query_length - query_length;
+	if(isQueryPresent) target_length--;
 
 	// Remove the dot segments from the path
 	// Allocate a new string that only contains the target
