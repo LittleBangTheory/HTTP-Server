@@ -408,10 +408,16 @@ int analyze(char* request,int clientID){
 	if(host != NULL && strncmp(host, "hidden-site", 11) == 0){
 		pathLen = 20;
 		path = "../html/hidden_site";
+	} else if (host != NULL && strncmp(host, "www.fake.com", 12) == 0){
+		pathLen = 21;
+		path = "../html/www.fake.com";
+	} else if (host != NULL && strncmp(host, "www.toto.com", 12)){
+		pathLen = 21;
+		path = "../html/www.toto.com";
 	} else {
 		pathLen = 20;
 		path = "../html/master_site";
-	} 
+	}
 
 	// Count for the path length (\0 included in pathLen)
 	int totalLen=pathLen+target_length;
