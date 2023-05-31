@@ -142,7 +142,7 @@ void getWebData(FCGI_Header* h, int fd){
 	readSocket(fd, h, FCGI_HEADER_SIZE);
 	char* data = calloc(h->contentLength, sizeof(char));
 	memcpy(data, h->contentData, h->contentLength);
-	printf("%s\n",data);
+	printf("%s\n",h->contentData);
 	readSocket(fd, h, h->contentLength);
 
 }
@@ -232,7 +232,13 @@ int main(int argc,char *argv[])
 	
 
 	sendStdin(fd,10,NULL,0);
-	getWebData(&c,fd);
+	char cc;
+	int ret=1;
+	while(ret == -1 && errno == EINTR){
+	ret=read(fd,&cc,1);
+	printf("%c",cc);
+	}
+	//getWebData(&c,fd);
 	//sendData(fd,10,argv[1],strlen(argv[1])); 
 }
 
