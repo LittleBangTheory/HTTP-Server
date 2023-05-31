@@ -242,12 +242,6 @@ char* process_php(char* filename, char* query_string, char* post_body, int post_
 
 	do {	
 		readData(fd,&h,&len);  	
-		printf("read %d\n",len); 
-		printf("version: %d\n",h.version); 
-		printf("type: %d\n",h.type); 
-		printf("requestId: %d\n",h.requestId); 
-		printf("length: %d\n",h.contentLength);
-		printf("pad: %d\n",h.paddingLength);
 		printf("data: %.*s\n",h.contentLength,h.contentData);
 
 		// Store the current answer data in another variable
@@ -257,12 +251,12 @@ char* process_php(char* filename, char* query_string, char* post_body, int post_
 		strncpy(answer_data, temp_data, answer_len);
 		strncat(answer_data, h.contentData, h.contentLength);
 
-		if(*temp_data != '\0'){ // Only free if not null
+		if(*temp_data != '\0'){ // Only free if not the first iteration
 			free(temp_data);
 		}
 
+		// Add the length of the current data to the total length
 		answer_len += h.contentLength;
-
 
 	} while ((len != 0 ) && (h.type != FCGI_END_REQUEST)); 
 
