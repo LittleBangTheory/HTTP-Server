@@ -334,7 +334,7 @@ int analyze(char* request,int clientID){
 		char* version3 = "HTTP/1.1";
 		send_version_code("400 Bad Request", version3, clientID);
 		int content_length2 = send_type_length("../html/errors/400.html",clientID, "text/html");
-		send_body("../html/errors/400.html",clientID, content_length2);
+		send_body("../html/errors/400.html",NULL,clientID, content_length2);
 		return ERROR;
 		}
 
@@ -487,9 +487,10 @@ int analyze(char* request,int clientID){
 	// If the request target tries to reach a parent directory, send a 403 Forbidden
 	} else {
 		// If it is a POST request, process the data before sending the page
+		int response_code = 200;
+		char* data;
 		if (strncmp(method,"POST",4) == 0){
-			int response_code;
-			char* data = process_php(complete, query, body, body_length, version2, &response_code);
+			data = process_php(complete, query, body, body_length, version2, &response_code);
 		// Otherwise, it is a GET of HEAD request
 		}
 		// Declare the relative path to fetch the pages

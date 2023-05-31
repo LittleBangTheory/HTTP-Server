@@ -265,7 +265,7 @@ char* process_php(char* filename, char* query_string, char* post_body, int post_
 				free(answer_data);
 			}
 
-			response_code = 500;
+			*response_code = 500;
 
 			// Return the error
 			return NULL;
