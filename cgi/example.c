@@ -277,20 +277,24 @@ int main(int argc,char *argv[])
 	int answer_len = 0;
 
 	do {	
-		readData(fd,&h,&len);  	
+		readData(fd,&h,&len);  	/*
 		printf("read %d\n",len); 
 		printf("version: %d\n",h.version); 
 		printf("type: %d\n",h.type); 
 		printf("requestId: %d\n",h.requestId); 
 		printf("length: %d\n",h.contentLength);
 		printf("pad: %d\n",h.paddingLength);
-		printf("data: %.*s\n",h.contentLength,h.contentData);
+		printf("data: %.*s\n",h.contentLength,h.contentData);*/
 
 		// Store the current answer data in another variable
 		char* temp_data = answer_data;
 		// Allocate memory for the new answer data
 		answer_data = calloc(answer_len + h.contentLength, sizeof(char));
+		if (temp_data!=0)
+		{
 		strncpy(answer_data, temp_data, answer_len);
+		}
+		
 		strncat(answer_data, h.contentData, h.contentLength);
 
 		if(*temp_data != '\0'){ // Only free if not null
@@ -298,10 +302,11 @@ int main(int argc,char *argv[])
 		}
 
 		answer_len += h.contentLength;
+		printf("\nLA\n");
 
 
 	} while ((len != 0 ) && (h.type != FCGI_END_REQUEST)); 
 
-	printf("Data : \n %s\n", answer_data);
+	printf("Data : \n%s\n", answer_data);
 }
 
