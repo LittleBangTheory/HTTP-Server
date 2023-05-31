@@ -308,7 +308,7 @@ char* get_extension(char* filename){
  * @return int 
  */
 int isStatic(char* mime_type){
-	if(strstr(mime_type,"text") != NULL || strstr(mime_type, "image") != NULL || strstr(mime_type, "audio") != NULL || strstr(mime_type, "video") != NULL || strstr(mime_type, "application") != NULL){
+	if((strstr(mime_type,"text") != NULL && strstr(mime_type, "x-php") == NULL)|| strstr(mime_type, "image") != NULL || strstr(mime_type, "audio") != NULL || strstr(mime_type, "video") != NULL || strstr(mime_type, "application") != NULL){
 		return 1;
 	}
 	return 0;
@@ -432,7 +432,7 @@ int analyze(char* request,int clientID){
 	version2[8]=0;
 
 	// Declare the relative path to fetch the pages
-	char* path;
+	char* site_path;
 	int pathLen;
 	// Declare the content length variable
 	int content_length;
@@ -440,18 +440,28 @@ int analyze(char* request,int clientID){
 	// If the client request for the Host "hidden-site", send it as host. Otherwise, use default host "master-site".
 	if(host != NULL && strncmp(host, "hidden-site", 11) == 0){
 		pathLen = 20;
-		path = "../html/hidden_site";
+		site_path = "/html/hidden_site";
 	} else if (host != NULL && strncmp(host, "www.fake.com", 12) == 0){
 		pathLen = 21;
-		path = "../html/www.fake.com";
+		site_path = "/html/www.fake.com";
 	} else if (host != NULL && strncmp(host, "www.toto.com", 12) == 0){
 		pathLen = 21;
-		path = "../html/www.toto.com";
+		site_path = "/html/www.toto.com";
 	} else {
 		pathLen = 20;
-		path = "../html/master_site";
+		site_path = "/html/master_site";
 	}
-
+	char pwd[1000];
+	getcwd(pwd,1000);
+	printf("PWD is : %s\n",pwd);
+	char* src_position = strstr(pwd,"/src");
+	unsigned int src_index = src_position-pwd;
+	char* path = malloc(sizeof(char)*(pathLen+src_index+1));
+	strncpy(path,pwd,src_index);
+	strncpy(path+src_index,site_path,pathLen);
+	printf("Path : %s\n",path);
+	pathLen += src_index+1;
+	
 	// Count for the path length (\0 included in pathLen)
 	int totalLen=pathLen+target_length;
 	// Declare the complete path
@@ -489,7 +499,7 @@ int analyze(char* request,int clientID){
 		// If it is a POST request, process the data before sending the page
 		int response_code = 200;
 		char* data;
-		if (strncmp(method,"POST",4) == 0){
+		if (strncmp(mime_type, "text/x-php", 10) == 0){
 			data = process_php(complete, query, body, body_length, version2, &response_code);
 		// Otherwise, it is a GET of HEAD request
 		}
@@ -549,6 +559,7 @@ int analyze(char* request,int clientID){
 	free(clean_target);
 	free(complete);
 	free(mime_type);
+	free(path);
 
 	free(connection);
 	free(accept_encoding);

@@ -10,12 +10,22 @@
 #include <arpa/inet.h>
 #include "../headers/fastcgi.h"
 
-// =========================================================================================================== // 
+#define sendStdin(fd,id,stdin,len) sendWebData(fd,FCGI_STDIN,id,stdin,len)
+#define sendData(fd,id,data,len) sendWebData(fd,FCGI_DATA,id,data,len)
 
+
+/**
+ * @brief Read data from a Socket
+ * 
+ * @param fd 
+ * @param buf 
+ * @param len 
+ * @return size_t 
+ */
 size_t readSocket(int fd,char *buf,size_t len)
 {
-size_t readlen=0;
-ssize_t nb=0;  
+	size_t readlen=0;
+	ssize_t nb=0;  
 
 	if (len==0) return 0; 
 
@@ -30,8 +40,14 @@ ssize_t nb=0;
 	if (nb < 0 ) readlen=-1; 
 	return readlen;  
 }
-//============================================================================================================ // 
-
+ 
+/**
+ * @brief Read data from socket
+ * 
+ * @param fd 
+ * @param h 
+ * @param len 
+ */
 void readData(int fd,FCGI_Header *h,size_t *len) 
 {
 	size_t nb; 
@@ -51,7 +67,13 @@ void readData(int fd,FCGI_Header *h,size_t *len)
 	}
 }
 
-// =========================================================================================================== // 
+/**
+ * @brief Write data to socket
+ * 
+ * @param fd 
+ * @param h 
+ * @param len 
+ */
 void writeSocket(int fd,FCGI_Header *h,unsigned int len)
 {
 	int w;
@@ -69,7 +91,12 @@ void writeSocket(int fd,FCGI_Header *h,unsigned int len)
 	}
 } 
 
-// =========================================================================================================== // 
+/**
+ * @brief 
+ * 
+ * @param len 
+ * @param p 
+ */
 void writeLen(int len, char **p) {
 	if (len > 0x7F ) { 
 		*((*p)++)=(len>>24)&0x7F; 
@@ -79,9 +106,14 @@ void writeLen(int len, char **p) {
 	} else *((*p)++)=(len)&0x7F;
 }
 	
-// =========================================================================================================== // 
-int addNameValuePair(FCGI_Header *h,char *name,char *value)
-{
+/**
+ * @brief Add a name/value pair to a PARAMS header
+ * 
+ * @param h 
+ * @param name 
+ * @param value 
+ */
+int addNameValuePair(FCGI_Header *h,char *name,char *value) {
 	char *p; 
 	unsigned int nameLen=0,valueLen=0;
 
@@ -99,12 +131,18 @@ int addNameValuePair(FCGI_Header *h,char *name,char *value)
 	if (value) strncpy(p,value,valueLen); 
 	h->contentLength+=nameLen+((nameLen>0x7F)?4:1);
 	h->contentLength+=valueLen+((valueLen>0x7F)?4:1);
+
+	return 0;
 }	 
-// =========================================================================================================== // 		
-	
+
+/**
+ * @brief Send a GET_VALUES header
+ * 
+ * @param fd 
+ */
 void sendGetValue(int fd) 
 {
-FCGI_Header h; 
+	FCGI_Header h; 
 
 	h.version=FCGI_VERSION_1; 
 	h.type=FCGI_GET_VALUES; 
@@ -117,26 +155,39 @@ FCGI_Header h;
 	writeSocket(fd,&h,FCGI_HEADER_SIZE+(h.contentLength)+(h.paddingLength)); 
 }
 
-// =========================================================================================================== // 
+/**
+ * @brief Send a BEGIN_REQUEST header
+ * 
+ * @param fd 
+ * @param requestId 
+ * @param role 
+ * @param flags 
+ */
 void sendBeginRequest(int fd,unsigned short requestId,unsigned short role,unsigned char flags) 
 {
-FCGI_Header h; 
-FCGI_BeginRequestBody *begin; 
+	FCGI_Header h; 
+	FCGI_BeginRequestBody *begin; 
 
-	h.version=FCGI_VERSION_1; 
-	h.type=FCGI_BEGIN_REQUEST; 
-	h.requestId=htons(requestId); 
-	h.contentLength=sizeof(FCGI_BeginRequestBody); 
-	h.paddingLength=0; 
-	begin=(FCGI_BeginRequestBody *)&(h.contentData); 
-	begin->role=htons(role); 
-	begin->flags=flags; 
-	writeSocket(fd,&h,FCGI_HEADER_SIZE+(h.contentLength)+(h.paddingLength)); 
+		h.version=FCGI_VERSION_1; 
+		h.type=FCGI_BEGIN_REQUEST; 
+		h.requestId=htons(requestId); 
+		h.contentLength=sizeof(FCGI_BeginRequestBody); 
+		h.paddingLength=0; 
+		begin=(FCGI_BeginRequestBody *)&(h.contentData); 
+		begin->role=htons(role); 
+		begin->flags=flags; 
+		writeSocket(fd,&h,FCGI_HEADER_SIZE+(h.contentLength)+(h.paddingLength)); 
 }
-// =========================================================================================================== // 
+
+/**
+ * @brief Send a ABORT_REQUEST header
+ * 
+ * @param fd 
+ * @param requestId 
+ */
 void sendAbortRequest(int fd,unsigned short requestId) 
 {
-FCGI_Header h; 
+	FCGI_Header h; 
 
 	h.version=FCGI_VERSION_1; 
 	h.type=htons(FCGI_ABORT_REQUEST); 
@@ -145,14 +196,19 @@ FCGI_Header h;
 	h.paddingLength=0; 
 	writeSocket(fd,&h,FCGI_HEADER_SIZE+(h.contentLength)+(h.paddingLength)); 
 }
-#define sendStdin(fd,id,stdin,len) sendWebData(fd,FCGI_STDIN,id,stdin,len)
-#define sendData(fd,id,data,len) sendWebData(fd,FCGI_DATA,id,data,len)
 
-//============================================================================================================ // 
-
+/**
+ * @brief Send data to socket
+ * 
+ * @param fd 
+ * @param type 
+ * @param requestId 
+ * @param data 
+ * @param len 
+ */
 void sendWebData(int fd,unsigned char type,unsigned short requestId,char *data,unsigned int len) 
 {
-FCGI_Header h; 
+	FCGI_Header h; 
 
 	if (len > FASTCGILENGTH) return ; 
 	
@@ -165,12 +221,16 @@ FCGI_Header h;
 	writeSocket(fd,&h,FCGI_HEADER_SIZE+(h.contentLength)+(h.paddingLength));  
 }
 
-// =========================================================================================================== // 
-static int createSocket(int port)
+/**
+ * @brief Create a Socket object
+ * 
+ * @param port 
+ * @return int 
+ */
+int createSocket(int port)
 {
 	int fd;
 	struct sockaddr_in serv_addr;
-	int enable = 1;
 
 	if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 		perror("socket creation failed\n");
@@ -190,13 +250,24 @@ static int createSocket(int port)
 
 	return fd;
 }
-// =========================================================================================================== // 
 
+/**
+ * @brief Process a PHP file
+ * 
+ * @param filename 
+ * @param query_string 
+ * @param post_body 
+ * @param post_body_len 
+ * @param method 
+ * @param response_code 
+ * @return char* 
+ */
 char* process_php(char* filename, char* query_string, char* post_body, int post_body_len, char* method, int* response_code){
 	// Init file descriptor, length, and headers
 	int fd;
 	size_t len;
-	FCGI_Header h; 
+	FCGI_Header h;
+	printf("Filename: %s\n query : %s\n post_body : %s\n post_body_len : %d\n method : %s\n", filename, query_string, post_body, post_body_len, method);
 
 	// Create socket
 	fd=createSocket(9000); 
