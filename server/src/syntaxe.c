@@ -510,7 +510,7 @@ int analyze(char* request,int clientID){
 			fclose(file);
 			// If it is a POST request, process the data before sending the page
 			if (strncmp(method,"POST",4) == 0){
-				char* data = process_php(complete, query, body, path, host, version2);
+				char* data = process_php(complete, query, body, body_length, version2);
 			// Otherwise, it is a GET of HEAD request
 			} else {
 				// Send the 200 OK code (+ date and server header)
