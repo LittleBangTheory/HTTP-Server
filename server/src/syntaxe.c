@@ -408,10 +408,16 @@ int analyze(char* request,int clientID){
 	if(host != NULL && strncmp(host, "hidden-site", 11) == 0){
 		pathLen = 20;
 		path = "../html/hidden_site";
+	} else if (host != NULL && strncmp(host, "www.fake.com", 12) == 0){
+		pathLen = 21;
+		path = "../html/www.fake.com";
+	} else if (host != NULL && strncmp(host, "www.toto.com", 12) == 0){
+		pathLen = 21;
+		path = "../html/www.toto.com";
 	} else {
 		pathLen = 20;
 		path = "../html/master_site";
-	} 
+	}
 
 	// Count for the path length (\0 included in pathLen)
 	int totalLen=pathLen+target_length;
@@ -430,7 +436,7 @@ int analyze(char* request,int clientID){
 	FILE* file = fopen(complete,"r");
 
 	// If the Host header is missing in a HTTP/1.1 request, send a 400 Bad Request
-	if((host == NULL && strncmp(version,"HTTP/1.0",8)!=0) || (host != NULL && strncmp(host, "hidden-site", 11)!=0 && strncmp(host, "master-site", 11)!=0 ) || (host != NULL && (nbreHosts!=1))){
+	if((host == NULL && strncmp(version,"HTTP/1.0",8)!=0) || (host != NULL && strncmp(host, "hidden-site", 11)!=0 && strncmp(host, "master-site", 11)!=0 && strncmp(host, "www.fake.com", 12) != 0 && strncmp(host, "www.toto.com", 12) != 0 ) || (host != NULL && (nbreHosts!=1))){
 		send_version_code("400 Bad Request", version2, clientID);
 		content_length = send_type_length("../html/errors/400.html",clientID, mime_type);
 		send_body("../html/errors/400.html",clientID, content_length);

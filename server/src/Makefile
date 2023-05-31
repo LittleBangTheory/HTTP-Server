@@ -22,7 +22,9 @@ clean:
 
 hosts:
 	@sudo echo "127.0.0.2	hidden-site" >> /etc/hosts
-	@sudo echo "127.0.0.3	master-site" >> /etc/hosts
+	@sudo echo "127.0.0.2	master-site" >> /etc/hosts
+	@sudo echo "127.0.0.2	www.toto.com" >> /etc/hosts
+	@sudo echo "127.0.0.2	www.fake.com" >> /etc/hosts
 
 debug: main.o syntaxe.o answer.o
 	gcc $^ -L. -lrequest -lparser -lmagic -fsanitize=address -o $@
