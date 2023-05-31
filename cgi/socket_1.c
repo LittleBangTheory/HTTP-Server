@@ -230,13 +230,36 @@ int main(int argc,char *argv[])
 	sendWebData2(&h,fd,FCGI_PARAMS,10,NULL,0);
 	sendWebData(fd,FCGI_PARAMS,10,NULL,0); 
 	
+	int ret=1;
 
 	sendStdin(fd,10,NULL,0);
+	char cd;
 	char cc;
-	int ret=1;
-	while(ret == -1 && errno == EINTR){
+	char cb;
+	char ca;
 	ret=read(fd,&cc,1);
-	printf("%c",cc);
+	ca=cc;
+	ret=read(fd,&cc,1);
+	cb=cc;
+	while(1){
+		ca=cb;
+		cb=cc;
+		ret=read(fd,&cc,1);
+		printf("%c",cc);
+		if (ca=='m' && cb=='l' && cc==';')
+		{
+			break;
+		}
+	}
+	while(1){
+		ca=cb;
+		cb=cc;
+		ret=read(fd,&cc,1);
+		printf("%c",cc);
+		if (ca=='m' && cb=='l' && cc==';')
+		{
+			break;
+		}
 	}
 	//getWebData(&c,fd);
 	//sendData(fd,10,argv[1],strlen(argv[1])); 
