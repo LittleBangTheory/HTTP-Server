@@ -218,7 +218,6 @@ int main(int argc,char *argv[])
 	addNameValuePair(&h, "DOCUMENT_ROOT", "/var/www/html");
 	addNameValuePair(&h, "REQUEST_URI", "/info.php");
 	addNameValuePair(&h, "REMOTE_ADDR", "127.0.0.1");
-	addNameValuePair(&h, "REQUEST_METHOD", "GET");
 	addNameValuePair(&h, "SCRIPT_NAME", "/info.php");
 	addNameValuePair(&h, "SERVER_PROTOCOL", "HTTP/1.1");
 	addNameValuePair(&h, "SERVER_ADDR", "127.0.0.1");
@@ -226,6 +225,7 @@ int main(int argc,char *argv[])
 	addNameValuePair(&h, "REMOTE_PORT", sport_source);
 	addNameValuePair(&h, "SERVER_PORT", sport_source);
 	addNameValuePair(&h, "GATEWAY_INTERFACE", "CGI/1.1");
+	addNameValuePair(&h, "REQUEST_METHOD", "GET");
 	addNameValuePair(&h, "SCRIPT_FILENAME", "proxy:fcgi://127.0.0.1:9000//var/www/html/info.php");
 	sendWebData2(&h,fd,FCGI_PARAMS,10,NULL,0);
 	sendWebData(fd,FCGI_PARAMS,10,NULL,0); 
@@ -233,30 +233,24 @@ int main(int argc,char *argv[])
 	int ret=1;
 
 	sendStdin(fd,10,NULL,0);
+	char buffer[10000000];
 	char cd;
 	char cc;
 	char cb;
 	char ca;
 	ret=read(fd,&cc,1);
+	cd=cc;
+	ret=read(fd,&cc,1);
 	ca=cc;
 	ret=read(fd,&cc,1);
 	cb=cc;
 	while(1){
+		cd=ca;
 		ca=cb;
 		cb=cc;
 		ret=read(fd,&cc,1);
 		printf("%c",cc);
-		if (ca=='m' && cb=='l' && cc==';')
-		{
-			break;
-		}
-	}
-	while(1){
-		ca=cb;
-		cb=cc;
-		ret=read(fd,&cc,1);
-		printf("%c",cc);
-		if (ca=='m' && cb=='l' && cc==';')
+		if (ca=='m' && cb=='l' && cc==';' && cd==0)
 		{
 			break;
 		}
