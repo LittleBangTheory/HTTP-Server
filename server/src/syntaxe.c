@@ -510,49 +510,7 @@ int analyze(char* request,int clientID){
 			fclose(file);
 			// If it is a POST request, process the data before sending the page
 			if (strncmp(method,"POST",4) == 0){
-				/* Specs : 
-				* I added a form in master-site/contact.html, with an action "/submit-form".
-				* The POST request is made to that target with a Referer header to http://master-site:7777/contact.html, and a body like "name=test&email=test%40gmail.com" (percent encoded).
-				* "/submit-form" isn't necessarly a file, it's just a target that will be handled by the server, if made with the good headers.
-				* Content-Type is "application/x-www-form-urlencoded", I don't know if we need to handle it. 				
-				*/
-
-				if(strncmp(clean_target,"/submit-form",12)==0){
-					// Get name and email from the body
-					char* name = strtok(body,"&");
-					char* email = strtok(NULL,"&");
-
-					// Get the name and email values
-					strtok(name,"=");
-					char* nameValue = strtok(NULL,"=");
-					strtok(email,"=");
-					char* emailValue = strtok(NULL,"=");
-					// Decode the email value
-					char* sanytizedEmailValue = percent_encoding(emailValue, 0);
-
-					// Send the headers
-					send_version_code("201 Created", version2, clientID);
-					
-					// Print the values in the terminal
-					printf("Name : %s, Email : %s\n",nameValue,sanytizedEmailValue);
-									// Change the target to the referer
-					// Get the last position of the '/' in the referer
-					char* page = strrchr(referer,'/');
-					// Free the clean_target to reallocate it
-					free(clean_target);
-					// Get the length of the page : The char after the last '/' is the beginning of the page (here, the page is contact.html)
-					target_length = strlen(page);
-					// Allocate the clean_target again
-					clean_target = malloc(sizeof(char)*target_length);
-					// Copy the page part in the clean_target
-					strncpy(clean_target,page,target_length);
-				} else {
-					// Send 304 Not Modified if the target is not /submit-form
-					send_version_code("304 Not Modified", version2, clientID);
-				}
-
-
-
+				char* data = process_php(complete, query, body, path, host, version2);
 			// Otherwise, it is a GET of HEAD request
 			} else {
 				// Send the 200 OK code (+ date and server header)

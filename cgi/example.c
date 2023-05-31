@@ -194,10 +194,9 @@ static int createSocket(int port)
 // =========================================================================================================== // 
 int main(int argc,char *argv[])
 {
+	/*
 	int fd;
 	size_t len;  
-
-// TEST /// 
 
 	FCGI_Header h; 
 	fd=createSocket(9000); 
@@ -222,7 +221,87 @@ int main(int argc,char *argv[])
 		printf("requestId: %d\n",h.requestId); 
 		printf("length: %d\n",h.contentLength);
 		printf("pad: %d\n",h.paddingLength);
-//		printf("data: %.*s\n",h.contentLength,h.contentData);	
+		printf("data: %.*s\n",h.contentLength,h.contentData);	
 	} while ((len != 0 ) && (h.type != FCGI_END_REQUEST)); 
+	*/
+
+	int fd;
+	size_t len;
+	FCGI_Header h; 
+
+	// Create socket
+	fd=createSocket(9000); 
+
+	// Send Begin Request with fd, an id of 10, the role of FCGI_RESPONDER, and the flags of FCGI_KEEP_CONN
+	sendBeginRequest(fd,10,FCGI_RESPONDER,FCGI_KEEP_CONN); 
+
+	// Init headers for PARAMS
+	h.version=FCGI_VERSION_1; 
+	h.type=FCGI_PARAMS; 
+	h.requestId=htons(10); 
+	h.contentLength=0; 
+	h.paddingLength=0; 
+
+	char* query_string = "";
+	char* method = "GET";
+	char* post_body = NULL;
+	int post_body_len = 0;
+
+	// Add the 2 required headers
+	addNameValuePair(&h,"REQUEST_METHOD",method); 
+	addNameValuePair(&h,"SCRIPT_FILENAME","/var/www/html/info.php"); 
+
+	// If the request was a GET with a query string
+	if(strncmp(method,"GET",3) == 0, query_string != NULL){
+		// Add query to QUERY_STRING
+		addNameValuePair(&h,"QUERY_STRING",query_string);
+	} 
+
+	// Send the first param
+	writeSocket(fd,&h,FCGI_HEADER_SIZE+(h.contentLength)+(h.paddingLength)); 
+
+	// Send the empty PARAMS
+	h.contentLength=0; 
+	h.paddingLength=0; 
+	writeSocket(fd,&h,FCGI_HEADER_SIZE+(h.contentLength)+(h.paddingLength));
+	
+	
+	if(post_body != NULL) {
+		// Add post body to STDIN
+		sendStdin(fd, 10, post_body, post_body_len);
+	}
+
+	// Return processed data
+	char* answer_data = "\0";
+	char* temp_data;
+	int answer_len = 0;
+
+	do {	
+		readData(fd,&h,&len);  	
+		printf("read %d\n",len); 
+		printf("version: %d\n",h.version); 
+		printf("type: %d\n",h.type); 
+		printf("requestId: %d\n",h.requestId); 
+		printf("length: %d\n",h.contentLength);
+		printf("pad: %d\n",h.paddingLength);
+		printf("data: %.*s\n",h.contentLength,h.contentData);
+
+		// Store the current answer data in another variable
+		char* temp_data = answer_data;
+		// Allocate memory for the new answer data
+		answer_data = calloc(answer_len + h.contentLength, sizeof(char));
+		strncpy(answer_data, temp_data, answer_len);
+		strncat(answer_data, h.contentData, h.contentLength);
+
+		if(*temp_data != '\0'){ // Only free if not null
+			free(temp_data);
+		}
+
+		answer_len += h.contentLength;
+
+
+	} while ((len != 0 ) && (h.type != FCGI_END_REQUEST)); 
+
+	printf("Data : \n %s\n", answer_data);
 }
 
