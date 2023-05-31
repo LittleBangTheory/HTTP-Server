@@ -438,7 +438,7 @@ int analyze(char* request,int clientID){
 	// If the Host header is missing in a HTTP/1.1 request, send a 400 Bad Request
 	if((host == NULL && strncmp(version,"HTTP/1.0",8)!=0) || (host != NULL && strncmp(host, "hidden-site", 11)!=0 && strncmp(host, "master-site", 11)!=0 && strncmp(host, "www.fake.com", 12) != 0 && strncmp(host, "www.toto.com", 12) != 0 ) || (host != NULL && (nbreHosts!=1))){
 		send_version_code("400 Bad Request", version2, clientID);
-		content_length = send_type_length("../html/errors/400.html",clientID, mime_type);
+		content_length = send_type_length("../html/errors/400.html",clientID, "text/html");
 		send_body("../html/errors/400.html",clientID, content_length);
 		returnValue=ERROR;
 	// If the request target tries to reach a parent directory, send a 403 Forbidden
@@ -446,25 +446,25 @@ int analyze(char* request,int clientID){
 		// Declare the relative path to fetch the pages
 		if(strncmp(method,"POST",4) && clean_target!=NULL && !existing(clean_target,target_length, path, pathLen)){/*le fichier n'existe pas*/
 			send_version_code("404 Not Found", version2, clientID);
-			content_length = send_type_length("../html/errors/404.html",clientID, mime_type);
+			content_length = send_type_length("../html/errors/404.html",clientID, "text/html");
 			send_body("../html/errors/404.html",clientID, content_length);
 			returnValue=ERROR;
 		// If the HTTP version is not supported, send a 505 HTTP Version Not Supported
 		} else if(strncmp(version,"HTTP/1.0",8) && strncmp(version,"HTTP/1.1",8)){
 			send_version_code("505 HTTP Version Not Supported", "HTTP/1.0", clientID);
-			content_length = send_type_length("../html/errors/505.html",clientID, mime_type);
+			content_length = send_type_length("../html/errors/505.html",clientID, "text/html");
 			send_body("../html/errors/505.html",clientID, content_length);
 			returnValue=ERROR;
 
 		// If the method is not supported, send a 501 Not Implemented
 		} else if(strncmp(method,"GET",3) && strncmp(method,"HEAD",4) && strncmp(method,"POST",4)){
 			send_version_code("501 Not Implemented", version2, clientID);
-			content_length = send_type_length("../html/errors/501.html",clientID, mime_type);
+			content_length = send_type_length("../html/errors/501.html",clientID, "text/html");
 			send_body("../html/errors/501.html",clientID, content_length);
 		// If we can't open the file or get the type, send a 500 Internal Server Error
 		} else if(file == NULL || mime_type == NULL){
 			send_version_code("500 Internal Server Error", version2, clientID);
-			content_length = send_type_length("../html/errors/500.html",clientID, mime_type);
+			content_length = send_type_length("../html/errors/500.html",clientID, "text/html");
 			send_body("../html/errors/500.html",clientID, content_length);
 		// Else, the request is valid
 		} else {
@@ -497,22 +497,23 @@ int analyze(char* request,int clientID){
 					
 					// Print the values in the terminal
 					printf("Name : %s, Email : %s\n",nameValue,sanytizedEmailValue);
+									// Change the target to the referer
+					// Get the last position of the '/' in the referer
+					char* page = strrchr(referer,'/');
+					// Free the clean_target to reallocate it
+					free(clean_target);
+					// Get the length of the page : The char after the last '/' is the beginning of the page (here, the page is contact.html)
+					target_length = strlen(page);
+					// Allocate the clean_target again
+					clean_target = malloc(sizeof(char)*target_length);
+					// Copy the page part in the clean_target
+					strncpy(clean_target,page,target_length);
 				} else {
 					// Send 304 Not Modified if the target is not /submit-form
 					send_version_code("304 Not Modified", version2, clientID);
 				}
 
-				// Change the target to the referer
-				// Get the last position of the '/' in the referer
-				char* page = strrchr(referer,'/');
-				// Free the clean_target to reallocate it
-				free(clean_target);
-				// Get the length of the page : The char after the last '/' is the beginning of the page (here, the page is contact.html)
-				target_length = strlen(page);
-				// Allocate the clean_target again
-				clean_target = malloc(sizeof(char)*target_length);
-				// Copy the page part in the clean_target
-				strncpy(clean_target,page,target_length);
+
 
 			// Otherwise, it is a GET of HEAD request
 			} else {

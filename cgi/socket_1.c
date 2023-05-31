@@ -118,6 +118,7 @@ FCGI_Header h;
 	writeSocket(fd,&h,FCGI_HEADER_SIZE+(h.contentLength)+(h.paddingLength)); 
 }
 #define sendStdin(fd,id,stdin,len) sendWebData(fd,FCGI_STDIN,id,stdin,len)
+#define sendStdout(fd,id,stdout,len) sendWebData(fd,FCGI_STDOUT,id,stdout,len)
 #define sendData(fd,id,data,len) sendWebData(fd,FCGI_DATA,id,data,len)
 //============================================================================================================ // 
 
@@ -135,9 +136,15 @@ FCGI_Header h;
 	writeSocket(fd,&h,FCGI_HEADER_SIZE+(h.contentLength)+(h.paddingLength));  
 }
 
+//============================================================================================================ // 
+
 void getWebData(FCGI_Header* h, int fd){
 	readSocket(fd, h, FCGI_HEADER_SIZE);
-	readSocket(fd, h->contentData, h->contentLength);
+	char* data = calloc(h->contentLength, sizeof(char));
+	memcpy(data, h->contentData, h->contentLength);
+	printf("%s\n",data);
+	readSocket(fd, h, h->contentLength);
+
 }
 
 //============================================================================================================ // 
@@ -225,6 +232,7 @@ int main(int argc,char *argv[])
 	
 
 	sendStdin(fd,10,NULL,0);
+	getWebData(&c,fd);
 	//sendData(fd,10,argv[1],strlen(argv[1])); 
 }
 
