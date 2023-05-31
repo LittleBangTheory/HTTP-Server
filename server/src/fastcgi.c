@@ -192,7 +192,7 @@ static int createSocket(int port)
 }
 // =========================================================================================================== // 
 
-char* process_php(char* filename, char* query_string, char* post_body, int post_body_len, char* method){
+char* process_php(char* filename, char* query_string, char* post_body, int post_body_len, char* method, int* response_code){
 	// Init file descriptor, length, and headers
 	int fd;
 	size_t len;
@@ -216,7 +216,7 @@ char* process_php(char* filename, char* query_string, char* post_body, int post_
 	addNameValuePair(&h,"SCRIPT_FILENAME",filename); 
 
 	// If the request was a GET with a query string
-	if(strncmp(method,"GET",3) == 0, query_string != NULL){
+	if(strncmp(method,"GET",3) == 0 && query_string != NULL){
 		// Add query to QUERY_STRING
 		addNameValuePair(&h,"QUERY_STRING",query_string);
 	} 
@@ -244,6 +244,7 @@ char* process_php(char* filename, char* query_string, char* post_body, int post_
 		readData(fd,&h,&len);  	
 		printf("data: %.*s\n",h.contentLength,h.contentData);
 
+		if(h.type == FCGI_STDOUT) {
 		// Store the current answer data in another variable
 		char* temp_data = answer_data;
 		// Allocate memory for the new answer data
@@ -257,6 +258,18 @@ char* process_php(char* filename, char* query_string, char* post_body, int post_
 
 		// Add the length of the current data to the total length
 		answer_len += h.contentLength;
+
+		} else if(h.type == FCGI_STDERR) {
+			printf("error: %.*s\n",h.contentLength,h.contentData);
+			if(*answer_data != '\0'){ // Only free if not the first iteration
+				free(answer_data);
+			}
+
+			response_code = 500;
+
+			// Return the error
+			return NULL;
+		}
 
 	} while ((len != 0 ) && (h.type != FCGI_END_REQUEST)); 
 
