@@ -122,35 +122,37 @@ int send_type_length(char* filename, int clientID, char* final_mime_type){
  * @param size Size of the file
  * @return int 
  */
-int send_body(char* filename, int clientID, int size){
+int send_body(char* filename, char* data, int clientID, int size){
     // Envoyer le body
     char* buffer = NULL;
-    
-    // TODO : ouvrir en mode binaire ?
-    FILE * file = fopen (filename, "r+");
 
-    if (file){
-        buffer = calloc(size,sizeof(char));
-        if (buffer == NULL){
-            perror("malloc");
-            return -1;
+    if(data != NULL){
+        buffer = data;
+    } else {
+        FILE * file = fopen (filename, "r+");
+
+        if (file){
+            buffer = calloc(size,sizeof(char));
+            if (buffer == NULL){
+                perror("malloc");
+                return -1;
+            }
+            // Read the file
+            fread (buffer, 1, size, file);
+            fclose (file);
         }
-        // Read the file
-        fread (buffer, 1, size, file);
-        fclose (file);
+    }
 
-        // Concatenate the string
-        //sprintf(string, "\r\n%s\r\n\r\n", buffer);
+    printf("\r\n%.*s\r\n\r\n",size,buffer);
 
-        printf("\r\n%.*s\r\n\r\n",size,buffer);
+    // Send the strings
+    writeDirectClient(clientID,"\r\n",2);
+    writeDirectClient(clientID,buffer,size);
+    writeDirectClient(clientID,"\r\n\r\n",4);
 
-        // Send the strings
-        writeDirectClient(clientID,"\r\n",2);
-        writeDirectClient(clientID,buffer,size);
-        writeDirectClient(clientID,"\r\n\r\n",4);
-
-        // Free the memory
+    if(buffer != data){
         free(buffer);
     }
+
     return EXIT_SUCCESS;
 }
