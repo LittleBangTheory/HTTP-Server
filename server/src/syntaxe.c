@@ -309,7 +309,13 @@ int analyze(char* request,int clientID){
 	void* trees[6]={NULL, NULL, NULL, NULL, NULL, NULL};
 	_Token* Tversion = call_parser(request,"HTTP_version",&occurences,&validSyntax,&trees[0]);
 
-	if (validSyntax==0){return ERROR;}
+	if (validSyntax==0){
+		char* version3 = "HTTP/1.1";
+		send_version_code("400 Bad Request", version3, clientID);
+		int content_length2 = send_type_length("../html/errors/400.html",clientID, "text/html");
+		send_body("../html/errors/400.html",clientID, content_length2);
+		return ERROR;
+		}
 
 	_Token* Tmethod = call_parser(request,"method",&occurences,&validSyntax,&trees[1]);
 	_Token* allHeaders = call_parser(request,"header_field",&occurences,&validSyntax,&trees[2]);
