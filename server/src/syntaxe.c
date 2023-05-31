@@ -20,6 +20,7 @@
 #endif
 #include "../headers/request.h"
 #include "../headers/answer.h"
+#include "../headers/fastcgi.h"
 #ifndef _SYNTAXE_
 #define _SYNTAXE_
 #include "../headers/syntaxe.h"
@@ -245,6 +246,12 @@ char* percent_encoding(char* request, int freeRequest){
 	return request;
 }
 
+/**
+ * @brief Get the extension object
+ * 
+ * @param filename 
+ * @return char* 
+ */
 char* get_extension(char* filename){
 	magic_t magic_cookie;
     const char *mime_type;
@@ -291,6 +298,19 @@ char* get_extension(char* filename){
     magic_close(magic_cookie);
 
 	return final_mime_type;
+}
+
+/**
+ * @brief Check if the file is a static file (text, image, audio, video, application)
+ * 
+ * @param mime_type 
+ * @return int 
+ */
+int isStatic(char* mime_type){
+	if(strstr(mime_type,"text") != NULL || strstr(mime_type, "image") != NULL || strstr(mime_type, "audio") != NULL || strstr(mime_type, "video") != NULL || strstr(mime_type, "application") != NULL){
+		return 1;
+	}
+	return 0;
 }
 
 /**
@@ -447,6 +467,11 @@ int analyze(char* request,int clientID){
 
 	FILE* file = fopen(complete,"r");
 
+	if(strncmp(method, "POST", 4) == 0 && isStatic(mime_type)){
+		strcpy(method, "GET");
+		method_length -= 1;
+	}
+
 	// If the Host header is missing in a HTTP/1.1 request, send a 400 Bad Request
 	if((host == NULL && strncmp(version,"HTTP/1.0",8)!=0) || (host != NULL && strncmp(host, "hidden-site", 11)!=0 && strncmp(host, "master-site", 11)!=0 && strncmp(host, "www.fake.com", 12) != 0 && strncmp(host, "www.toto.com", 12) != 0 ) || (host != NULL && (nbreHosts!=1)) || (body_length != 0 && atoi(&request_content_length[index_CL]) != body_length)){
 		printf("%d and %s\n",body_length,&request_content_length[index_CL]);
@@ -475,7 +500,7 @@ int analyze(char* request,int clientID){
 			content_length = send_type_length("../html/errors/501.html",clientID, "text/html");
 			send_body("../html/errors/501.html",clientID, content_length);
 		// If we can't open the file or get the type, send a 500 Internal Server Error
-		} else if(file == NULL || mime_type == NULL){
+		} else if(strncmp(method, "POST", 4) != 0 && (file == NULL || mime_type == NULL)){
 			send_version_code("500 Internal Server Error", version2, clientID);
 			content_length = send_type_length("../html/errors/500.html",clientID, "text/html");
 			send_body("../html/errors/500.html",clientID, content_length);

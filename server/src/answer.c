@@ -50,17 +50,6 @@ int send_version_code(char* code, char* version, int clientID){
 
 
     /* SEND SERVER + DATE + LANGUAGE */
-    // Define the string
-
-    // Get the date
-    /*
-    time_t t = time(NULL);
-    struct tm *tm = localtime(&t);
-    char s[64];
-    size_t ret = strftime(s, sizeof(s), "%c", tm);
-    assert(ret);
-    */
-
     char buf[1000];
     time_t now = time(0);
     struct tm tm = *gmtime(&now);
