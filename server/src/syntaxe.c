@@ -354,12 +354,18 @@ int analyze(char* request,int clientID){
 	}
 
 	// Get the headers
-	int nbreHosts, nbre_referer;
+	int nbreHosts, nbre_referer, nbrContentLength;
 	char* connection = getHeaderValue(allHeaders, "Connection",&nbreHosts);
 	char* accept_encoding = getHeaderValue(allHeaders, "Accept-Encoding",&nbreHosts);
 	char* host = getHeaderValue(allHeaders, "Host",&nbreHosts);
 	char* hostPTR = host;
 	char* referer = getHeaderValue(allHeaders,"Referer",&nbre_referer);
+	char* request_content_length = getHeaderValue(allHeaders, "Content-Length", &nbrContentLength);
+	int index_CL=14;
+	//Parsing Content-length
+	if (request_content_length!=NULL){
+		while(request_content_length[index_CL]==':' || request_content_length[index_CL]==' ') index_CL++;
+	}
 
 	// Search for the '?' character in the request target
 	int target_length = target_query_length - query_length;
@@ -436,7 +442,8 @@ int analyze(char* request,int clientID){
 	FILE* file = fopen(complete,"r");
 
 	// If the Host header is missing in a HTTP/1.1 request, send a 400 Bad Request
-	if((host == NULL && strncmp(version,"HTTP/1.0",8)!=0) || (host != NULL && strncmp(host, "hidden-site", 11)!=0 && strncmp(host, "master-site", 11)!=0 && strncmp(host, "www.fake.com", 12) != 0 && strncmp(host, "www.toto.com", 12) != 0 ) || (host != NULL && (nbreHosts!=1))){
+	if((host == NULL && strncmp(version,"HTTP/1.0",8)!=0) || (host != NULL && strncmp(host, "hidden-site", 11)!=0 && strncmp(host, "master-site", 11)!=0 && strncmp(host, "www.fake.com", 12) != 0 && strncmp(host, "www.toto.com", 12) != 0 ) || (host != NULL && (nbreHosts!=1)) || (body_length != 0 && atoi(&request_content_length[index_CL]) != body_length)){
+		printf("%d and %s\n",body_length,&request_content_length[index_CL]);
 		send_version_code("400 Bad Request", version2, clientID);
 		content_length = send_type_length("../html/errors/400.html",clientID, "text/html");
 		send_body("../html/errors/400.html",clientID, content_length);
