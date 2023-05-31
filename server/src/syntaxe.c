@@ -20,11 +20,12 @@
 #endif
 #include "../headers/request.h"
 #include "../headers/answer.h"
-#include "../headers/fastcgi.h"
 #ifndef _SYNTAXE_
 #define _SYNTAXE_
 #include "../headers/syntaxe.h"
 #endif
+
+#include "../headers/fastcgi.h"
 
 #define false 0 
 
