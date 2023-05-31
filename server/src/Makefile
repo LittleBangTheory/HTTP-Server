@@ -1,6 +1,6 @@
 all: server.exe
 
-server.exe: main.o syntaxe.o answer.o
+server.exe: main.o syntaxe.o answer.o fastcgi.o
 	gcc $^ -L. -lrequest -lparser -lmagic -o $@
 	@echo "Pensez à faire : export LD_LIBRARY_PATH=. !"
 
@@ -12,6 +12,9 @@ answer.o: answer.c
 
 api.o: api.c
 	gcc -Wall -Wextra -g -c $< -lmagic -o $@
+
+fastcgi.o: fastcgi.c
+	gcc -Wall -Wextra -g -c $< -o $@
 
 main.o: main.c
 	gcc -Wall -Wextra -g -c $< -lmagic -o $@ 

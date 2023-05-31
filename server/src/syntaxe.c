@@ -474,9 +474,13 @@ int analyze(char* request,int clientID){
 	}
 
 	// If the Host header is missing in a HTTP/1.1 request, send a 400 Bad Request
-	if((host == NULL && strncmp(version,"HTTP/1.0",8)!=0) || (host != NULL && strncmp(host, "hidden-site", 11)!=0 && strncmp(host, "master-site", 11)!=0 && strncmp(host, "www.fake.com", 12) != 0 && strncmp(host, "www.toto.com", 12) != 0 ) || (host != NULL && (nbreHosts!=1)) || (body_length != 0 && atoi(&request_content_length[index_CL]) != body_length)){
-		printf("%d and %s\n",body_length,&request_content_length[index_CL]);
+	if((host == NULL && strncmp(version,"HTTP/1.0",8)!=0) || (host != NULL && strncmp(host, "hidden-site", 11)!=0 && strncmp(host, "master-site", 11)!=0 && strncmp(host, "www.fake.com", 12) != 0 && strncmp(host, "www.toto.com", 12) != 0 ) || (host != NULL && (nbreHosts!=1)) || (body_length != 0 && request_content_length!=NULL && atoi(&request_content_length[index_CL]) != body_length)){
 		send_version_code("400 Bad Request", version2, clientID);
+			returnValue=ERROR;
+
+		// If the method is not supported, send a 501 Not Implemented
+		} else if(strncmp(method,"GET",3) && strncmp(method,"HEAD",4) && strncmp(method,"POST",4)){
+			send_version_code("501 Not Implemented", version2, clientID);
 		content_length = send_type_length("../html/errors/400.html",clientID, "text/html");
 		send_body("../html/errors/400.html",clientID, content_length);
 		returnValue=ERROR;
