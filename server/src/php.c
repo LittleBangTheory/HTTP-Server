@@ -112,27 +112,42 @@ void sendWebData(int fd,unsigned char type,unsigned short requestId,char *data,u
 	writeSocket(fd,&h,FCGI_HEADER_SIZE+(h.contentLength)+(h.paddingLength));  
 }
 
-char* send_php(char* filename){
-    FILE* file = fopen(filename, "r");
-    // Get file length
-    fseek(file, 0, SEEK_END);
-    int length = ftell(file);
-    fseek(file, 0, SEEK_SET);
+char* send_php(char* filename, char* query_string, char* post_body, char* path, char* host, char* protocol){
+	// Open file
+	FILE* file = fopen(filename, "r");
 
-    // Read file in buffer
-    char* buffer = malloc(length + 1);
-    fread(buffer, length, 1, file);
-    fclose(file);
+	// Get file descriptor, source port and source port as string
+    int fd;
+	int source_port;
+	char str_source_port[5];
+	fd=createSocket(9000, &source_port); 
+	//sendGetValue(fd); 
+	sendBeginRequest(fd,10,FCGI_RESPONDER,0);
+	sprintf(str_source_port,"%d",str_source_port);
 
-    // Key for the socket
-    int fd; 
-    // Create the socket
-	fd=createSocket(9000);
-    // Send a Begin Request object
-	sendGetValue(fd); 
-	sendBeginRequest(fd,10,FCGI_RESPONDER,FCGI_KEEP_CONN); 
-    // Send the data
-	sendStdin(fd,10,buffer,length); 
-	sendData(fd,10,buffer,length); 
+	FCGI_Header h,c;
+	addNameValuePair(&h, "HTTP_HOST", host);
+	addNameValuePair(&h, "DOCUMENT_ROOT", path);
+	addNameValuePair(&h, "REQUEST_URI", filename);
+	addNameValuePair(&h, "REMOTE_ADDR", "127.0.0.1");
+	addNameValuePair(&h, "REQUEST_METHOD", "GET");
+	addNameValuePair(&h, "SCRIPT_NAME", filename);
+	addNameValuePair(&h, "SERVER_PROTOCOL", protocol);
+	addNameValuePair(&h, "SERVER_ADDR", "127.0.0.1");
+	addNameValuePair(&h, "SERVER_NAME", "Projet HTTP");
+	addNameValuePair(&h, "REMOTE_PORT", str_source_port);
+	addNameValuePair(&h, "SERVER_PORT", str_source_port);
+	addNameValuePair(&h, "GATEWAY_INTERFACE", "CGI/1.1");
+	addNameValuePair(&h, "SCRIPT_FILENAME", "proxy:fcgi://127.0.0.1:9000//var/www/html/info.php");
+	sendWebData2(&h,fd,FCGI_PARAMS,10,NULL,0);
+	sendWebData(fd,FCGI_PARAMS,10,NULL,0); 
+	
+	char* answer_data;
+	// Get answer
+
+	sendStdin(fd,10,NULL,0);
+	//sendData(fd,10,argv[1],strlen(argv[1])); 
+
+	return answer_data;
 
 }
