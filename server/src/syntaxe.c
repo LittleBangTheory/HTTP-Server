@@ -20,6 +20,7 @@
 #endif
 #include "../headers/request.h"
 #include "../headers/answer.h"
+#include "../headers/fastcgi.h"
 #ifndef _SYNTAXE_
 #define _SYNTAXE_
 #include "../headers/syntaxe.h"
@@ -299,6 +300,12 @@ char* get_extension(char* filename){
 	return final_mime_type;
 }
 
+/**
+ * @brief Check if the file is a static file (text, image, audio, video, application)
+ * 
+ * @param mime_type 
+ * @return int 
+ */
 int isStatic(char* mime_type){
 	if(strstr(mime_type,"text") != NULL || strstr(mime_type, "image") != NULL || strstr(mime_type, "audio") != NULL || strstr(mime_type, "video") != NULL || strstr(mime_type, "application") != NULL){
 		return 1;
