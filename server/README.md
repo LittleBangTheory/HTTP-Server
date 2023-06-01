@@ -40,7 +40,7 @@ A more suitable solution would be to modifie `/etc/hosts` to add the following l
 <ip>   hidden-site
 <ip>   master-site
 ```
-We recommand to use a local IP address, such as 127.0.0.2. The server is, however, listen to the 7777 port regardless of the IP address.
+We recommand to use a local IP address, such as 127.0.0.2. The server is, however, listen to the 8080 port regardless of the IP address.
 
 To do this, you can execute the following command in `server/src` (being in the sudousers is required) :
 ```
@@ -73,6 +73,9 @@ To execute the server, you can execute the following command(s) in `server/src` 
 * The server supports percent encoding.
 * The server supports dot segment removal.
 * The sever supports any media type, plus TXT, HTML, CSS, and JS files. 
+* If the client request a HTTP Version other than 1.0 or 1.1, we send a 505 (HTTP Version not supported) error. An other conception choice would have been to retrofit to 1.1 if the version was 1.x (with x > 1).
+* The server doesn't use chunked transfer encoding to send the answer to the PHP motor, it stores the answer in a buffer then sends it. 
+  * It is more reliable because we can intercept a potential FCGI_STDERR and answer accordingly, instead of sending the beginning of the page then realising that there is an error.
 
 ## Limitations
 
@@ -84,14 +87,8 @@ To execute the server, you can execute the following command(s) in `server/src` 
 
 You can find :
 * Some CSS in every page.
-* A JS script in [hidden-site:7777/index.html](hidden-site:7777/index.html). It changes randomly the background color of the page and the color of the text.
-* Images and icons in [master-site:7777/index.html](master-site:7777/index.html) and [hidden-site:7777/index.html](hidden-site:7777/index.html)
-* A pdf in [master-site:7777/about.html](master-site:7777/about.html)
-* A video in [hidden-site:7777/aboutme.html](hidden-site:7777/aboutme.html). 
-* A form in [master-site:7777/contact.html](master-site:7777/contact.html). It doesn't gives feedback, because there is no PHP server, but the results are printed in the terminal.
-
-# Add
-
-If method minor is like 1.3, we refuse. We could to retrofit the request to 1.1, but we don't do it.
-
-We don't do chunk, we get the all buffer of the motor, then send it. More reliable because we can intercept a potential FCGI_STDERR, instead of sending the beginning of the page then realising that there is an error.
+* A JS script in [hidden-site:8080/index.html](hidden-site:8080/index.html). It changes randomly the background color of the page and the color of the text.
+* Images and icons in [master-site:8080/index.html](master-site:8080/index.html) and [hidden-site:8080/index.html](hidden-site:8080/index.html)
+* A pdf in [master-site:8080/about.html](master-site:8080/about.html)
+* A video in [hidden-site:8080/aboutme.html](hidden-site:8080/aboutme.html). 
+* A form in [master-site:8080/contact.html](master-site:8080/contact.html). It works with GET and POST, and prints the result on the page.

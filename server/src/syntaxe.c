@@ -595,6 +595,11 @@ int analyze(char* request,int clientID){
 	free(complete);
 	free(mime_type);
 	free(path);
+	if (query_sanitized!=NULL)
+	{
+		free(query_sanitized);
+	}
+	
 
 	free(connection);
 	free(accept_encoding);

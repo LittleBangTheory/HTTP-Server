@@ -1,21 +1,3 @@
-# Implémentation d'un moteur FastCGI 
-
-> Authors :
-> * Gabin Chognot
-> * Julien Da Costa
-> * Amelie Arnaud
-
-## Table of Contents
-- [Implémentation d'un moteur FastCGI](#implémentation-dun-moteur-fastcgi)
-  - [Table of Contents](#table-of-contents)
-- [Configuration](#configuration)
-  - [Apache](#apache)
-  - [PHP](#php)
-  - [Configuration du serveur](#configuration-du-serveur)
-  - [Test](#test)
-- [Specifications](#specifications)
-
-
 # Configuration
 
 ## Apache
