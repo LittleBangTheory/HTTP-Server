@@ -8,9 +8,10 @@
 	<header>
 		<nav>
 			<ul>
-				<li><a href="index.html">Home</a></li>
-				<li><a href="about.html">About</a></li>
-				<li><a href="contact.php">Contact</a></li>
+				<a href="index.html">Home</a>
+				<a href="about.html">About</a>
+				<a href="contact.php">Contact</a>
+				<a href="dir.php">Directory</a>
 			</ul>
 		</nav>
 	</header>
