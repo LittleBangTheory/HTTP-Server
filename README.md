@@ -10,7 +10,7 @@
 
 This is a fully functionnal HTTP server written in C. It is able to parse the requests, and answer accordingly, handling any media, plus PHP scripts, for HTTP/1.0 and HTTP/1.1, and for the GET, HEAD, and POST methods.
 
-More informations and documentation can be found in the `documents` folder.
+More informations and documentation can be found in the `documents` folder, and on the Wiki of this project.
 
 # Parser
 
