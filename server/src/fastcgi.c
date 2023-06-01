@@ -1,3 +1,9 @@
+/**
+ * @file fastcgi.c
+ * @brief FastCGI protocol implementation
+ * 
+ */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
