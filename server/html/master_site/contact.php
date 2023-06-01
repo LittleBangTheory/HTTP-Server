@@ -17,7 +17,7 @@
 	
 	<main>
 		<h1>Contact Me</h1>
-		<p>You can reach me by email at john@example.com or by phone at 555-555-5555.</p>
+		<p>You can reach me by email at ProjetHTTP@example.com</p>
 
 		<h1>Allow me to contact you</h1>
         <h2>You can use the GET method :</h2>
