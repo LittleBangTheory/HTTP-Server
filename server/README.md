@@ -40,7 +40,7 @@ A more suitable solution would be to modifie `/etc/hosts` to add the following l
 <ip>   hidden-site
 <ip>   master-site
 ```
-We recommand to use a local IP address, such as 127.0.0.2. The server is, however, listen to the 8080 port regardless of the IP address.
+We recommand to use a local IP address, such as 127.0.0.2. The server is, however, listening to the 8080 port regardless of the IP address.
 
 To do this, you can execute the following command in `server/src` (being in the sudousers is required) :
 ```
