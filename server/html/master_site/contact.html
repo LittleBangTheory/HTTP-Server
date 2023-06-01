@@ -29,7 +29,18 @@
 			
 			<button type="submit">Submit</button>
 		</form>		  
+		
 		<p>The name and email values will be printed to the terminal !</p>
+		<?php
+			if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+			$name = $_POST['name'];
+			$email = $_POST['email'];
+
+			echo "<h2>Submitted Data:</h2>";
+			echo "<p>Name: " . $name . "</p>";
+			echo "<p>Email: " . $email . "</p>";
+		}
+		?>
 	</main>
 	
 	<footer>
