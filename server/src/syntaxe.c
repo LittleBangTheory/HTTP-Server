@@ -571,8 +571,8 @@ int analyze(char* request,int clientID){
 				//if the transfer encoding needs to be chunked, it will be treated here during sprint 4
 				content_length = send_type_length(complete,clientID, mime_type);
 
-				// If the requested method is GET or POST, send the body. Otherwise, juste the headers.
-				if(strncmp(method,"GET",3)==0 || strncmp(method,"POST",4) == 0){
+				// If the requested method is GET, send the body. Otherwise, juste the headers.
+				if(strncmp(method,"GET",3)==0){
 					send_body(complete, clientID, content_length);
 				} else {
 					// It is a HEAD request, so we just complete the headers by the last CRLF 

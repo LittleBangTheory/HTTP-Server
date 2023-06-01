@@ -415,8 +415,10 @@ int process_php(char* filename, char* query_string, char* post_body, int post_bo
 		writeDirectClient(clientID,"\r\n",2);
 	}
 
-	// Send the answer data
-	writeDirectClient(clientID,answer_data,answer_len);
+	if(strcmp(method, "HEAD") != 0){
+		// Send the answer data
+		writeDirectClient(clientID,answer_data,answer_len);
+	}
 
 	// Free the memory
 	if(crlfcrlf != NULL){
