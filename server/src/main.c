@@ -39,7 +39,7 @@ int main()
     while (1)
     {
         // If we fail to open the connection of the port 7777, exit
-        if ((request=getRequest(80)) == NULL ) return -1;
+        if ((request=getRequest(8080)) == NULL ) return -1;
 
         // Debug information -> print the client informations and the request 
 		printf("[REQUEST FROM CLIENT %d -> %s:%d]\n",request->clientId,inet_ntoa(request->clientAddress->sin_addr),htons(request->clientAddress->sin_port)); 

@@ -100,4 +100,4 @@ void sendBeginRequest(int fd,unsigned short requestId,unsigned short role,unsign
 void sendAbortRequest(int fd,unsigned short requestId);
 void sendWebData(int fd,unsigned char type,unsigned short requestId,char *data,unsigned int len);
 int createSocket(int port);
-int process_php(char* filename, char* query_string, char* post_body, int post_body_len, char* method, int clientID, char* http_version);
+int process_php(char* filename, char* query_string, char* post_body, int post_body_len, char* method, int clientID, char* http_version, char* content_type);

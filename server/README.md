@@ -89,3 +89,9 @@ You can find :
 * A pdf in [master-site:7777/about.html](master-site:7777/about.html)
 * A video in [hidden-site:7777/aboutme.html](hidden-site:7777/aboutme.html). 
 * A form in [master-site:7777/contact.html](master-site:7777/contact.html). It doesn't gives feedback, because there is no PHP server, but the results are printed in the terminal.
+
+# Add
+
+If method minor is like 1.3, we refuse. We could to retrofit the request to 1.1, but we don't do it.
+
+We don't do chunk, we get the all buffer of the motor, then send it. More reliable because we can intercept a potential FCGI_STDERR, instead of sending the beginning of the page then realising that there is an error.

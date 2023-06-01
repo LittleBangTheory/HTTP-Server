@@ -264,11 +264,20 @@ int createSocket(int port)
  * @param response_code 
  * @return char* 
  */
-int process_php(char* filename, char* query_string, char* post_body, int post_body_len, char* method, int clientID, char* http_version){
+int process_php(char* filename, char* query_string, char* post_body, int post_body_len, char* method, int clientID, char* http_version, char* content_type){
 	// Init file descriptor, length, and headers
 	int fd;
 	size_t len;
 	FCGI_Header h;
+	int index=13;
+	if (content_type!=NULL)
+	{
+		while (content_type[index]==' ' || content_type[index]==':')
+		{
+			index++;
+		}
+	content_type=&content_type[index];
+	}
 	printf("Filename: %s\n query : %s\n post_body : %s\n post_body_len : %d\n method : %s\n", filename, query_string, post_body, post_body_len, method);
 
 	// Create socket
@@ -286,16 +295,27 @@ int process_php(char* filename, char* query_string, char* post_body, int post_bo
 
 	printf("Method: %s\n", method);
 	printf("filename: %s\n", filename);
+	printf("query_string: %s\n", query_string);
 
 	// Add the 2 required headers
 	addNameValuePair(&h,"REQUEST_METHOD",method); 
-	addNameValuePair(&h,"SCRIPT_FILENAME",filename); 
+	addNameValuePair(&h,"SCRIPT_FILENAME",filename);
+	
 
 	// If the request was a GET with a query string
 	if(strncmp(method,"GET",3) == 0 && query_string != NULL){
 		// Add query to QUERY_STRING
 		addNameValuePair(&h,"QUERY_STRING",query_string);
 	} 
+	else if(content_type!=NULL)
+	{
+		printf("post_body_len: %d\n", post_body_len);
+ 	    char str_body_length[10];
+		sprintf(str_body_length, "%d", post_body_len);
+		addNameValuePair(&h,"CONTENT_TYPE",content_type);
+		addNameValuePair(&h,"CONTENT_LENGTH",str_body_length);
+	}
+	
 
 	// Send the first param
 	writeSocket(fd,&h,FCGI_HEADER_SIZE+(h.contentLength)+(h.paddingLength)); 
@@ -305,7 +325,7 @@ int process_php(char* filename, char* query_string, char* post_body, int post_bo
 	h.paddingLength=0; 
 	writeSocket(fd,&h,FCGI_HEADER_SIZE+(h.contentLength)+(h.paddingLength));
 	
-	
+	printf("post_body: %s\n", post_body);
 	if(post_body != NULL) {
 		// Add post body to STDIN
 		sendStdin(fd, 10, post_body, post_body_len);
@@ -350,6 +370,10 @@ int process_php(char* filename, char* query_string, char* post_body, int post_bo
 
 	} while ((len != 0 ) && (h.type != FCGI_END_REQUEST)); 
 
+
+	// Send 200 OK and the http_version
+	send_version_code("200 OK", http_version, clientID);
+
 	// Search for a CRLFCRLF in answer_data
 	char* crlfcrlf = strstr(answer_data, "\r\n\r\n");
 	// If there is a CRLFCRLF
@@ -373,9 +397,6 @@ int process_php(char* filename, char* query_string, char* post_body, int post_bo
 		header_data = NULL;
 	}
 
-	// Send 200 OK and the http_version
-	send_version_code("200 OK", http_version, clientID);
-
 	// Send the content-length
 	// Allocate the memory
     char* content_length = calloc(strlen("Content-Length: ")+answer_len+2,sizeof(char));
@@ -398,8 +419,11 @@ int process_php(char* filename, char* query_string, char* post_body, int post_bo
 	writeDirectClient(clientID,answer_data,answer_len);
 
 	// Free the memory
-	free(answer_data);
-	free(header_data);
+	if(crlfcrlf != NULL){
+		free(answer_data);
+		free(header_data);
+		free(temp_data);
+	}
 	free(content_length);
 	return EXIT_SUCCESS;
 }

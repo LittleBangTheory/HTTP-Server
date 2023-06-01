@@ -272,7 +272,7 @@ char* get_extension(char* filename){
 
     mime_type = magic_file(magic_cookie, filename);
     // If type is a plain/text, we need to check if it is a CSS or a XML file 
-    if(strcmp(mime_type,"text/plain") == 0){
+    if(strstr(mime_type,"text/") != NULL){
 		char* extension = strrchr(filename, '.');
         // If the file is a CSS file
         if(!strcmp(extension,".css")){
@@ -282,6 +282,9 @@ char* get_extension(char* filename){
         else if(!strcmp(extension,".xml")){
             mime_type = "text/xml";
         }
+		else if(!strcmp(extension,".php")){
+			mime_type = "text/x-php";
+		}
     } 
     // If it is a text, add the encoding
     if(strstr(mime_type,"text") != NULL){
@@ -373,6 +376,7 @@ int analyze(char* request,int clientID){
 	int isQueryPresent=0;
 	char* query = NULL;
 	int index_query=0;
+	char* query_sanitized=NULL;
 	while (index_query<target_query_length && !isQueryPresent)
 	{
 		if (request_target[index_query]=='?')
@@ -383,9 +387,13 @@ int analyze(char* request,int clientID){
 	}
 	if (isQueryPresent)
 	{
-	query = getElementValue(Tquery->node,&query_length); // PAS UN HEADER !
-	printf("QUERY DETECTED : %.*s\n",query_length,query);
+		query = getElementValue(Tquery->node,&query_length); // PAS UN HEADER !
+		//printf("QUERY DETECTED : %.*s\n",query_length,query);
+		query_sanitized = calloc(query_length,sizeof(char));
+		strncpy(query_sanitized,query,query_length);
+		printf("QUERY DETECTED : %s\n",query_sanitized);
 	}
+
 
 	// Get the headers
 	int nbreHosts, nbre_referer, nbrContentLength;
@@ -395,6 +403,21 @@ int analyze(char* request,int clientID){
 	char* hostPTR = host;
 	char* referer = getHeaderValue(allHeaders,"Referer",&nbre_referer);
 	char* request_content_length = getHeaderValue(allHeaders, "Content-Length", &nbrContentLength);
+	char* content_type = getHeaderValue(allHeaders, "Content-Type", &nbrContentLength);
+	
+	// If there is a content-type field
+	/*
+	char* content_type_data=NULL;
+	if(content_type != NULL){
+		// Get the content-type
+		char* end_content_type = strstr(content_type, "\r\n");
+		int content_type_length = end_content_type - content_type;
+		content_type_data = calloc(content_type_length, sizeof(char));
+		strncpy(content_type_data, content_type, content_type_length);
+	}	
+	*/
+
+	
 	int index_CL=14;
 	//Parsing Content-length
 	if (request_content_length!=NULL){
@@ -486,7 +509,7 @@ int analyze(char* request,int clientID){
 	FILE* file = fopen(complete,"r");
 
 	if(strncmp(method, "POST", 4) == 0 && isStatic(mime_type)){
-		strcpy(method, "GET");
+		method = "GET";
 		method_length -= 1;
 	}
 
@@ -534,7 +557,7 @@ int analyze(char* request,int clientID){
 			fclose(file);
 			// If the request is a POST, process the data
 			if (strncmp(mime_type, "text/x-php", 10) == 0){
-				int res = process_php(complete, query, body, body_length, method, clientID, version2);
+				int res = process_php(complete, query_sanitized, body, body_length, method, clientID, version2, content_type);
 				if (!res){
 					returnValue=ERROR;
 				} else {
@@ -577,6 +600,7 @@ int analyze(char* request,int clientID){
 	free(accept_encoding);
 	free(hostPTR);
 	free(referer);
+	//free(content_type_data);
 
 	// Allocated by the parser
 
