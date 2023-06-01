@@ -9,6 +9,8 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include "../headers/fastcgi.h"
+#include "../headers/request.h"
+#include "../headers/answer.h"
 
 #define sendStdin(fd,id,stdin,len) sendWebData(fd,FCGI_STDIN,id,stdin,len)
 #define sendData(fd,id,data,len) sendWebData(fd,FCGI_DATA,id,data,len)
@@ -262,7 +264,7 @@ int createSocket(int port)
  * @param response_code 
  * @return char* 
  */
-char* process_php(char* filename, char* query_string, char* post_body, int post_body_len, char* method, int* response_code){
+int process_php(char* filename, char* query_string, char* post_body, int post_body_len, char* method, int clientID, char* http_version){
 	// Init file descriptor, length, and headers
 	int fd;
 	size_t len;
@@ -281,6 +283,9 @@ char* process_php(char* filename, char* query_string, char* post_body, int post_
 	h.requestId=htons(10); 
 	h.contentLength=0; 
 	h.paddingLength=0; 
+
+	printf("Method: %s\n", method);
+	printf("filename: %s\n", filename);
 
 	// Add the 2 required headers
 	addNameValuePair(&h,"REQUEST_METHOD",method); 
@@ -309,6 +314,7 @@ char* process_php(char* filename, char* query_string, char* post_body, int post_
 	// Return processed data
 	char* answer_data = "\0";
 	char* temp_data;
+	char* header_data = "\0";
 	int answer_len = 0;
 
 	do {	
@@ -316,19 +322,19 @@ char* process_php(char* filename, char* query_string, char* post_body, int post_
 		printf("data: %.*s\n",h.contentLength,h.contentData);
 
 		if(h.type == FCGI_STDOUT) {
-		// Store the current answer data in another variable
-		char* temp_data = answer_data;
-		// Allocate memory for the new answer data
-		answer_data = calloc(answer_len + h.contentLength, sizeof(char));
-		strncpy(answer_data, temp_data, answer_len);
-		strncat(answer_data, h.contentData, h.contentLength);
+			// Store the current answer data in another variable
+			char* temp_data = answer_data;
+			// Allocate memory for the new answer data
+			answer_data = calloc(answer_len + h.contentLength, sizeof(char));
+			strncpy(answer_data, temp_data, answer_len);
+			strncat(answer_data, h.contentData, h.contentLength);
 
-		if(*temp_data != '\0'){ // Only free if not the first iteration
-			free(temp_data);
-		}
+			if(*temp_data != '\0'){ // Only free if not the first iteration
+				free(temp_data);
+			}
 
-		// Add the length of the current data to the total length
-		answer_len += h.contentLength;
+			// Add the length of the current data to the total length
+			answer_len += h.contentLength;
 
 		} else if(h.type == FCGI_STDERR) {
 			printf("error: %.*s\n",h.contentLength,h.contentData);
@@ -336,13 +342,64 @@ char* process_php(char* filename, char* query_string, char* post_body, int post_
 				free(answer_data);
 			}
 
-			*response_code = 500;
-
-			// Return the error
-			return NULL;
+			send_version_code("500 Internal Server Error", http_version, clientID);
+			int content_length = send_type_length("../html/errors/500.html",clientID, "text/html");
+			send_body("../html/errors/500.html", clientID, content_length);
+			return EXIT_FAILURE;
 		}
 
 	} while ((len != 0 ) && (h.type != FCGI_END_REQUEST)); 
 
-	return answer_data;
+	// Search for a CRLFCRLF in answer_data
+	char* crlfcrlf = strstr(answer_data, "\r\n\r\n");
+	// If there is a CRLFCRLF
+	int header_len = 0;
+	if(crlfcrlf != NULL){
+		// Calculate the length of the header data (including the CRLFCRLF)
+		header_len = crlfcrlf - answer_data + 4;
+		// Allocate memory for the header data
+		header_data = calloc(header_len, sizeof(char));
+		// Copy the header data into the header_data variable
+		strncpy(header_data, answer_data, header_len);
+		// Calculate the length of the answer data
+		answer_len -= header_len;
+		// Allocate memory for the answer data
+		temp_data = answer_data;
+		answer_data = calloc(answer_len, sizeof(char));
+		// Copy the answer data into the answer_data variable
+		strncpy(answer_data, &temp_data[header_len], answer_len);
+	} else {
+		// If there is no CRLFCRLF, set the header data to NULL
+		header_data = NULL;
+	}
+
+	// Send 200 OK and the http_version
+	send_version_code("200 OK", http_version, clientID);
+
+	// Send the content-length
+	// Allocate the memory
+    char* content_length = calloc(strlen("Content-Length: ")+answer_len+2,sizeof(char));
+    // Concatenate the string
+    sprintf(content_length, "Content-Length: %d\r\n", answer_len);
+    printf("%s", content_length);
+    // Send the string
+    writeDirectClient(clientID,content_length,strlen(content_length));
+
+	// If there is a header returned by the PHP motor
+	if(header_len){	
+		// Send the headers returned by the PHP motor
+		writeDirectClient(clientID,header_data,header_len);
+	} else {
+		// Send a CRLF to indicate the end of the headers
+		writeDirectClient(clientID,"\r\n",2);
+	}
+
+	// Send the answer data
+	writeDirectClient(clientID,answer_data,answer_len);
+
+	// Free the memory
+	free(answer_data);
+	free(header_data);
+	free(content_length);
+	return EXIT_SUCCESS;
 }

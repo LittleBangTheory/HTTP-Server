@@ -334,7 +334,7 @@ int analyze(char* request,int clientID){
 		char* version3 = "HTTP/1.1";
 		send_version_code("400 Bad Request", version3, clientID);
 		int content_length2 = send_type_length("../html/errors/400.html",clientID, "text/html");
-		send_body("../html/errors/400.html",NULL,clientID, content_length2);
+		send_body("../html/errors/400.html",clientID, content_length2);
 		return ERROR;
 		}
 
@@ -352,6 +352,13 @@ int analyze(char* request,int clientID){
 	// Get the method and its length
 	int method_length;
 	char* method = getElementValue(Tmethod->node,&method_length); // PAS UN HEADER !
+	if(strncmp(method,"GET",3) == 0){
+		method = "GET";
+	} else if (strncmp(method, "POST", 4) == 0){
+		method = "POST";
+	} else if (strncmp(method, "HEAD", 4) == 0){
+		method = "HEAD";
+	}
 
 	// Get the target and its length (query included)
 	int target_query_length;
@@ -492,59 +499,64 @@ int analyze(char* request,int clientID){
 		} else if(strncmp(method,"GET",3) && strncmp(method,"HEAD",4) && strncmp(method,"POST",4)){
 			send_version_code("501 Not Implemented", version2, clientID);
 		content_length = send_type_length("../html/errors/400.html",clientID, "text/html");
-		send_body("../html/errors/400.html", NULL, clientID, content_length);
+		send_body("../html/errors/400.html", clientID, content_length);
 		returnValue=ERROR;
 	// If the request target tries to reach a parent directory, send a 403 Forbidden
 	} else {
 		// If it is a POST request, process the data before sending the page
 		int response_code = 200;
-		char* data;
-		if (strncmp(mime_type, "text/x-php", 10) == 0){
-			data = process_php(complete, query, body, body_length, version2, &response_code);
-		// Otherwise, it is a GET of HEAD request
-		}
 		// Declare the relative path to fetch the pages
 		if(strncmp(method,"POST",4) && clean_target!=NULL && !existing(clean_target,target_length, path, pathLen)){/*le fichier n'existe pas*/
 			send_version_code("404 Not Found", version2, clientID);
 			content_length = send_type_length("../html/errors/404.html",clientID, "text/html");
-			send_body("../html/errors/404.html", NULL, clientID, content_length);
+			send_body("../html/errors/404.html", clientID, content_length);
 			returnValue=ERROR;
 		// If the HTTP version is not supported, send a 505 HTTP Version Not Supported
 		} else if(strncmp(version,"HTTP/1.0",8) && strncmp(version,"HTTP/1.1",8)){
 			send_version_code("505 HTTP Version Not Supported", "HTTP/1.0", clientID);
 			content_length = send_type_length("../html/errors/505.html",clientID, "text/html");
-			send_body("../html/errors/505.html", NULL, clientID, content_length);
+			send_body("../html/errors/505.html", clientID, content_length);
 			returnValue=ERROR;
 
 		// If the method is not supported, send a 501 Not Implemented
 		} else if(strncmp(method,"GET",3) && strncmp(method,"HEAD",4) && strncmp(method,"POST",4)){
 			send_version_code("501 Not Implemented", version2, clientID);
 			content_length = send_type_length("../html/errors/501.html",clientID, "text/html");
-			send_body("../html/errors/501.html", NULL, clientID, content_length);
+			send_body("../html/errors/501.html", clientID, content_length);
 		// If we can't open the file or get the type, send a 500 Internal Server Error
 		} else if(strncmp(method, "POST", 4) != 0 && ((file == NULL || mime_type == NULL) || response_code != 200)){
 			send_version_code("500 Internal Server Error", version2, clientID);
 			content_length = send_type_length("../html/errors/500.html",clientID, "text/html");
-			send_body("../html/errors/500.html", NULL, clientID, content_length);
+			send_body("../html/errors/500.html", clientID, content_length);
 		// Else, the request is valid
 		} else {
 			// If we got in here, we can close the file to reopen it in the body() function
 			fclose(file);
-			// Send the 200 OK code (+ date and server header)
-			send_version_code("200 OK", version2, clientID);
-
-			//if the transfer encoding needs to be chunked, it will be treated here during sprint 4
-			content_length = send_type_length(complete,clientID, mime_type);
-
-			// If the requested method is GET or POST, send the body. Otherwise, juste the headers.
-			if(strncmp(method,"GET",3)==0 || strncmp(method,"POST",4) == 0){
-				send_body(complete, data, clientID, content_length);
+			// If the request is a POST, process the data
+			if (strncmp(mime_type, "text/x-php", 10) == 0){
+				int res = process_php(complete, query, body, body_length, method, clientID, version2);
+				if (!res){
+					returnValue=ERROR;
+				} else {
+					returnValue=OK;
+				}
+			// Otherwise, it is a GET of HEAD request
 			} else {
-				// It is a HEAD request, so we just complete the headers by the last CRLF 
-				writeDirectClient(clientID,"\r\n",2);
-			}
+				// Send the 200 OK code (+ date and server header)
+				send_version_code("200 OK", version2, clientID);
 
-			returnValue=OK;
+				//if the transfer encoding needs to be chunked, it will be treated here during sprint 4
+				content_length = send_type_length(complete,clientID, mime_type);
+
+				// If the requested method is GET or POST, send the body. Otherwise, juste the headers.
+				if(strncmp(method,"GET",3)==0 || strncmp(method,"POST",4) == 0){
+					send_body(complete, clientID, content_length);
+				} else {
+					// It is a HEAD request, so we just complete the headers by the last CRLF 
+					writeDirectClient(clientID,"\r\n",2);
+				}
+				returnValue=OK;
+			}
 			printf("Connection : %s\n",connection);
 			if (connection != NULL && strstr(connection,"keep-alive")!=NULL)
 			{
