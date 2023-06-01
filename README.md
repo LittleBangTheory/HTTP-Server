@@ -1,52 +1,39 @@
 # Projet-HTTP
 
-# Releases
+## Authors
 
-## Documentation RFC :
-  * [RFC 9110](https://www.rfc-editor.org/rfc/rfc9110) (HTTP Semantics) - [Summary](https://www.bortzmeyer.org/9110.html) :
-    * [ ] Chapitre 1 - Introduction.
-    * [ ] Chapitre 3 - Terminology and Core Concepts.
-    * [ ] Chapitre 6 - Message Abstraction.
-    * [ ] Chapitre 7 - Routing HTTP Messages.
-    * [ ] Chapitre 9 - Methods.
-    * [ ] Chapitre 15 - Status Codes
-    * [ ] Chapitre 17 - Security Considerations.
-  * [RFC 9112](https://www.rfc-editor.org/rfc/rfc9112) (HTTP/1.1) - [Summary](https://www.bortzmeyer.org/9112.html) :
-    * [ ] Chapitre 2 - Message
-    * [ ] Chapitre 3 - Request Line
-    * [ ] Chapitre 5 - Field Syntax
-    * [ ] Chapitre 3 - Request Line
-    * [ ] Chapitre 6 - Message Body
-    * [ ] Chapitre 11 - Security Considerations
+* Gabin CHOGNOT
+* Julien DA COSTA
+* Amelie ARNAUD
 
-## Release 2 : Réalisation du parseur HTTP selon la grammaire Chamilo
+# About the project
 
-### Sprint 1 - 07/03/2023 : Réaliser un parseur pour la *simplegrammar* indiquée sur chamilo.
-* Analyser les fichiers de tests fournis.
-* Objectif -> Valider sur un PoC la capacité à réaliser un parseur plus évolué.
-* Matériel : un répertoire *simplegrammar* 
-	* Grammaire abnf simple 
-	* Fichiers de test (syntaxe valide) 
-	* Un parseur de cette grammaire qui peut analyser les fichiers de tests et servir de référence 
-Etat : Validé - Voir le dossier [simplegrammar](parser/simplegrammar)
+This is a fully functionnal HTTP server written in C. It is able to parse the requests, and answer accordingly, handling any media, plus PHP scripts, for HTTP/1.0 and HTTP/1.1, and for the GET, HEAD, and POST methods.
 
+More informations and documentation can be found in the `documents` folder.
 
-### Sprint 2 - 31/03/2023 : Réaliser le parseur des éléments de la grammaire HTTP
-* Objectifs
-  * [ ] Réception des requêtes, vérification syntaxique et sémantique
-  * [ ] Gestion des entêtes HTTP
-  * [ ] Normalisation de l'URL
-  * [ ] Gestion de l'accès aux fichiers et type mime (basé sur l'extension) et le charset par défaut, gestion multi-sites
-  * [ ] Optionnel : Gestion des encodages : Chunked / Deflate / gzip
-* Matériel : 
-  * Répertoire *arbres* qui formalise de manière visuelle l'arbre issu du parseur. 
-  * Parseur http qui peut servir de référence 
-  * Jeu de test simple *premier-jeu-test.tar.gz* qui contient des messages HTTP (certains sont valides, et d'autres non, je vous laisse en exercice le soin de trouver pourquoi)
-  Fichier *api.h*  et *main.c* pour l'interface et son usage. 
-  * Jeu de test hardcore pour vérifier votre parseur 
+# Parser
 
-## Release 3 : Interfaces
-### Sprint 4 :
-  * [ ] Gestion de l'interface fastCGI
-  * [ ] Gestion des réceptions fastCGI/émission HTTP
-  * [ ] Démonstration avec un serveur d'application PHP
+## PoC
+
+`simplegrammarparser/` contains a PoC of a parser for a simple grammar, written in C, that was used as a base for building a more complex parser. It contains it's own simple grammar and test files.
+
+## HTTP Parser
+
+The parser in `parser/` can parse any HTTP request following the grammar in `parser/rfc/allrfc.abnf`, and display it as a tree, or search for a specific fields and for its number of occurences.
+
+# HTTP Server
+
+For more detailled instructions and informations, see `server/`
+
+The server handles : 
+  * [x] Reception of the requests
+  * [x] Syntax and semantic verification.
+  * [x] HTTP headers
+  * [x] URL normalization
+  * [x] Gestion de l'accès aux fichiers et type mime (basé sur l'extension) et le charset par défaut, gestion multi-sites
+  * [x] Access to files using their mime type (or their extension) and the default charset
+  * [x] Multi-sites management
+  * [ ] Optional : Encoding management : Chunked / Deflate / gzip
+  * [x] fastCGI interface management to receive and send requests to the PHP motor
+
