@@ -20,3 +20,6 @@ simplegrammarparser/html/
 server/src/server.exe
 server/src/*.o
 server/documentation/
+
+documents/html/
+documents/latex/

@@ -1,5 +1,7 @@
 # README HTTP Server
 
+Some detailled documentation is available in the `documentation` folder.
+
 ## Authors
 * Gabin Chognot
 * Julien Da Costa
