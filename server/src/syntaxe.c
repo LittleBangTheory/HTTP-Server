@@ -234,12 +234,6 @@ char* percent_encoding(char* request, int freeRequest){
     }
 
 	// Free the memory of the initial string if needed
-	/*
-	if (freeRequest){
-		free(request);
-	}
-	printf("b : %s\n",b);
-	*/
 	free(request);
 	request = malloc(sizeof(char)*strlen(b));
 	strcpy(request,b);
@@ -404,19 +398,6 @@ int analyze(char* request,int clientID){
 	char* referer = getHeaderValue(allHeaders,"Referer",&nbre_referer);
 	char* request_content_length = getHeaderValue(allHeaders, "Content-Length", &nbrContentLength);
 	char* content_type = getHeaderValue(allHeaders, "Content-Type", &nbrContentLength);
-	
-	// If there is a content-type field
-	/*
-	char* content_type_data=NULL;
-	if(content_type != NULL){
-		// Get the content-type
-		char* end_content_type = strstr(content_type, "\r\n");
-		int content_type_length = end_content_type - content_type;
-		content_type_data = calloc(content_type_length, sizeof(char));
-		strncpy(content_type_data, content_type, content_type_length);
-	}	
-	*/
-
 	
 	int index_CL=14;
 	//Parsing Content-length
