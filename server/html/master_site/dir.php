@@ -8,15 +8,16 @@
 	<header>
 		<nav>
 			<ul>
-				<li><a href="index.html">Home</a></li>
-				<li><a href="about.php">About</a></li>
-				<li><a href="contact.php">Contact</a></li>
-                <li><a href="dir.php">Directory</a></li>
+				<a href="index.html">Home</a>
+				<a href="about.php">About</a>
+				<a href="contact.php">Contact</a>
+                <a href="dir.php">Directory</a>
 			</ul>
 		</nav>
 	</header>
 	
 	<main>
+        <h1>Root directory list :</h1>
     <section>
         <ul>
             <?php
