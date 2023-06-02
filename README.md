@@ -34,6 +34,5 @@ The server handles :
   * [x] Gestion de l'accès aux fichiers et type mime (basé sur l'extension) et le charset par défaut, gestion multi-sites
   * [x] Access to files using their mime type (or their extension) and the default charset
   * [x] Multi-sites management
-  * [ ] Optional : Encoding management : Chunked / Deflate / gzip
   * [x] fastCGI interface management to receive and send requests to the PHP motor
 
