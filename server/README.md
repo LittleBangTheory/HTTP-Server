@@ -2,6 +2,8 @@
 
 Some detailled documentation, including a Doxygen Doc, is available in the `documentation` folder.
 
+Run `./archive.sh` to create an archive of the project.
+
 ## Authors
 * Gabin Chognot
 * Julien Da Costa
