@@ -333,7 +333,7 @@ int analyze(char* request,int clientID){
 		int content_length2 = send_type_length("../html/errors/400.html",clientID, "text/html");
 		send_body("../html/errors/400.html",clientID, content_length2);
 		return ERROR;
-		}
+	}
 
 	_Token* Tmethod = call_parser(request,"method",&occurences,&validSyntax,&trees[1]);
 	_Token* allHeaders = call_parser(request,"header_field",&occurences,&validSyntax,&trees[2]);

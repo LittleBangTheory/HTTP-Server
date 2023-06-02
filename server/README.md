@@ -18,7 +18,6 @@ Some detailled documentation is available in the `documentation` folder.
   - [Compilation](#compilation)
   - [Execution](#execution)
 - [Conception](#conception)
-  - [Architecture](#architecture)
 - [Tests](#tests)
 
 # How to use
@@ -67,18 +66,24 @@ To execute the server, you can execute the following command(s) in `server/src` 
 
 # Conception
 
-## Architecture
-
-* The server hosts two sites : master-site and hidden-site.
+The server was built with the following architecture :
+* It hosts two sites : master-site and hidden-site.
   * If no host specified in HTTP/1.0, the default host (master-site) is used.
 * If the "/" target is asked, the target is changed to "/index.html". 
-* The server supports GET, HEAD, and POST requests
-* The server supports percent encoding.
-* The server supports dot segment removal.
+* It supports GET, HEAD, and POST requests
+* It supports percent encoding.
+* It supports dot segment removal.
 * The sever supports any media type, plus TXT, HTML, CSS, and JS files. 
 * If the client request a HTTP Version other than 1.0 or 1.1, we send a 505 (HTTP Version not supported) error. An other conception choice would have been to retrofit to 1.1 if the version was 1.x (with x > 1).
-* The server doesn't use chunked transfer encoding to send the answer to the PHP motor, it stores the answer in a buffer then sends it. 
-  * It is more reliable because we can intercept a potential FCGI_STDERR and answer accordingly, instead of sending the beginning of the page then realising that there is an error.
+* It doesn't use chunked transfer encoding to send the answer to the PHP motor, it stores the answer in a buffer then sends it, we found this being more reliable.
+
+The server handles the following error codes :
+  * 200 : OK
+  * 400 : Bad Request
+  * 404 : Not Found
+  * 501 : Not Implemented
+  * 500 : Internal Server Error
+  * 505 : HTTP Version not supported
 
 # Tests
 
