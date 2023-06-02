@@ -906,12 +906,16 @@ WARN_LOGFILE           =
 # spaces. See also FILE_PATTERNS and EXTENSION_MAPPING
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = D:/Gabin/Virtualbox/Kali-Linux-2020.1-vbox-amd64/kali_shared_folder/projet_http/code_projet_http/server/src \
-                         D:/Gabin/Virtualbox/Kali-Linux-2020.1-vbox-amd64/kali_shared_folder/projet_http/code_projet_http/server/headers \
-                         D:/Gabin/Virtualbox/Kali-Linux-2020.1-vbox-amd64/kali_shared_folder/projet_http/code_projet_http/parser/headers \
-                         D:/Gabin/Virtualbox/Kali-Linux-2020.1-vbox-amd64/kali_shared_folder/projet_http/code_projet_http/parser/src \
-                         D:/Gabin/Virtualbox/Kali-Linux-2020.1-vbox-amd64/kali_shared_folder/projet_http/code_projet_http/simplegrammarparser/src \
-                         D:/Gabin/Virtualbox/Kali-Linux-2020.1-vbox-amd64/kali_shared_folder/projet_http/code_projet_http/simplegrammarparser/headers
+INPUT                  = ../server/src \
+                         ../server/headers \
+                         ../server/README.md \
+                         ../parser/headers \
+                         ../parser/src \
+                         ../parser/README.md \
+                         ../simplegrammarparser/src \
+                         ../simplegrammarparser/ \
+                         ../simplegrammarparser/README.md \
+                         ../README.md
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
@@ -1109,7 +1113,7 @@ FILTER_SOURCE_PATTERNS =
 # (index.html). This can be useful if you have a project on for instance GitHub
 # and want to reuse the introduction page also for the doxygen output.
 
-USE_MDFILE_AS_MAINPAGE =
+USE_MDFILE_AS_MAINPAGE = ../README.md
 
 #---------------------------------------------------------------------------
 # Configuration options related to source browsing
