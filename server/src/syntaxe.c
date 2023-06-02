@@ -586,6 +586,9 @@ int analyze(char* request,int clientID){
 	free(accept_encoding);
 	free(hostPTR);
 	free(referer);
+	if(request_content_length != NULL){
+		free(request_content_length);
+	}
 	//free(content_type_data);
 
 	// Allocated by the parser
