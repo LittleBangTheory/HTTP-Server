@@ -544,7 +544,7 @@ int analyze(char* request,int clientID){
 				} else {
 					returnValue=OK;
 				}
-			// Otherwise, it is a GET of HEAD request
+			// Otherwise, it is a GET of HEAD requestrequest_content_length
 			} else {
 				// Send the 200 OK code (+ date and server header)
 				send_version_code("200 OK", version2, clientID);
@@ -586,9 +586,6 @@ int analyze(char* request,int clientID){
 	free(accept_encoding);
 	free(hostPTR);
 	free(referer);
-	if(request_content_length != NULL){
-		free(request_content_length);
-	}
 	//free(content_type_data);
 
 	// Allocated by the parser
