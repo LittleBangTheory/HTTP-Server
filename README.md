@@ -2,9 +2,9 @@
 
 ## Authors
 
-* Gabin CHOGNOT
-* Julien DA COSTA
-* Amelie ARNAUD
+* LittleBangTheory
+* Spectraal
+* Kaaldra
 
 # About the project
 
