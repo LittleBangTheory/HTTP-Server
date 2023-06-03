@@ -6,14 +6,15 @@ parser/*.tgz
 
 simplegrammarparser/testFile
 simplegrammarparser/simplegrammar.exe
-simplegrammarparser/abnf.o
 simplegrammarparser/validations.txt
 simplegrammarparser/html/
 
-.vscode/
 server/src/server.exe
 server/src/*.o
 server/documentation/
 
 documents/html/
 documents/latex/
+documents/introduction_apache
+
+.vscode/
