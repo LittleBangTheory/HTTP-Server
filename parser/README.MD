@@ -1,7 +1,5 @@
 # HTTP Parser
 
-## Authors
-Gabin Chognot, Julien Da Costa, Amelie Arnaud
 ## Description
 
 Parser for the entire HTTP grammar. The programme can parse a request of the HTTP grammar (see the [ABNF](rfc/allrfc.abnf)), by generating a tree that contains the different elements of the request, in the form of a chained list.

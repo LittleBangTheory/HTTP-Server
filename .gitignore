@@ -1,12 +1,8 @@
-parser/alltests/hardtests
-parser/alltests/simpletests
-parser/alltests/mediumtests
-
+parser/alltests/
 parser/rfc/arbres
 parser/html/
-
 parser/*.o
-parser/ourParser
+parser/*.tgz
 
 simplegrammarparser/testFile
 simplegrammarparser/simplegrammar.exe
@@ -15,8 +11,6 @@ simplegrammarparser/validations.txt
 simplegrammarparser/html/
 
 .vscode/
-.vscode/tasks.json
-.vscode/launch.json
 server/src/server.exe
 server/src/*.o
 server/documentation/
