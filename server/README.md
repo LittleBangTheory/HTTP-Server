@@ -53,6 +53,13 @@ make hosts
 
 ## Compilation
 
+Before compilation, in `server/src`, export lib path and install libmagic : 
+```
+export LD_LIBRARY_PATH=.
+sudo apt-get update
+sudo apt-get -y install libmagic-dev
+```
+
 To compile the server, you can execute the following command(s) in `server/src` :
 ```Makefile
 make clean #If needed
